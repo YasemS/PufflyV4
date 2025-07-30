@@ -8,7 +8,11 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
-import "./app.css";
+import "~/app.css";
+
+import Announcement from "~/components/partials/Announcement";
+import Nav from "~/components/partials/Nav";
+import MobileNav from "./components/partials/MobileNav";
 
 export const links: Route.LinksFunction = () => [
   {
@@ -27,7 +31,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
+        <Announcement />
+
+        <Nav />
+        <MobileNav />
+
         {children}
+
         <ScrollRestoration />
         <Scripts />
       </body>
