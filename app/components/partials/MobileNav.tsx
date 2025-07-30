@@ -36,7 +36,7 @@ function MobileNavLink({ icon, text, to, ...props }: MobileNavLinkProps) {
 
 export default function MobileNav() {
   return (
-    <nav className="grid grid-cols-4 fixed bottom-0 left-0 w-full h-16 bg-zinc-950 border-y border-zinc-800">
+    <nav className="grid grid-cols-4 fixed bottom-0 left-0 w-full h-16 bg-zinc-950 border-y border-zinc-800 z-10">
       <MobileNavLink icon={<ShoppingBag />} text="products" to="/products" />
       <MobileNavLink icon={<Gem />} text="rewards" to="/rewards" />
       <MobileNavLink icon={<CircleQuestionMark />} text="help" to="/help" />
