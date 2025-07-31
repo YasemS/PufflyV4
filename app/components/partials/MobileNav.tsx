@@ -20,7 +20,7 @@ function MobileNavLink({ icon, text, to, ...props }: MobileNavLinkProps) {
     <NavLink
       className={({ isActive }) =>
         cn(
-          "flex flex-col gap-1 items-center justify-center border-r border-zinc-800 text-zinc-300",
+          "flex flex-col gap-1 items-center justify-center border-r border-zinc-800 text-zinc-300 last:border-r-0",
           isActive && to !== "#" && "text-white underline underline-offset-2"
         )
       }
@@ -36,7 +36,7 @@ function MobileNavLink({ icon, text, to, ...props }: MobileNavLinkProps) {
 
 export default function MobileNav() {
   return (
-    <nav className="grid grid-cols-4 fixed bottom-0 left-0 w-full h-16 bg-zinc-950 border-y border-zinc-800 z-10">
+    <nav className="grid grid-cols-4 fixed bottom-0 left-0 w-full h-16 bg-zinc-800/25 border-y border-zinc-800 backdrop-blur-xl z-10">
       <MobileNavLink icon={<ShoppingBag />} text="products" to="/products" />
       <MobileNavLink icon={<Gem />} text="rewards" to="/rewards" />
       <MobileNavLink icon={<CircleQuestionMark />} text="help" to="/help" />
