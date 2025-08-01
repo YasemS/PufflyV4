@@ -165,7 +165,7 @@ function RewardsItem() {
 
 function RewardsItemScroller() {
   const [showStartGradient, setShowStartGradient] = useState(false);
-  const [showEndGradient, setShowEndGradient] = useState(false);
+  const [showEndGradient, setShowEndGradient] = useState(true);
 
   function onScroll(e: React.UIEvent<HTMLDivElement>) {
     const scrolled = e.currentTarget.scrollLeft;
