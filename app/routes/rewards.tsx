@@ -240,20 +240,16 @@ type RewardsEarnCardProps = {
 
 function RewardsEarnCard({ title, description, icon }: RewardsEarnCardProps) {
   return (
-    <div className="flex items-center gap-3 relative w-full p-3 pl-4 bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl rounded overflow-hidden">
-      <div className="absolute top-0 left-0 w-1 h-full bg-pink-500"></div>
+    <div className="flex flex-col relative w-full p-3 bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl rounded overflow-hidden">
+      <div className="flex items-center gap-2">
+        <div className="flex items-center w-5 h-5 text-pink-500">{icon}</div>
 
-      <div className="flex flex-col w-full">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 text-pink-500">{icon}</div>
-
-          <H3 className="text-base leading-4">{title}</H3>
-        </div>
-
-        <p className="mt-2 pt-2 border-t border-zinc-700 text-zinc-300 text-xs font-medium leading-4">
-          {description}
-        </p>
+        <H3 className="text-base leading-4">{title}</H3>
       </div>
+
+      <p className="mt-2 pt-2 border-t border-zinc-700 text-zinc-300 text-xs font-medium leading-4">
+        {description}
+      </p>
     </div>
   );
 }
