@@ -100,7 +100,11 @@ function ProductCard(product: ProductCardProps) {
       className="p-3 bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl rounded-lg"
       to={`/product/${product.slug}`}
     >
-      <img alt={product.name} src={product.image} />
+      <img
+        className="block w-full aspect-square object-contain"
+        alt={product.name}
+        src={product.image}
+      />
 
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-zinc-700 text-zinc-300 text-xs leading-3">
         <p>{product.brand.name}</p>
