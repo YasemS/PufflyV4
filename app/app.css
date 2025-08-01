@@ -23,3 +23,14 @@ body {
 
   @apply text-white bg-zinc-950;
 }
+
+.no-scroll {
+  scrollbar-width: none;
+}
+
+.no-scroll::-webkit-scrollbar,
+.no-scroll::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}

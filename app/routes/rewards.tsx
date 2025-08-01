@@ -1,4 +1,4 @@
-import { Badge, Lock, MoveRight } from "lucide-react";
+import { Badge, Globe, Lock, MoveRight, ShoppingBag } from "lucide-react";
 import cn from "~/lib/cn";
 
 import { H1, H2, H3 } from "~/components/Heading";
@@ -14,41 +14,9 @@ export default function Rewards() {
 
       <RewardsHero />
 
-      <div className="mt-12">
-        <H2>items</H2>
+      <RewardsItems />
 
-        <div className="grid grid-cols-2 gap-2 mt-2">
-          <div className="w-full p-4 bg-zinc-900 rounded-lg opacity-25">
-            <img
-              src="https://cdn.puffly.io/img/products/geek-bar-pulse/blue-razz-ice.png"
-              alt=""
-            />
-
-            <p className="mt-2 text-sm text-center font-semibold leading-5">
-              geek bar pulse
-            </p>
-
-            <p className="text-zinc-300 text-xs text-center leading-3">
-              1,000 points
-            </p>
-          </div>
-
-          <div className="w-full p-4 bg-zinc-900 rounded-lg opacity-25">
-            <img
-              src="https://cdn.puffly.io/img/products/geek-bar-pulse-x/blue-razz-ice.png"
-              alt=""
-            />
-
-            <p className="mt-2 text-sm text-center font-semibold leading-5">
-              geek bar pulse x
-            </p>
-
-            <p className="text-zinc-300 text-xs text-center leading-3">
-              4,000 points
-            </p>
-          </div>
-        </div>
-      </div>
+      <RewardsEarn />
     </>
   );
 }
@@ -88,7 +56,7 @@ function RewardsHeroContent() {
 }
 
 function RewardsHero() {
-  const [authed, setAuthed] = useState(true);
+  const [authed, setAuthed] = useState(false);
 
   return (
     <div className="relative">
@@ -171,6 +139,120 @@ function RewardsLogin() {
             <MoveRight />
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function RewardsItem() {
+  return (
+    <div className="min-w-1/2 p-3 bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl rounded-lg">
+      <img
+        src="https://cdn.puffly.io/img/products/geek-bar-pulse/blue-razz-ice.png"
+        alt=""
+      />
+
+      <p className="mt-3 pt-2 border-t border-zinc-700 text-sm text-center font-semibold leading-5">
+        geek bar pulse
+      </p>
+
+      <p className="text-zinc-300 text-xs text-center leading-3">
+        1,000 points
+      </p>
+    </div>
+  );
+}
+
+function RewardsItemScroller() {
+  const [showStartGradient, setShowStartGradient] = useState(false);
+  const [showEndGradient, setShowEndGradient] = useState(false);
+
+  function onScroll(e: React.UIEvent<HTMLDivElement>) {
+    const scrolled = e.currentTarget.scrollLeft;
+    const maxScroll = e.currentTarget.scrollWidth - e.currentTarget.clientWidth;
+
+    setShowStartGradient(scrolled > 0);
+    setShowEndGradient(scrolled < maxScroll - 1); // -1 to avoid showing gradient when at the end
+  }
+
+  return (
+    <div className="relative mt-4">
+      <div className="flex gap-2 overflow-auto no-scroll" onScroll={onScroll}>
+        <RewardsItem />
+
+        <RewardsItem />
+
+        <RewardsItem />
+
+        <RewardsItem />
+      </div>
+
+      {showStartGradient && (
+        <div className="absolute top-0 left-0 h-full w-1/8 bg-gradient-to-r from-zinc-950 to-transparent"></div>
+      )}
+
+      {showEndGradient && (
+        <div className="absolute top-0 right-0 h-full w-1/8 bg-gradient-to-l from-zinc-950 to-transparent"></div>
+      )}
+    </div>
+  );
+}
+
+function RewardsItems() {
+  return (
+    <div className="mt-12">
+      <H2>reward items</H2>
+
+      <RewardsItemScroller />
+    </div>
+  );
+}
+
+function RewardsEarn() {
+  return (
+    <div className="relative mt-12">
+      <H2>ways to earn</H2>
+
+      <div className="grid grid-cols-1 gap-2 relative mt-4 z-1">
+        <RewardsEarnCard
+          icon={<Globe />}
+          title="refer friends"
+          description="earn points for every dollar spend by friends you refer."
+        />
+
+        <RewardsEarnCard
+          icon={<ShoppingBag />}
+          title="place an order"
+          description="gain points for every dollar spent on products you purchase."
+        />
+      </div>
+
+      <div className="absolute top-0 left-0 w-full h-full z-0 bg-gradient-to-b from-pink-500 to-purple-500 blur-3xl opacity-20 rounded-bl-full"></div>
+    </div>
+  );
+}
+
+type RewardsEarnCardProps = {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+};
+
+function RewardsEarnCard({ title, description, icon }: RewardsEarnCardProps) {
+  return (
+    <div className="flex items-center gap-3 relative w-full p-3 pl-4 bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl rounded overflow-hidden">
+      <div className="absolute top-0 left-0 w-1 h-full bg-pink-500"></div>
+
+      <div className="flex flex-col w-full">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 text-pink-500">{icon}</div>
+
+          <H3 className="text-base leading-4">{title}</H3>
+        </div>
+
+        <p className="mt-2 pt-2 border-t border-zinc-700 text-zinc-300 text-xs font-medium leading-4">
+          {description}
+        </p>
       </div>
     </div>
   );
