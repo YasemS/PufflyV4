@@ -42,7 +42,7 @@ export default function Help() {
           </div>
         </div>
 
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-pink-500 to-purple-500 blur-3xl opacity-20 rounded-bl-full z-0"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-pink-500 to-purple-500 blur-3xl opacity-20 z-0"></div>
       </div>
     </>
   );
