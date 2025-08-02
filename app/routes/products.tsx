@@ -107,7 +107,7 @@ function ProductCard(product: ProductCardProps) {
       />
 
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-zinc-700 text-zinc-300 text-xs leading-3">
-        <p>{product.brand.name}</p>
+        <p className="font-medium">{product.brand.name}</p>
 
         <div className="flex items-center gap-1 font-semibold">
           <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
