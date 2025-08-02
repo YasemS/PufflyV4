@@ -53,13 +53,29 @@ function HelpAccordion() {
 
   const questions = [
     {
+      question: "can I pay with a different method?",
+      answer:
+        "yes, just reach out to us through one of the methods below, and we'll help arrange an alternative payment method.",
+    },
+    {
       question: "do you offer discreet shipping?",
-      answer: "yes, we offer discreet shipping included with all orders.",
+      answer:
+        "yes, all orders are shipped in non-branded, discreet packaging to ensure your privacy.",
+    },
+    {
+      question: "do you offer international shipping?",
+      answer:
+        "no, we currently only ship within the united states. overseas shipping is not available at this time.",
+    },
+    {
+      question: "how long does shipping take?",
+      answer:
+        "our standard shipping time is estimated at 2-4 business days after your order is processed.",
     },
     {
       question: "what is your return policy?",
       answer:
-        "we accept returns within 30 days of purchase for unopened items.",
+        "we allow the refund of any unopened (sealed) products within 14 days of purchase, please see our full return policy for more details.",
     },
   ];
 
