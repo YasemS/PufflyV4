@@ -372,6 +372,41 @@ function ProductFAQ() {
   );
 }
 
+function ProductReview() {
+  return (
+    <Card className="flex flex-col">
+      <div className="flex gap-3">
+        <div className="flex items-center justify-center min-w-10 w-10 h-10 rounded-full bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl">
+          <p className="text-2xl font-bold">h</p>
+        </div>
+
+        <div className="flex flex-col pt-1">
+          <p className="text-sm font-semibold leading-4">hunter parker</p>
+
+          <div className="flex items-center gap-1 mt-1">
+            <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+            <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+            <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+            <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+            <Star className="w-3 h-3 text-amber-500" />
+          </div>
+        </div>
+
+        <p className="mt-1 ml-auto text-xs text-zinc-300">3 hours ago</p>
+      </div>
+
+      <p className="mt-2 pt-2 border-t border-zinc-700 text-sm font-semibold">
+        Love them!
+      </p>
+
+      <p className="mt-0.5 text-zinc-300 text-xs leading-4">
+        Easy checkout, fast shipping, and a great pick for the smaller mystery
+        vape I was given. I will be ordering again!!
+      </p>
+    </Card>
+  );
+}
+
 function ProductReviews() {
   return (
     <div className="mt-4 pt-4 border-t border-zinc-800/50">
@@ -450,37 +485,14 @@ function ProductReviews() {
         </div>
       </BackgroundGradient>
 
-      <BackgroundGradient className="flex flex-col mt-4">
-        <Card className="flex flex-col">
-          <div className="flex gap-3">
-            <div className="flex items-center justify-center min-w-12 w-12 h-12 rounded-full bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl">
-              <p className="text-2xl font-bold">h</p>
-            </div>
-
-            <div className="flex flex-col pt-1">
-              <p className="text-lg font-semibold leading-4">hunter parker</p>
-
-              <div className="flex items-center gap-1 mt-1.5">
-                <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                <Star className="w-4 h-4 text-amber-500" />
-
-                <p className="ml-1 text-zinc-300 text-sm">5.0</p>
-              </div>
-            </div>
-
-            <p className="ml-auto text-sm text-zinc-300 ">3 hours ago</p>
-          </div>
-
-          <p className="mt-2 text-xl font-semibold">Love them!</p>
-
-          <p className="text-zinc-300 leading-5">
-            Easy checkout, fast shipping, and a great pick for the smaller
-            mystery vape I was given. I will be ordering again!!
-          </p>
-        </Card>
+      <BackgroundGradient className="mt-4">
+        <div className="flex flex-col gap-2">
+          <ProductReview />
+          <ProductReview />
+          <ProductReview />
+          <ProductReview />
+          <ProductReview />
+        </div>
       </BackgroundGradient>
     </div>
   );
