@@ -1,33 +1,14 @@
-import { Bolt, Cigarette, Cloud, Star, Zap } from "lucide-react";
+import { Bolt, Cigarette, Cloud, Minus, Plus, Star, Zap } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
+import Accordion from "~/components/Accordion";
+
+import BackgroundGradient from "~/components/BackgroundGradient";
 import Card from "~/components/Card";
 import { H1, H2, H3 } from "~/components/Heading";
+
 import cn from "~/lib/cn";
-
-type BackgroundGradientProps = React.ComponentProps<"div"> & {
-  gradientClassName?: string;
-};
-
-function BackgroundGradient({
-  className,
-  children,
-  gradientClassName,
-  ...props
-}: BackgroundGradientProps) {
-  return (
-    <div className={cn("relative", className)} {...props}>
-      <div className="relative z-1">{children}</div>
-
-      <div
-        className={cn(
-          "absolute top-1/2 left-1/2 -translate-1/2 w-full h-full bg-gradient-to-b from-pink-500 to-purple-500 blur-3xl opacity-20 z-0",
-          gradientClassName
-        )}
-      ></div>
-    </div>
-  );
-}
+import format from "~/lib/format";
 
 type ScrollerProps = React.ComponentProps<"div">;
 
@@ -63,9 +44,7 @@ function Scroller({ className, children, ...props }: ScrollerProps) {
 export default function Product() {
   return (
     <>
-      <BackgroundGradient gradientClassName="h-3/4">
-        <ProductImage />
-      </BackgroundGradient>
+      <ProductImage />
 
       <ProductThumbnails />
 
@@ -73,55 +52,30 @@ export default function Product() {
 
       <ProductForm />
 
-      <div className="py-4 border-b border-zinc-800/50">
-        <p className="font-semibold">customers also bought</p>
-
-        <BackgroundGradient
-          className="mt-1"
-          gradientClassName="bg-gradient-to-l"
-        >
-          <Card className="flex items-center gap-3">
-            <Card className="min-w-16 w-16 h-16 p-1 border-zinc-700">
-              <img
-                alt=""
-                className="w-full h-full object-contain"
-                src="https://i0.wp.com/vikingcocacola.com/wp-content/uploads/2020/11/Monster-Zero-Ultra.png?fit=750%2C1000&ssl=1"
-              />
-            </Card>
-
-            <div className="flex flex-col w-full h-16">
-              <p className="text-zinc-300 text-xs font-medium leading-3">
-                monster
-              </p>
-
-              <p className="font-semibold leading-4">monster zero ultra</p>
-
-              <div className="flex items-end justify-between mt-auto">
-                <p className="font-semibold leading-4">$5.00</p>
-
-                <button className="px-4 py-1 bg-pink-500 rounded text-xs font-semibold">
-                  add
-                </button>
-              </div>
-            </div>
-          </Card>
-        </BackgroundGradient>
-      </div>
+      <ProductAlsoBought />
 
       <ProductFeatures />
+
+      <ProductFAQ />
+
+      <ProductReviews />
+
+      <ProductSimilar />
     </>
   );
 }
 
 function ProductImage() {
   return (
-    <Card className="w-full aspect-square p-4">
-      <img
-        alt="Geek Bar Pulse X Blue Razz Ice"
-        className="w-full h-full object-contain"
-        src="https://cdn.puffly.io/img/products/geek-bar-pulse-x/blue-razz-ice.png"
-      />
-    </Card>
+    <BackgroundGradient gradientClassName="h-3/4">
+      <Card className="w-full aspect-square p-4">
+        <img
+          alt="Geek Bar Pulse X Blue Razz Ice"
+          className="w-full h-full object-contain"
+          src="https://cdn.puffly.io/img/products/geek-bar-pulse-x/blue-razz-ice.png"
+        />
+      </Card>
+    </BackgroundGradient>
   );
 }
 
@@ -172,11 +126,6 @@ function ProductThumbnails() {
     </Scroller>
   );
 }
-
-type ProductThumbnailProps = {
-  alt: string;
-  image: string;
-};
 
 function ProductThumbnail({ alt, image }: ProductThumbnailProps) {
   return (
@@ -319,6 +268,42 @@ function ProductForm() {
   );
 }
 
+function ProductAlsoBought() {
+  return (
+    <div className="py-4 border-b border-zinc-800/50">
+      <p className="font-semibold leading-4">customers also bought</p>
+
+      <BackgroundGradient className="mt-2" gradientClassName="bg-gradient-to-l">
+        <Card className="flex items-center gap-3">
+          <Card className="min-w-16 w-16 h-16 p-1 border-zinc-700">
+            <img
+              alt=""
+              className="w-full h-full object-contain"
+              src="https://i0.wp.com/vikingcocacola.com/wp-content/uploads/2020/11/Monster-Zero-Ultra.png?fit=750%2C1000&ssl=1"
+            />
+          </Card>
+
+          <div className="flex flex-col w-full h-16">
+            <p className="text-zinc-300 text-xs font-medium leading-3">
+              monster
+            </p>
+
+            <p className="font-semibold leading-4">monster zero ultra</p>
+
+            <div className="flex items-end justify-between mt-auto">
+              <p className="font-semibold leading-4">$5.00</p>
+
+              <button className="px-4 py-1 bg-pink-500 rounded text-xs font-semibold">
+                add
+              </button>
+            </div>
+          </div>
+        </Card>
+      </BackgroundGradient>
+    </div>
+  );
+}
+
 function ProductFeatures() {
   return (
     <BackgroundGradient
@@ -345,11 +330,6 @@ function ProductFeatures() {
   );
 }
 
-type ProductFeatureProps = {
-  icon: React.ReactNode;
-  text: string;
-};
-
 function ProductFeature({ icon, text }: ProductFeatureProps) {
   return (
     <Card className="flex flex-col items-center justify-center text-center">
@@ -359,3 +339,251 @@ function ProductFeature({ icon, text }: ProductFeatureProps) {
     </Card>
   );
 }
+
+function ProductFAQ() {
+  const questions = [
+    {
+      question: "about the geek bar pulse x",
+      answer:
+        "the geek bar pulse x is a high-performance disposable vape designed for long-lasting enjoyment. it offers up to 25,000 puffs in regular mode and 15,000 in pulse mode, minimizing the need for frequent replacements. with an 18ml e-liquid capacity and dual mesh coil, it delivers smooth, flavorful vapor. an innovative 3d display lets you easily check both e-liquid and battery levels.",
+    },
+    {
+      question: "can I pay with a different method?",
+      answer:
+        "yes, just reach out to us through one of the methods below, and we'll help arrange an alternative payment method.",
+    },
+    {
+      question: "do you offer discreet shipping?",
+      answer:
+        "yes, all orders are shipped in non-branded, discreet packaging to ensure your privacy.",
+    },
+    {
+      question: "how long does shipping take?",
+      answer:
+        "our standard shipping time is estimated at 2-4 business days after your order is processed.",
+    },
+  ];
+
+  return (
+    <Accordion
+      className="mt-4 pt-4 border-t border-zinc-800/50"
+      questions={questions}
+    />
+  );
+}
+
+function ProductReviews() {
+  return (
+    <div className="mt-4 pt-4 border-t border-zinc-800/50">
+      <H2>customer reviews</H2>
+
+      <BackgroundGradient
+        className="mt-2"
+        gradientClassName="bg-gradient-to-r left-3/4 w-1/2"
+      >
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col">
+            <p className="text-5xl font-bold leading-12">5.0</p>
+
+            <div className="flex items-center gap-1 mt-2">
+              <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+              <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+              <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+              <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+              <Star className="w-4 h-4 text-amber-500" />
+            </div>
+
+            <p className="mt-2 text-zinc-300 text-sm leading-4">100 reviews</p>
+          </div>
+
+          <div className="flex flex-col justify-center gap-1 w-full">
+            <div className="flex items-center gap-1.5">
+              <p className="w-3 text-zinc-300 text-sm text-center font-semibold leading-4">
+                5
+              </p>
+
+              <div className="w-full h-4 rounded-full bg-zinc-800/50 border border-zinc-800 backdrop-blur">
+                <div className="w-3/4 h-full bg-amber-500 rounded-full"></div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <p className="w-3 text-zinc-300 text-sm text-center font-semibold leading-4">
+                4
+              </p>
+
+              <div className="w-full h-4 rounded-full bg-zinc-800/50 border border-zinc-800 backdrop-blur">
+                <div className="w-3/4 h-full bg-amber-500 rounded-full"></div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <p className="w-3 text-zinc-300 text-sm text-center font-semibold leading-4">
+                3
+              </p>
+
+              <div className="w-full h-4 rounded-full bg-zinc-800/50 border border-zinc-800 backdrop-blur">
+                <div className="w-3/4 h-full bg-amber-500 rounded-full"></div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <p className="w-3 text-zinc-300 text-sm text-center font-semibold leading-4">
+                2
+              </p>
+
+              <div className="w-full h-4 rounded-full bg-zinc-800/50 border border-zinc-800 backdrop-blur">
+                <div className="w-3/4 h-full bg-amber-500 rounded-full"></div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <p className="w-3 text-zinc-300 text-sm text-center font-semibold leading-4">
+                1
+              </p>
+
+              <div className="w-full h-4 rounded-full bg-zinc-800/50 border border-zinc-800 backdrop-blur">
+                <div className="w-3/4 h-full bg-amber-500 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </BackgroundGradient>
+
+      <BackgroundGradient className="flex flex-col mt-4">
+        <Card className="flex flex-col">
+          <div className="flex gap-3">
+            <div className="flex items-center justify-center min-w-12 w-12 h-12 rounded-full bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl">
+              <p className="text-2xl font-bold">h</p>
+            </div>
+
+            <div className="flex flex-col pt-1">
+              <p className="text-lg font-semibold leading-4">hunter parker</p>
+
+              <div className="flex items-center gap-1 mt-1.5">
+                <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                <Star className="w-4 h-4 text-amber-500" />
+
+                <p className="ml-1 text-zinc-300 text-sm">5.0</p>
+              </div>
+            </div>
+
+            <p className="ml-auto text-sm text-zinc-300 ">3 hours ago</p>
+          </div>
+
+          <p className="mt-2 text-xl font-semibold">Love them!</p>
+
+          <p className="text-zinc-300 leading-5">
+            Easy checkout, fast shipping, and a great pick for the smaller
+            mystery vape I was given. I will be ordering again!!
+          </p>
+        </Card>
+      </BackgroundGradient>
+    </div>
+  );
+}
+
+function ProductCard(product: ProductCardProps) {
+  return (
+    <Link
+      className="flex flex-col p-3 bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl rounded-lg"
+      to={`/product/${product.slug}`}
+    >
+      <img
+        className="block w-full aspect-square object-contain"
+        alt={product.name}
+        src={product.image}
+      />
+
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-zinc-700 text-zinc-300 text-xs leading-3">
+        <p className="font-medium">{product.brand.name}</p>
+
+        <div className="flex items-center gap-1 font-semibold">
+          <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+          <p>{product.rating.toFixed(1)}</p>
+        </div>
+      </div>
+
+      <p className="mt-1 text-sm font-semibold leading-4">{product.name}</p>
+
+      <p className="mt-1 text-sm font-semibold leading-4">
+        {format.currency(product.price)}
+      </p>
+    </Link>
+  );
+}
+
+function ProductSimilar() {
+  return (
+    <div className="mt-4 pt-4 border-t border-zinc-800/50">
+      <H2>similar products</H2>
+
+      <BackgroundGradient
+        className="mt-4"
+        gradientClassName="w-1/2 h-1/2 bg-gradient-to-r"
+      >
+        <Scroller>
+          <div className="flex items-center gap-2">
+            <div className="min-w-1/2 w-1/2">
+              <ProductCard
+                slug="foger-switch-pro"
+                name="foger switch pro"
+                image="https://cdn.puffly.io/img/products/foger-switch-pro/coffee.png"
+                price={27.5}
+                rating={1.0}
+                brand={{ slug: "foger", name: "foger" }}
+              />
+            </div>
+
+            <div className="min-w-1/2 w-1/2">
+              <ProductCard
+                slug="foger-switch-pro"
+                name="foger switch pro"
+                image="https://cdn.puffly.io/img/products/foger-switch-pro/coffee.png"
+                price={27.5}
+                rating={1.0}
+                brand={{ slug: "foger", name: "foger" }}
+              />
+            </div>
+
+            <div className="min-w-1/2 w-1/2">
+              <ProductCard
+                slug="foger-switch-pro"
+                name="foger switch pro"
+                image="https://cdn.puffly.io/img/products/foger-switch-pro/coffee.png"
+                price={27.5}
+                rating={1.0}
+                brand={{ slug: "foger", name: "foger" }}
+              />
+            </div>
+          </div>
+        </Scroller>
+      </BackgroundGradient>
+    </div>
+  );
+}
+
+type ProductThumbnailProps = {
+  alt: string;
+  image: string;
+};
+
+type ProductFeatureProps = {
+  icon: React.ReactNode;
+  text: string;
+};
+
+type ProductCardProps = {
+  slug: string;
+  name: string;
+  image: string;
+  price: number;
+  rating: number;
+  brand: {
+    slug: string;
+    name: string;
+  };
+};
