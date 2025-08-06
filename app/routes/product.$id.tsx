@@ -1,45 +1,13 @@
-import { Bolt, Cigarette, Cloud, Minus, Plus, Star, Zap } from "lucide-react";
-import { useState } from "react";
+import { Cigarette, Cloud, Star, Zap } from "lucide-react";
 import { Link } from "react-router";
 import Accordion from "~/components/Accordion";
 
+import { H1, H2, H3 } from "~/components/Heading";
 import BackgroundGradient from "~/components/BackgroundGradient";
 import Card from "~/components/Card";
-import { H1, H2, H3 } from "~/components/Heading";
+import Scroller from "~/components/Scroller";
 
-import cn from "~/lib/cn";
 import format from "~/lib/format";
-
-type ScrollerProps = React.ComponentProps<"div">;
-
-function Scroller({ className, children, ...props }: ScrollerProps) {
-  const [showStartGradient, setShowStartGradient] = useState(false);
-  const [showEndGradient, setShowEndGradient] = useState(true);
-
-  function onScroll(e: React.UIEvent<HTMLDivElement>) {
-    const scrolled = e.currentTarget.scrollLeft;
-    const maxScroll = e.currentTarget.scrollWidth - e.currentTarget.clientWidth;
-
-    setShowStartGradient(scrolled > 0);
-    setShowEndGradient(scrolled < maxScroll - 1); // -1 to avoid showing gradient when at the end
-  }
-
-  return (
-    <div className={cn("relative", className)} {...props}>
-      <div className="overflow-auto no-scroll" onScroll={onScroll}>
-        {children}
-      </div>
-
-      {showStartGradient && (
-        <div className="absolute top-0 left-0 h-full w-1/10 bg-gradient-to-r from-zinc-950 to-transparent"></div>
-      )}
-
-      {showEndGradient && (
-        <div className="absolute top-0 right-0 h-full w-1/10 bg-gradient-to-l from-zinc-950 to-transparent"></div>
-      )}
-    </div>
-  );
-}
 
 export default function Product() {
   return (
