@@ -44,7 +44,7 @@ export default function MobileNav() {
         icon={<ShoppingCart />}
         text="cart"
         to="/cart"
-        onClick={(e) => e.preventDefault()}
+        // onClick={(e) => e.preventDefault()}
       />
     </nav>
   );
