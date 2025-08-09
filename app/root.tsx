@@ -8,11 +8,13 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
+
 import "~/app.css";
 
 import Announcement from "~/components/partials/Announcement";
 import Nav from "~/components/partials/Nav";
-import MobileNav from "./components/partials/MobileNav";
+import MobileNav from "~/components/partials/MobileNav";
+import Footer from "~/components/partials/Footer";
 
 export const links: Route.LinksFunction = () => [
   {
@@ -48,9 +50,11 @@ export default function App() {
       <Nav />
       <MobileNav />
 
-      <main className="p-8 pb-24">
+      <main className="p-8">
         <Outlet />
       </main>
+
+      <Footer />
     </>
   );
 }
