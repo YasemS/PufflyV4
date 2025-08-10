@@ -45,16 +45,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <>
-      <div className="min-h-dvh">
-        <Announcement />
+      <Announcement />
 
-        <Nav />
-        <MobileNav />
+      <Nav />
+      <MobileNav />
 
-        <main className="p-8">
-          <Outlet />
-        </main>
-      </div>
+      <main className="p-8">
+        <Outlet />
+      </main>
 
       <Footer />
     </>

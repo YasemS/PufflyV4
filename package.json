@@ -11,6 +11,7 @@
   "dependencies": {
     "@react-router/node": "^7.7.1",
     "@react-router/serve": "^7.7.1",
+    "@vis.gl/react-google-maps": "^1.5.5",
     "isbot": "^5.1.27",
     "lucide-react": "^0.534.0",
     "react": "^19.1.0",
