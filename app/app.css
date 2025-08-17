@@ -3,8 +3,8 @@
 
 @theme {
   --font-sans:
-    "Quicksand", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    "Quicksand", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
 }
 
 @layer base {
@@ -21,6 +21,10 @@ html,
 body {
   color-scheme: dark;
 
+  @apply text-white bg-zinc-950;
+}
+
+option {
   @apply text-white bg-zinc-950;
 }
 

@@ -4,7 +4,7 @@ export default [
   index("routes/home.tsx"),
   route("rewards", "routes/rewards.tsx"),
   route("products", "routes/products.tsx"),
-  route("product/:id", "routes/product.$id.tsx"),
+  route("product/:slug", "routes/product.$slug.tsx"),
   route("track", "routes/track.tsx"),
   route("order/:id", "routes/order.$id.tsx"),
   route("cart", "routes/cart.tsx"),
