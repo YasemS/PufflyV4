@@ -38,3 +38,16 @@ option {
   width: 0;
   height: 0;
 }
+
+.loading__bar__inner {
+  animation: loading__bar__inner 1s alternate linear infinite;
+}
+
+@keyframes loading__bar__inner {
+  0% {
+    left: 0;
+  }
+  100% {
+    left: 75%;
+  }
+}
