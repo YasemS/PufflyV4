@@ -3,7 +3,7 @@ import { useLoaderData } from "react-router";
 import { H1 } from "~/components/Heading";
 import { ProductCard } from "~/components/Product";
 
-import { getProducts } from "~/lib/product";
+import { getProducts } from "~/lib/product.server";
 
 export async function loader() {
   const products = await getProducts();

@@ -1,13 +1,4 @@
-import {
-  Car,
-  CircleQuestionMark,
-  Lock,
-  Minus,
-  MoveLeft,
-  Plus,
-  Star,
-  Trash,
-} from "lucide-react";
+import { Car, CircleQuestionMark, Lock, Minus, MoveLeft, Plus, Star, Trash } from "lucide-react";
 import { Link } from "react-router";
 
 import BackgroundGradient from "~/components/BackgroundGradient";
@@ -24,10 +15,7 @@ type ProgressBarProps = {
 function ProgressBar({ width }: ProgressBarProps) {
   return (
     <div className="w-full h-4 rounded-full bg-zinc-800/50 border border-zinc-800 backdrop-blur">
-      <div
-        className="w-0 h-full bg-pink-500 rounded-full"
-        style={{ width }}
-      ></div>
+      <div className="w-0 h-full bg-pink-500 rounded-full" style={{ width }}></div>
     </div>
   );
 }
@@ -56,11 +44,8 @@ function CartDeliveryThreshold() {
   return (
     <Card className="mt-4">
       <p className="text-sm font-medium">
-        you're{" "}
-        <span className="mx-0.25 px-1 py-0.5 bg-pink-500 rounded font-semibold">
-          $40.00
-        </span>{" "}
-        away from free shipping!
+        you're <span className="mx-0.25 px-1 py-0.5 bg-pink-500 rounded font-semibold">$40.00</span> away from free
+        shipping!
       </p>
 
       <div className="mt-2">
@@ -121,11 +106,7 @@ function CartItemQuantity() {
         <Minus className="w-4 h-4" />
       </button>
 
-      <input
-        className="h-6 min-w-8 w-8 outline-none text-sm text-center"
-        type="number"
-        defaultValue={1}
-      />
+      <input className="h-6 min-w-8 w-8 outline-none text-sm text-center" type="number" defaultValue={1} />
 
       {/* <span className="px-2 text-sm font-medium">1</span> */}
 
@@ -151,9 +132,7 @@ function CartUpsell() {
   return (
     <div className="mt-8">
       <H2>add a mystery vape?</H2>
-      <p className="mt-1 text-zinc-300 text-sm font-medium leading-4">
-        🎁 discover new flavours from top brands
-      </p>
+      <p className="mt-1 text-zinc-300 text-sm font-medium leading-4">🎁 discover new flavours from top brands</p>
 
       <BackgroundGradient>
         <div className="flex flex-col gap-2 mt-3">
@@ -175,9 +154,7 @@ function CartMysteryItem() {
       <div className="flex flex-col h-16 w-full">
         <p className="font-bold leading-4">mystery vape - 500 puffs</p>
 
-        <p className="mt-1 text-zinc-300 text-xs font-medium leading-3">
-          surprise flavour picked just for you!
-        </p>
+        <p className="mt-1 text-zinc-300 text-xs font-medium leading-3">surprise flavour picked just for you!</p>
 
         <div className="flex items-end justify-between gap-3 mt-auto">
           <p className="font-bold leading-4">$5.00</p>
@@ -225,32 +202,35 @@ function CartSummary() {
             <span>secure checkout</span>
           </Button>
 
+          <p className="mt-2 text-xs text-zinc-300 text-center">
+            by clicking checkout, you agree to our{" "}
+            <Link className="underline" to="/legal/terms">
+              terms of service
+            </Link>
+            ,{" "}
+            <Link className="underline" to="/legal/privacy">
+              privacy policy
+            </Link>
+            ,{" "}
+            <Link className="underline" to="/legal/refund">
+              refund policy
+            </Link>
+            , and{" "}
+            <Link className="underline" to="/legal/shipping">
+              shipping policy
+            </Link>
+          </p>
+
           <div className="flex items-center justify-center gap-1 mt-2">
             <img alt="visa" className="h-5 rounded-xs" src="/img/visa.svg" />
 
-            <img
-              alt="mastercard"
-              className="h-5 rounded-xs"
-              src="/img/mastercard.svg"
-            />
+            <img alt="mastercard" className="h-5 rounded-xs" src="/img/mastercard.svg" />
 
-            <img
-              alt="diners club"
-              className="h-5 rounded-xs"
-              src="/img/diners.svg"
-            />
+            <img alt="diners club" className="h-5 rounded-xs" src="/img/diners.svg" />
 
-            <img
-              alt="discover"
-              className="h-5 rounded-xs"
-              src="/img/discover.svg"
-            />
+            <img alt="discover" className="h-5 rounded-xs" src="/img/discover.svg" />
 
-            <img
-              alt="american express"
-              className="h-5 rounded-xs"
-              src="/img/amex.svg"
-            />
+            <img alt="american express" className="h-5 rounded-xs" src="/img/amex.svg" />
           </div>
         </div>
       </BackgroundGradient>

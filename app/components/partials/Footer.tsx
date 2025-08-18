@@ -77,34 +77,17 @@ function FooterLogo() {
 }
 
 function FooterSlogan() {
-  return (
-    <p className="mt-4 text-sm">
-      your go-to source for top-tier vapes, unbeatable flavor, and premium
-      quality.
-    </p>
-  );
+  return <p className="mt-4 text-sm">your go-to source for top-tier vapes, unbeatable flavor, and premium quality.</p>;
 }
 
 function FooterSocials() {
   return (
     <div className="flex items-center gap-2 mt-4">
-      <FooterSocial
-        alt="Instagram"
-        image="/img/instagram.svg"
-        to="https://www.instagram.com/pufflyio"
-      />
+      <FooterSocial alt="Instagram" image="/img/instagram.svg" to="https://www.instagram.com/pufflyio" />
 
-      <FooterSocial
-        alt="TikTok"
-        image="/img/tiktok.svg"
-        to="https://www.tiktok.com/@pufflyio"
-      />
+      <FooterSocial alt="TikTok" image="/img/tiktok.svg" to="https://www.tiktok.com/@pufflyio" />
 
-      <FooterSocial
-        alt="YouTube"
-        image="/img/youtube.svg"
-        to="https://www.youtube.com/@pufflyio"
-      />
+      <FooterSocial alt="YouTube" image="/img/youtube.svg" to="https://www.youtube.com/@pufflyio" />
     </div>
   );
 }
@@ -128,21 +111,13 @@ function FooterPaymentMethods() {
     <div className="flex items-center gap-1 mt-4">
       <img alt="visa" className="h-5 rounded-xs" src="/img/visa.svg" />
 
-      <img
-        alt="mastercard"
-        className="h-5 rounded-xs"
-        src="/img/mastercard.svg"
-      />
+      <img alt="mastercard" className="h-5 rounded-xs" src="/img/mastercard.svg" />
 
       <img alt="diners club" className="h-5 rounded-xs" src="/img/diners.svg" />
 
       <img alt="discover" className="h-5 rounded-xs" src="/img/discover.svg" />
 
-      <img
-        alt="american express"
-        className="h-5 rounded-xs"
-        src="/img/amex.svg"
-      />
+      <img alt="american express" className="h-5 rounded-xs" src="/img/amex.svg" />
     </div>
   );
 }
@@ -150,10 +125,9 @@ function FooterPaymentMethods() {
 function FooterDisclaimer() {
   return (
     <p className="mt-8 pt-4 border-t border-zinc-700 text-xs text-zinc-300">
-      <span className="text-white font-semibold">disclaimer:</span> products on
-      this site are not approved by the FDA and are not intended to diagnose,
-      treat, cure, or prevent any disease. nicotine is an addictive chemical.
-      for adults 21+ only.
+      <span className="text-white font-semibold">disclaimer:</span> products on this site are not approved by the FDA
+      and are not intended to diagnose, treat, cure, or prevent any disease. nicotine is an addictive chemical. for
+      adults 21+ only.
     </p>
   );
 }
@@ -191,9 +165,7 @@ function FooterLink({ to, text }: FooterLinkProps) {
 function FooterCopy() {
   return (
     <div className="flex items-center justify-center mt-4 pt-4 border-t border-zinc-700 text-center">
-      <p className="text-xs text-zinc-300">
-        &copy; {new Date().getFullYear()} puffly, all rights reserved.
-      </p>
+      <p className="text-xs text-zinc-300">&copy; {new Date().getFullYear()} puffly, all rights reserved.</p>
     </div>
   );
 }

@@ -100,3 +100,33 @@ model ProductReview {
   product     Product @relation(fields: [productSlug], references: [slug])
   productSlug String
 }
+
+model Cart {
+  id        String @id @default(uuid())
+  created   DateTime @default(now())
+  updated   DateTime @updatedAt
+
+  items     CartItem[]
+}
+
+model CartItem {
+  id        String @id @default(uuid())
+  quantity  Int
+  variants    CartItemVariant[]
+
+  productSlug  String
+
+  cart       Cart @relation(fields: [cartId], references: [id])
+  cartId     String
+}
+
+model CartItemVariant {
+  id        String @id @default(uuid())
+  quantity  Int
+
+  variantId String
+  optionId String
+
+  cartItem   CartItem @relation(fields: [cartItemId], references: [id])
+  cartItemId String
+}

@@ -1,8 +1,9 @@
-import { createContext, useContext, useState } from "react";
-import { Cigarette, Cloud, Star, Zap } from "lucide-react";
-import { Link, redirect, useLoaderData } from "react-router";
+import { createContext, useContext, useEffect, useState } from "react";
+import { AlertCircle, Cigarette, Cloud, Star, Zap } from "lucide-react";
+import { Form, Link, redirect, useFetcher, useLoaderData } from "react-router";
 
 import type { Route } from "./+types/product.$slug";
+import type { action as CartAddAction } from "~/routes/cart.add";
 
 import Accordion from "~/components/Accordion";
 import BackgroundGradient from "~/components/BackgroundGradient";
@@ -17,7 +18,7 @@ import { ProductCard } from "~/components/Product";
 
 import cn from "~/lib/cn";
 import format from "~/lib/format";
-import { getProduct, getSimilarProducts } from "~/lib/product";
+import { getProduct, getSimilarProducts } from "~/lib/product.server";
 import { getDeliveryEstimate } from "~/lib/shipping";
 
 const ProductContext = createContext<{
@@ -78,6 +79,12 @@ export default function Product() {
 
     setImageActive(image);
   }
+
+  useEffect(() => {
+    setImageActive(imageDefault);
+    setPrice(product.price);
+    setQuantity(1);
+  }, [product]);
 
   return (
     <ProductContext.Provider value={{ price, quantity }}>
@@ -173,6 +180,8 @@ function ProductInformation() {
 function ProductStars() {
   const { product } = useLoaderData<typeof loader>();
 
+  if (product.reviews.list.length === 0) return null;
+
   const averageInt = parseInt(product.reviews.stats.average?.toFixed(0) ?? "0");
 
   return (
@@ -198,23 +207,49 @@ function ProductForm({ onQuantityChange, onVariantChange }: ProductFormProps) {
 
   const { quantity } = useContext(ProductContext);
 
+  const fetcher = useFetcher();
+
+  const error = fetcher.data?.error;
+
   return (
     <div className="mt-4 py-4 border-y border-zinc-800/50">
       <BackgroundGradient gradientClassName="opacity-10">
-        <div className="flex flex-col gap-4">
-          {product.variants.map((variant) => (
-            <InputControl key={variant.name}>
-              <Label htmlFor={`variant-${variant.name}`}>{variant.name}</Label>
+        {error && (
+          <div className="flex items-center gap-2 px-3 py-2 mb-4 bg-red-950/50 border border-red-500 rounded text-red-500">
+            <AlertCircle className="w-4 h-4" />
+            <p className="text-sm font-semibold">{error}</p>
+          </div>
+        )}
 
-              <Select id={`variant-${variant.name}`} onChange={(e) => onVariantChange(variant.id, e.target.value)}>
-                {variant.options.map((option) => (
-                  <option key={option.name} value={option.value}>
-                    {option.name}
+        <fetcher.Form action="/cart/add" className="flex flex-col gap-4" method="post">
+          <input type="hidden" name="product" value={product.slug} />
+
+          {product.variants.map((variant) => {
+            return [...Array(quantity)].map((_, index) => (
+              <InputControl key={variant.id + index}>
+                <Label htmlFor={`variant__${variant.id}__${index}`}>
+                  {variant.name} {index > 0 ? `(${index + 1})` : ""}
+                </Label>
+
+                <Select
+                  defaultValue=""
+                  id={`variant__${variant.id}__${index}`}
+                  name={`variant__${variant.id}`}
+                  onChange={(e) => onVariantChange(variant.id, e.target.value)}
+                >
+                  <option value="" disabled>
+                    select {variant.name}
                   </option>
-                ))}
-              </Select>
-            </InputControl>
-          ))}
+
+                  {variant.options.map((option) => (
+                    <option key={option.name} value={option.value}>
+                      {option.name}
+                    </option>
+                  ))}
+                </Select>
+              </InputControl>
+            ));
+          })}
 
           <InputControl>
             <Label htmlFor="quantity">quantity</Label>
@@ -241,8 +276,8 @@ function ProductForm({ onQuantityChange, onVariantChange }: ProductFormProps) {
             </div>
           </InputControl>
 
-          <Button>add to cart</Button>
-        </div>
+          <Button type="submit">add to cart</Button>
+        </fetcher.Form>
 
         <ProductDeliveryEstimate />
 
@@ -266,6 +301,7 @@ function ProductQuantityButton({
         "flex flex-col items-center justify-center relative p-4 border border-zinc-700 rounded",
         active && "border-pink-500",
       )}
+      type="button"
       onClick={onClick}
     >
       <p className="font-semibold">{text}</p>

@@ -28,20 +28,32 @@ export async function getProducts() {
     },
   });
 
-  const formatted = products.map((product) => {
-    const image = product.images[0].source;
+  const results = [];
 
-    return {
+  for (const product of products) {
+    const image = product.images[0]?.source || "";
+
+    const reviewStats = await prisma.productReview.aggregate({
+      _avg: {
+        rating: true,
+      },
+      where: {
+        status: "APPROVED",
+        productSlug: product.slug,
+      },
+    });
+
+    results.push({
       slug: product.slug,
       name: product.name,
       image,
       price: product.price,
-      rating: 5,
+      rating: reviewStats._avg.rating,
       brand: product.brand,
-    };
-  });
+    });
+  }
 
-  return formatted;
+  return results;
 }
 
 export async function getProduct(slug: string) {
@@ -118,7 +130,7 @@ export async function getProduct(slug: string) {
 
   if (!product) return null;
 
-  // get number of review and average rating from all reviews not just the first 6
+  // get number of review and average rating
   const reviewStats = await prisma.productReview.aggregate({
     _avg: {
       rating: true,
@@ -132,6 +144,7 @@ export async function getProduct(slug: string) {
     },
   });
 
+  // get count of reviews by rating (1-5)
   const reviewCountByRating = await prisma.productReview.groupBy({
     by: ["rating"],
     _count: {
@@ -146,7 +159,9 @@ export async function getProduct(slug: string) {
     },
   });
 
+  // map the counts to a ratings map
   const ratingsMap: Record<number, number> = {};
+
   for (let i = 1; i <= 5; i++) {
     const match = reviewCountByRating.find((c) => c.rating === i);
     ratingsMap[i] = match?._count.rating ?? 0;
@@ -200,18 +215,30 @@ export async function getSimilarProducts(slug: string) {
     take: 4,
   });
 
-  const formatted = products.map((product) => {
-    const image = product.images[0].source;
+  const results = [];
 
-    return {
+  for (const product of products) {
+    const image = product.images[0]?.source || "";
+
+    const reviewStats = await prisma.productReview.aggregate({
+      _avg: {
+        rating: true,
+      },
+      where: {
+        status: "APPROVED",
+        productSlug: product.slug,
+      },
+    });
+
+    results.push({
       slug: product.slug,
       name: product.name,
       image,
       price: product.price,
-      rating: 5,
+      rating: reviewStats._avg.rating,
       brand: product.brand,
-    };
-  });
+    });
+  }
 
-  return formatted;
+  return results;
 }
