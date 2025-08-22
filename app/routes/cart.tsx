@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { CircleQuestionMark, Lock, Minus, MoveLeft, Plus, Trash } from "lucide-react";
-import { Form, Link, useFetcher, useLoaderData, type LoaderFunctionArgs } from "react-router";
+import { Link, useFetcher, useLoaderData, type LoaderFunctionArgs } from "react-router";
 
 import type { action as CartUpdateAction } from "~/routes/cart.update";
 
@@ -9,10 +9,10 @@ import Button from "~/components/Button";
 import Card from "~/components/Card";
 import { H1, H2 } from "~/components/Heading";
 
+import cn from "~/lib/cn";
 import format from "~/lib/format";
 import { cartCookie, getCart } from "~/lib/cart.server";
 import { getProduct } from "~/lib/product.server";
-import cn from "~/lib/cn";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get("Cookie");
