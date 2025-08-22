@@ -1,9 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { AlertCircle, Cigarette, Cloud, Star, Zap } from "lucide-react";
-import { Form, Link, redirect, useFetcher, useLoaderData } from "react-router";
+import { Link, redirect, useFetcher, useLoaderData } from "react-router";
 
 import type { Route } from "./+types/product.$slug";
-import type { action as CartAddAction } from "~/routes/cart.add";
 
 import Accordion from "~/components/Accordion";
 import BackgroundGradient from "~/components/BackgroundGradient";
@@ -39,6 +38,10 @@ export async function loader({ params }: Route.LoaderArgs) {
   const product = await getProduct(slug);
 
   if (!product) {
+    return redirect("/products");
+  }
+
+  if (!product.visible) {
     return redirect("/products");
   }
 

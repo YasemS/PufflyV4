@@ -1,4 +1,4 @@
-import prisma from "~/lib/prisma";
+import prisma from "~/lib/prisma.server";
 
 export async function getProducts() {
   const products = await prisma.product.findMany({
@@ -64,6 +64,7 @@ export async function getProduct(slug: string) {
       tagline: true,
       description: true,
       price: true,
+      visible: true,
       brand: {
         select: {
           slug: true,

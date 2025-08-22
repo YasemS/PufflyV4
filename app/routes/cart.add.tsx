@@ -1,5 +1,5 @@
 import { data, redirect, type ActionFunctionArgs } from "react-router";
-import { cartCookie, createCart, getCart } from "~/lib/cart.server";
+import { addCartItem, cartCookie, createCart, getCart } from "~/lib/cart.server";
 import { getProduct } from "~/lib/product.server";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -26,17 +26,6 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  for (const variant of product.variants) {
-    const formKey = `variant__${variant.id}`;
-    const values = form.getAll(formKey);
-
-    if (values.length === 0) {
-      return data({
-        error: `${variant.name} is required.`,
-      });
-    }
-  }
-
   const cookieHeader = request.headers.get("Cookie");
   const cartId = await cartCookie.parse(cookieHeader);
 
@@ -46,13 +35,47 @@ export async function action({ request }: ActionFunctionArgs) {
     cart = await createCart();
   }
 
+  if (product.variants.length === 0) {
+    await addCartItem(cart.id, product.slug);
+
+    return redirect("/cart", {
+      headers: {
+        "Set-Cookie": await cartCookie.serialize(cart.id),
+      },
+    });
+  }
+
+  for (const variant of product.variants) {
+    const formKey = `variant__${variant.id}`;
+    const values = form.getAll(formKey);
+
+    if (values.length === 0) {
+      return data(
+        {
+          error: `${variant.name} is required.`,
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    for (const value of values) {
+      const option = variant.options.find((opt) => opt.value === value);
+
+      if (!option) {
+        continue;
+      }
+
+      await addCartItem(cart.id, product.slug, {
+        [variant.id]: option.value,
+      });
+    }
+  }
+
   return redirect("/cart", {
     headers: {
       "Set-Cookie": await cartCookie.serialize(cart.id),
     },
   });
 }
-
-// export async function loader() {
-//   return redirect("/cart");
-// }
