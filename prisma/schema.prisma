@@ -107,6 +107,9 @@ model Cart {
   updated   DateTime @updatedAt
 
   items     CartItem[]
+
+  couponId  String?
+  coupon    Coupon? @relation(fields: [couponId], references: [id])
 }
 
 model CartItem {
@@ -128,4 +131,22 @@ model CartItemVariant {
 
   cartItem   CartItem @relation(fields: [cartItemId], references: [id])
   cartItemId String
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
+}
+
+model Coupon {
+  id           String @id @default(uuid())
+  code         String @unique
+  discount     Float
+  type         CouponType
+  minimum      Float @default(0)
+
+  created      DateTime @default(now())
+  expiration   DateTime?
+
+  carts        Cart[]
 }

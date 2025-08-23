@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
-import { CircleQuestionMark, Lock, Minus, MoveLeft, Plus, Trash } from "lucide-react";
-import { Link, useFetcher, useLoaderData, type LoaderFunctionArgs } from "react-router";
+import {
+  AlertCircle,
+  ArrowLeft,
+  CheckCircle,
+  CircleQuestionMark,
+  Lock,
+  Minus,
+  MoveLeft,
+  Pencil,
+  Plus,
+  Trash,
+} from "lucide-react";
+import { Form, Link, useFetcher, useLoaderData, type LoaderFunctionArgs } from "react-router";
 
 import type { action as CartUpdateAction } from "~/routes/cart.update";
 
@@ -13,6 +24,7 @@ import cn from "~/lib/cn";
 import format from "~/lib/format";
 import { cartCookie, getCart } from "~/lib/cart.server";
 import { getProduct } from "~/lib/product.server";
+import Input from "~/components/Input";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get("Cookie");
@@ -100,20 +112,30 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const subtotal = results.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const coupon = {
-    code: "SUMMER10",
-    discount: 5,
-    minimum: 50,
-  };
+  let couponTotal = 0;
 
-  const couponDiscount = subtotal >= coupon.minimum ? coupon.discount : 0;
-  const couponTotal = subtotal * (couponDiscount / 100);
+  if (cart.coupon) {
+    if (cart.coupon.type === "PERCENTAGE") {
+      couponTotal = (subtotal * cart.coupon.discount) / 100;
+    }
+
+    if (cart.coupon.type === "FIXED") {
+      couponTotal = cart.coupon.discount;
+    }
+  }
 
   const total = subtotal - couponTotal;
 
   return {
     items: results,
-    coupon,
+    coupon: cart.coupon
+      ? {
+          type: cart.coupon.type,
+          code: cart.coupon.code,
+          discount: cart.coupon.discount,
+          minimum: cart.coupon.minimum,
+        }
+      : null,
     summary: {
       subtotal,
       coupon: couponTotal,
@@ -419,8 +441,10 @@ function CartSummary() {
           </div>
 
           <div className="flex items-center justify-between gap-3">
-            <p>coupon{data?.coupon ? ` (${data.coupon.code})` : ""}</p>
-            <p className="font-semibold">{format.currency(data?.summary.coupon || 0)}</p>
+            <p>coupon</p>
+            <p className={cn("font-semibold", data?.coupon && "text-green-500")}>
+              {format.currency(data && data.coupon ? -data.summary.coupon : 0)}
+            </p>
           </div>
 
           <div className="flex items-center justify-between gap-3">
@@ -480,17 +504,90 @@ function CartSummary() {
 }
 
 function CartCoupon() {
-  return (
-    <Card className="flex mt-2">
-      <input
-        className="h-10 w-full px-3 bg-transparent border border-zinc-700 rounded-l outline-none text-sm focus:border-zinc-500"
-        type="text"
-        placeholder="enter coupon..."
-      />
+  const data = useLoaderData<typeof loader>();
 
-      <Button className="border-l-0 rounded-l-none px-4" variant="outline">
-        apply
-      </Button>
+  const fetcher = useFetcher();
+  const loading = fetcher.state !== "idle";
+  const error = fetcher.data?.error;
+
+  const [edit, setEdit] = useState(false);
+  const [code, setCode] = useState("");
+
+  function onEditClick() {
+    if (data && data.coupon) {
+      setCode(data.coupon.code);
+    }
+
+    setEdit(true);
+  }
+
+  async function onRemoveClick() {
+    await fetcher.submit({ action: "remove" }, { action: "/cart/coupon", method: "post" });
+
+    setEdit(false);
+    setCode("");
+  }
+
+  useEffect(() => {
+    if (data && data.coupon) {
+      setEdit(false);
+      setCode(data.coupon.code);
+    }
+  }, [data]);
+
+  if (data && data.coupon && !edit) {
+    return (
+      <Card className="flex items-center gap-2 mt-2">
+        <CheckCircle className="w-4 h-4 text-green-500" />
+
+        <p className="text-sm font-medium leading-4">
+          coupon <strong>{data.coupon.code}</strong> applied for{" "}
+          {data.coupon.type === "PERCENTAGE" ? `${data.coupon.discount}%` : `${format.currency(data.coupon.discount)}`}{" "}
+          off
+        </p>
+
+        <Button variant="outline" className="w-6 h-6 ml-auto px-0" onClick={onEditClick}>
+          <Pencil className="w-3 h-3" />
+        </Button>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="flex flex-col items-start mt-2">
+      {error && (
+        <div className="flex items-center gap-2 w-full px-3 py-2 mb-2 bg-red-950/50 border border-red-500 rounded text-red-500">
+          <AlertCircle className="min-w-4 w-4 h-4" />
+          <p className="text-sm font-semibold leading-4">{error}</p>
+        </div>
+      )}
+
+      <fetcher.Form action="/cart/coupon" className="flex w-full" method="post">
+        <Input
+          className="w-full rounded-r-none"
+          type="text"
+          placeholder="enter coupon..."
+          name="coupon"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+        />
+
+        <Button
+          className="border-l-0 rounded-l-none px-4"
+          disabled={loading}
+          name="action"
+          value="add"
+          variant="outline"
+        >
+          apply
+        </Button>
+      </fetcher.Form>
+
+      {edit && (
+        <button className="mt-1 text-xs text-zinc-300 font-medium leading-3" disabled={loading} onClick={onRemoveClick}>
+          remove coupon
+        </button>
+      )}
     </Card>
   );
 }

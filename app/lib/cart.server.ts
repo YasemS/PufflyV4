@@ -73,7 +73,7 @@ export async function addCartItem(cartId: string, productSlug: string, variants?
 export async function getCart(cartId: string) {
   const cart = await prisma.cart.findUnique({
     where: { id: cartId },
-    include: { items: { include: { variants: true } } },
+    include: { coupon: true, items: { include: { variants: true } } },
   });
 
   return cart;
@@ -82,7 +82,7 @@ export async function getCart(cartId: string) {
 export async function createCart() {
   const cart = await prisma.cart.create({
     data: {},
-    include: { items: { include: { variants: true } } },
+    include: { coupon: true, items: { include: { variants: true } } },
   });
 
   return cart;
@@ -106,6 +106,8 @@ export async function removeCartItem(cartId: string, cartItemId: string) {
     include: { variants: true },
   });
 
+  await removeCartCoupon(cartId);
+
   return true;
 }
 
@@ -125,6 +127,26 @@ export async function updateCartItemQuantity(cartId: string, cartItemId: string,
   await prisma.cartItem.update({
     where: { id: cartItemId },
     data: { quantity },
+  });
+
+  await removeCartCoupon(cartId);
+
+  return true;
+}
+
+export async function addCartCoupon(cartId: string, couponId: string) {
+  await prisma.cart.update({
+    where: { id: cartId },
+    data: { couponId: couponId },
+  });
+
+  return true;
+}
+
+export async function removeCartCoupon(cartId: string) {
+  await prisma.cart.update({
+    where: { id: cartId },
+    data: { couponId: null },
   });
 
   return true;

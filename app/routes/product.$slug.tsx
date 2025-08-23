@@ -330,7 +330,7 @@ function ProductDeliveryEstimate() {
     <div className="flex items-center justify-center gap-2 mt-4 font-medium text-sm text-center">
       <img alt="USA" className="w-5" src="/img/usa.png" />
       <p>
-        order now, get it by <span className="font-semibold text-pink-500">{getDeliveryEstimate(2)}</span>
+        order now, get it by <span className="font-semibold text-pink-500">{getDeliveryEstimate(3)}</span>
       </p>
     </div>
   );
