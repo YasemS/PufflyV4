@@ -1,32 +1,23 @@
 import { useEffect, useState } from "react";
-import {
-  AlertCircle,
-  ArrowLeft,
-  CheckCircle,
-  CircleQuestionMark,
-  Lock,
-  Minus,
-  MoveLeft,
-  Pencil,
-  Plus,
-  Trash,
-} from "lucide-react";
-import { Form, Link, useFetcher, useLoaderData, type LoaderFunctionArgs } from "react-router";
+import { AlertCircle, CheckCircle, CircleQuestionMark, Lock, Minus, MoveLeft, Pencil, Plus, Trash } from "lucide-react";
+import { Form, Link, useFetcher, useLoaderData } from "react-router";
 
+import type { Route } from "./+types/cart";
 import type { action as CartUpdateAction } from "~/routes/cart.update";
 
 import BackgroundGradient from "~/components/BackgroundGradient";
 import Button from "~/components/Button";
 import Card from "~/components/Card";
+import Input from "~/components/Input";
+import ProgressBar from "~/components/ProgressBar";
 import { H1, H2 } from "~/components/Heading";
 
 import cn from "~/lib/cn";
 import format from "~/lib/format";
 import { cartCookie, getCart } from "~/lib/cart.server";
 import { getProduct } from "~/lib/product.server";
-import Input from "~/components/Input";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   const cookieHeader = request.headers.get("Cookie");
   const cartId = await cartCookie.parse(cookieHeader);
 
@@ -461,10 +452,12 @@ function CartSummary() {
         <CartCoupon />
 
         <div className="flex flex-col mt-2">
-          <Button className="w-full">
-            <Lock className="w-4 h-4" />
-            <span>secure checkout</span>
-          </Button>
+          <Form action="/checkout" method="post">
+            <Button className="w-full">
+              <Lock className="w-4 h-4" />
+              <span>secure checkout</span>
+            </Button>
+          </Form>
 
           <p className="mt-2 text-xs text-zinc-300 text-center">
             by clicking checkout, you agree to our{" "}
@@ -591,18 +584,6 @@ function CartCoupon() {
     </Card>
   );
 }
-
-function ProgressBar({ width }: ProgressBarProps) {
-  return (
-    <div className="w-full h-4 rounded-full bg-zinc-800/50 border border-zinc-800 backdrop-blur">
-      <div className="w-0 h-full bg-pink-500 rounded-full" style={{ width }}></div>
-    </div>
-  );
-}
-
-type ProgressBarProps = {
-  width: string;
-};
 
 type CartItemProps = {
   id: string;

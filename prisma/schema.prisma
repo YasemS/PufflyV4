@@ -108,6 +108,8 @@ model Cart {
 
   items     CartItem[]
 
+  converted  Boolean @default(false)
+
   couponId  String?
   coupon    Coupon? @relation(fields: [couponId], references: [id])
 }
@@ -149,4 +151,84 @@ model Coupon {
   expiration   DateTime?
 
   carts        Cart[]
+  orders       Order[]
+}
+
+enum OrderStatus {
+  CANCELLED
+  PENDING
+  AWAITING_PAYMENT
+  PROCESSING
+  AWAITING_FULFILLMENT
+  FULFILLED
+}
+
+model Order {
+  id        String @id @default(uuid())
+  status    OrderStatus @default(PENDING)
+
+  email         String?
+  phone         String?
+  firstName     String?
+  lastName      String?
+  addressLine1  String?
+  addressLine2  String?
+  city          String?
+  state         String?
+  postal        String?
+  country       String?
+
+  items     OrderItem[]
+
+  coupon    Coupon? @relation(fields: [couponId], references: [id])
+  couponId  String?
+
+  paymentMethod String?
+  paymentId     String?
+
+  shippingMethod String?
+  shippingCost   Float?
+  shipments      OrderShipment[]
+
+  created   DateTime @default(now())
+  updated   DateTime @updatedAt
+}
+
+model OrderItem {
+  id          String @id @default(uuid())
+  quantity    Int
+  variants    OrderItemVariant[]
+
+  productSlug String
+  price       Float?
+
+  order       Order @relation(fields: [orderId], references: [id])
+  orderId     String
+}
+
+model OrderItemVariant {
+  id        String @id @default(uuid())
+
+  variantId String
+  optionId String
+
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id])
+  orderItemId String
+}
+
+enum OrderShipmentStatus {
+  PROCESSING
+  SHIPPED
+}
+
+model OrderShipment {
+  id           String @id @default(uuid())
+  status       OrderShipmentStatus @default(PROCESSING)
+
+  carrier      String
+  tracking     String
+  trackingUrl String?
+
+  orderId String
+  order   Order @relation(fields: [orderId], references: [id])
 }

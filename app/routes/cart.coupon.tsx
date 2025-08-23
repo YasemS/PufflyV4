@@ -120,7 +120,14 @@ export async function action({ request }: Route.ActionArgs) {
 
   await addCartCoupon(cart.id, coupon.id);
 
-  return data({
-    success: true,
-  });
+  return data(
+    {
+      success: true,
+    },
+    {
+      headers: {
+        "Set-Cookie": await cartCookie.serialize(cart.id),
+      },
+    },
+  );
 }
