@@ -14,6 +14,7 @@ import { usePlacesWidget } from "react-google-autocomplete";
 import validator, { type PostalCodeLocale } from "validator";
 
 import type { Route } from "./+types/checkout.$id";
+import type { OrderStatus } from "generated/prisma/client";
 
 import BackgroundGradient from "~/components/BackgroundGradient";
 import Button from "~/components/Button";
@@ -28,12 +29,11 @@ import { H1, H2 } from "~/components/Heading";
 import cn from "~/lib/cn";
 import format from "~/lib/format";
 import authorizenet from "~/lib/authorizenet.server";
+import prisma from "~/lib/prisma.server";
+import { cartCookie } from "~/lib/cart.server";
 import { getOrder } from "~/lib/order.server";
 import { getDeliveryEstimate } from "~/lib/shipping";
 import { getProduct } from "~/lib/product.server";
-import type { OrderStatus } from "generated/prisma/client";
-import prisma from "~/lib/prisma.server";
-import { cartCookie } from "~/lib/cart.server";
 
 export async function action({ params, request }: Route.ActionArgs) {
   const { id } = params;
