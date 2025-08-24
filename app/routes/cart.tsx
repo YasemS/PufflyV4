@@ -365,7 +365,13 @@ function CartUpsell() {
             tagline="surprise flavour picked just for you!"
             price={6.0}
           />
-          {/* <CartMysteryItem /> */}
+
+          <CartMysteryItem
+            slug="mystery-vape-4000"
+            name="mystery vape - 4k puffs"
+            tagline="reliable vape from premium brands"
+            price={15.0}
+          />
         </div>
       </BackgroundGradient>
     </div>
