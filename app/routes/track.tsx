@@ -1,6 +1,6 @@
 import { CircleAlert, MoveRight } from "lucide-react";
 import { useEffect, useState } from "react";
-import { data, Form, redirect, useActionData, useNavigate } from "react-router";
+import { data, Form, redirect, useActionData } from "react-router";
 
 import type { Route } from "./+types/track";
 
