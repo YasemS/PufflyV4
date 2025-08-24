@@ -30,6 +30,7 @@ import cn from "~/lib/cn";
 import format from "~/lib/format";
 import authorizenet from "~/lib/authorizenet.server";
 import prisma from "~/lib/prisma.server";
+import { template as emailTemplate, resend } from "~/lib/email.server";
 import { cartCookie } from "~/lib/cart.server";
 import { getOrder } from "~/lib/order.server";
 import { getDeliveryEstimate } from "~/lib/shipping";
@@ -265,7 +266,39 @@ export async function action({ params, request }: Route.ActionArgs) {
     },
   });
 
-  // TODO: add email, ntfy and datafast
+  const templateItems = results.map((item) => {
+    const variants = item.variants.map((v) => v.value).join(", ");
+
+    return item.quantity + " x " + item.name + (variants ? " (" + variants + ")" : "");
+  });
+
+  const templateAddress = `${order.addressLine1 + (order.addressLine2 ? ", " + order.addressLine2 : "")}, ${order.city}, ${order.state} ${order.postal}`;
+
+  const template =
+    orderStatus === "AWAITING_PAYMENT"
+      ? emailTemplate.order.pending({
+          id: order.id,
+          name: firstName.toLowerCase(),
+          address: templateAddress,
+          payment: paymentMethod.split("-").join(" "),
+          items: templateItems,
+        })
+      : emailTemplate.order.confirmation({
+          id: order.id,
+          name: firstName.toLowerCase(),
+          address: templateAddress,
+          items: templateItems,
+        });
+
+  await resend.emails.send({
+    from: "puffly <automated@puffly.io>",
+    to: [email],
+    replyTo: "support@puffly.io",
+    subject: `order ${orderStatus === "PROCESSING" ? "confirmation" : "pending"} - puffly`,
+    ...template,
+  });
+
+  // TODO: add ntfy and datafast
 
   return redirect("/order/" + order.id, {
     headers: {

@@ -177,7 +177,10 @@ function OrderItemsScroller() {
                 <img alt={item.image.alt} className="w-full h-full object-contain" src={item.image.source} />
               </Card>
             ) : (
-              <div className="flex items-center justify-center min-w-20 w-20 h-20 bg-pink-800/50 border border-pink-500 text-pink-500 rounded-lg">
+              <div
+                className="flex items-center justify-center min-w-20 w-20 h-20 bg-pink-800/50 border border-pink-500 text-pink-500 rounded-lg"
+                key={item.id}
+              >
                 <CircleQuestionMark className="w-8 h-8" />
               </div>
             ),
