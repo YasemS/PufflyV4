@@ -20,10 +20,10 @@ export default function Footer() {
               to: "/products",
               text: "products",
             },
-            {
-              to: "/rewards",
-              text: "rewards",
-            },
+            // {
+            //   to: "/rewards",
+            //   text: "rewards",
+            // },
             {
               to: "/help",
               text: "help",
