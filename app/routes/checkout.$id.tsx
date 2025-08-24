@@ -1,6 +1,19 @@
-import { useState } from "react";
-import { Form } from "react-router";
-import { AlertCircle, ChevronDown, CircleAlert, CircleQuestionMark, MoveRight, Trash } from "lucide-react";
+import { useEffect, useState } from "react";
+import { data as rdata, redirect, useFetcher, useLoaderData, useSubmit, useActionData } from "react-router";
+import {
+  AlertCircle,
+  CheckCircle,
+  ChevronDown,
+  CircleAlert,
+  CircleQuestionMark,
+  Loader2,
+  MoveRight,
+  Pencil,
+} from "lucide-react";
+import { usePlacesWidget } from "react-google-autocomplete";
+import validator, { type PostalCodeLocale } from "validator";
+
+import type { Route } from "./+types/checkout.$id";
 
 import BackgroundGradient from "~/components/BackgroundGradient";
 import Button from "~/components/Button";
@@ -14,24 +27,867 @@ import { H1, H2 } from "~/components/Heading";
 
 import cn from "~/lib/cn";
 import format from "~/lib/format";
+import authorizenet from "~/lib/authorizenet.server";
+import { getOrder } from "~/lib/order.server";
 import { getDeliveryEstimate } from "~/lib/shipping";
+import { getProduct } from "~/lib/product.server";
+import type { OrderStatus } from "generated/prisma/client";
+import prisma from "~/lib/prisma.server";
+import { cartCookie } from "~/lib/cart.server";
+
+export async function action({ params, request }: Route.ActionArgs) {
+  const { id } = params;
+
+  if (typeof id !== "string") {
+    return redirect("/cart");
+  }
+
+  const order = await getOrder(id);
+
+  if (!order) {
+    return redirect("/cart");
+  }
+
+  if (order.status !== "PENDING") {
+    return redirect("/cart");
+  }
+
+  if (order.items.length === 0) {
+    return redirect("/cart");
+  }
+
+  const results = [];
+
+  for (const item of order.items) {
+    const product = await getProduct(item.productSlug);
+
+    if (!product) {
+      continue;
+    }
+
+    const variants = [];
+
+    for (const selectedVariant of item.variants) {
+      const variant = product.variants.find((v) => v.id === selectedVariant.variantId);
+
+      if (!variant) {
+        break;
+      }
+
+      const option = variant.options.find((o) => o.value === selectedVariant.optionId);
+
+      if (!option) {
+        break;
+      }
+
+      if (option.stock < item.quantity) {
+        // TODO: remove item from cart
+        // break;
+      }
+
+      variants.push({
+        name: variant.name,
+        value: option.name,
+      });
+    }
+
+    if (variants.length !== product.variants.length) {
+      continue;
+    }
+
+    // number of products where productSlug is same
+    const productCount = order.items.reduce((count, cartItem) => {
+      return cartItem.productSlug === item.productSlug ? count + cartItem.quantity : count;
+    }, 0);
+
+    // 2 products = 5% off
+    // 3+ products = 10% off
+    const multiDiscount = productCount === 2 ? 0.05 : productCount >= 3 ? 0.1 : 0;
+    const price = product.price - product.price * multiDiscount;
+
+    results.push({
+      id: item.id,
+      slug: product.slug,
+      name: product.name,
+      price,
+      quantity: item.quantity,
+      visible: product.visible,
+      variants,
+    });
+  }
+
+  const subtotal = results.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  let couponTotal = 0;
+
+  if (order.coupon) {
+    if (order.coupon.type === "PERCENTAGE") {
+      couponTotal = (subtotal * order.coupon.discount) / 100;
+    }
+
+    if (order.coupon.type === "FIXED") {
+      couponTotal = order.coupon.discount;
+    }
+  }
+
+  const form = await request.formData();
+
+  const email = form.get("email") || order.email;
+  const firstName = form.get("firstName") || order.firstName;
+  const lastName = form.get("lastName") || order.lastName;
+  const addressLine1 = form.get("addressLine1") || order.addressLine1;
+  const addressLine2 = form.get("addressLine2") || order.addressLine2;
+  const country = form.get("country") || order.country;
+  const city = form.get("city") || order.city;
+  const state = form.get("state") || order.state;
+  const postal = form.get("postal") || order.postal;
+  const shippingMethod = form.get("shippingMethod") || order.shippingMethod;
+  const paymentMethod = form.get("paymentMethod");
+
+  if (!email || typeof email !== "string") {
+    return rdata({ error: "email is required." }, { status: 400 });
+  }
+
+  if (!validator.isEmail(email)) {
+    return rdata({ error: "invalid email address." }, { status: 400 });
+  }
+
+  if (!firstName || typeof firstName !== "string") {
+    return rdata({ error: "first name is required." }, { status: 400 });
+  }
+
+  if (!lastName || typeof lastName !== "string") {
+    return rdata({ error: "last name is required." }, { status: 400 });
+  }
+
+  if (!addressLine1 || typeof addressLine1 !== "string") {
+    return rdata({ error: "address is required." }, { status: 400 });
+  }
+
+  if (addressLine2 && typeof addressLine2 !== "string") {
+    return rdata({ error: "invalid apt/suite/unit." }, { status: 400 });
+  }
+
+  if (!country || typeof country !== "string") {
+    return rdata({ error: "country is required." }, { status: 400 });
+  }
+
+  if (!city || typeof city !== "string") {
+    return rdata({ error: "city is required." }, { status: 400 });
+  }
+
+  if (!state || typeof state !== "string") {
+    return rdata({ error: "state is required." }, { status: 400 });
+  }
+
+  if (!postal || typeof postal !== "string") {
+    return rdata({ error: "postal code is required." }, { status: 400 });
+  }
+
+  if (!validator.isISO31661Alpha2(country)) {
+    return rdata({ error: "invalid country code." }, { status: 400 });
+  }
+
+  if (!validator.isPostalCode(postal, country as PostalCodeLocale)) {
+    return rdata({ error: "invalid postal code." }, { status: 400 });
+  }
+
+  if (!shippingMethod || typeof shippingMethod !== "string") {
+    return rdata({ error: "shipping method is required." }, { status: 400 });
+  }
+
+  if (!["standard", "express"].includes(shippingMethod)) {
+    return rdata({ error: "invalid shipping method." }, { status: 400 });
+  }
+
+  if (!paymentMethod || typeof paymentMethod !== "string") {
+    return rdata({ error: "payment method is required." }, { status: 400 });
+  }
+
+  if (!["credit-card", "cash-app"].includes(paymentMethod)) {
+    return rdata({ error: "invalid payment method." }, { status: 400 });
+  }
+
+  const shippingTotal = shippingMethod === "standard" ? (subtotal > 40 ? 0 : 2.99) : 10;
+
+  const total = subtotal - couponTotal + shippingTotal;
+
+  let orderStatus: OrderStatus = "AWAITING_PAYMENT";
+  let orderPaymentId: string | null = null;
+
+  if (paymentMethod === "credit-card") {
+    const cardDescriptor = form.get("paymentDataDescriptor")?.toString() || "";
+    const cardValue = form.get("paymentDataValue")?.toString() || "";
+
+    if (!cardDescriptor.trim() || !cardValue.trim()) {
+      return rdata({ error: "credit card is required" }, { status: 400 });
+    }
+
+    const transaction = await authorizenet.createPayment(
+      total,
+      { descriptor: cardDescriptor, value: cardValue },
+      {
+        loginId: "24Vg8c39Tq",
+        transactionKey: "67fq8bP32NLdsZ5z",
+      },
+    );
+
+    if ("error" in transaction) {
+      return rdata({ error: transaction.error.toLowerCase() }, { status: 400 });
+    }
+
+    orderStatus = "PROCESSING";
+    orderPaymentId = transaction.id;
+  }
+
+  await prisma.order.update({
+    data: {
+      status: orderStatus,
+      email,
+      firstName,
+      lastName,
+      addressLine1,
+      addressLine2: addressLine2 || null,
+      country,
+      city,
+      state,
+      postal,
+      subtotal,
+      couponTotal,
+      shippingTotal,
+      total,
+      shippingMethod,
+      paymentMethod: paymentMethod,
+      paymentId: orderPaymentId,
+    },
+    where: {
+      id: order.id,
+    },
+  });
+
+  // TODO: add email, ntfy and datafast
+
+  return redirect("/order/" + order.id, {
+    headers: {
+      "Set-Cookie": await cartCookie.serialize("", { maxAge: 0 }),
+    },
+  });
+}
+
+export async function loader({ params }: Route.LoaderArgs) {
+  const { id } = params;
+
+  if (typeof id !== "string") {
+    return redirect("/cart");
+  }
+
+  const order = await getOrder(id);
+
+  if (!order) {
+    return redirect("/cart");
+  }
+
+  if (order.status !== "PENDING") {
+    return redirect("/cart");
+  }
+
+  if (order.items.length === 0) {
+    return redirect("/cart");
+  }
+
+  const results = [];
+
+  for (const item of order.items) {
+    const product = await getProduct(item.productSlug);
+
+    if (!product) {
+      continue;
+    }
+
+    let image = product.images[0];
+    const variants = [];
+
+    for (const selectedVariant of item.variants) {
+      const variant = product.variants.find((v) => v.id === selectedVariant.variantId);
+
+      if (!variant) {
+        break;
+      }
+
+      const option = variant.options.find((o) => o.value === selectedVariant.optionId);
+
+      if (!option) {
+        break;
+      }
+
+      if (option.stock < item.quantity) {
+        // TODO: remove item from cart
+        // break;
+      }
+
+      variants.push({
+        name: variant.name,
+        value: option.name,
+      });
+
+      if (option.imageId) {
+        const optionImage = product.images.find((img) => img.id === option.imageId);
+
+        if (optionImage) {
+          image = optionImage;
+        }
+      }
+    }
+
+    if (variants.length !== product.variants.length) {
+      continue;
+    }
+
+    // number of products where productSlug is same
+    const productCount = order.items.reduce((count, cartItem) => {
+      return cartItem.productSlug === item.productSlug ? count + cartItem.quantity : count;
+    }, 0);
+
+    // 2 products = 5% off
+    // 3+ products = 10% off
+    const multiDiscount = productCount === 2 ? 0.05 : productCount >= 3 ? 0.1 : 0;
+    const price = product.price - product.price * multiDiscount;
+
+    results.push({
+      id: item.id,
+      slug: product.slug,
+      name: product.name,
+      image,
+      price,
+      quantity: item.quantity,
+      visible: product.visible,
+      variants,
+    });
+  }
+
+  const subtotal = results.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  let couponTotal = 0;
+
+  if (order.coupon) {
+    if (order.coupon.type === "PERCENTAGE") {
+      couponTotal = (subtotal * order.coupon.discount) / 100;
+    }
+
+    if (order.coupon.type === "FIXED") {
+      couponTotal = order.coupon.discount;
+    }
+  }
+
+  return {
+    order: {
+      id: order.id,
+      email: order.email,
+      firstName: order.firstName,
+      lastName: order.lastName,
+      addressLine1: order.addressLine1,
+      addressLine2: order.addressLine2,
+      country: order.country,
+      city: order.city,
+      state: order.state,
+      postal: order.postal,
+      shippingMethod: order.shippingMethod,
+      paymentMethod: order.paymentMethod,
+    },
+    items: results,
+    coupon: order.coupon
+      ? {
+          type: order.coupon.type,
+          code: order.coupon.code,
+          discount: order.coupon.discount,
+          minimum: order.coupon.minimum,
+        }
+      : null,
+    summary: {
+      subtotal,
+      coupon: couponTotal,
+    },
+  };
+}
 
 export default function Checkout() {
-  const [shippingMethod, setShippingMethod] = useState<string>("standard");
+  const aData = useActionData<typeof action>();
+  const data = useLoaderData<typeof loader>();
+
+  const fetcher = useFetcher();
+  const submit = useSubmit();
+
+  const { ref: addressRef } = usePlacesWidget<HTMLInputElement>({
+    apiKey: "AIzaSyCAKJnuSa3PDUxJtb1qsoHH4zy7vUOGsCM",
+    onPlaceSelected: onAddressSelect,
+    options: {
+      types: ["address"],
+      componentRestrictions: { country: "us" },
+    },
+  });
+
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const [email, setEmail] = useState(data.order.email || "");
+  const [firstName, setFirstName] = useState(data.order.firstName || "");
+  const [lastName, setLastName] = useState(data.order.lastName || "");
+  const [addressLine1, setAddressLine1] = useState(data.order.addressLine1 || "");
+  const [addressLine2, setAddressLine2] = useState(data.order.addressLine2 || "");
+  const [country, setCountry] = useState(data.order.country || "");
+  const [city, setCity] = useState(data.order.city || "");
+  const [state, setState] = useState(data.order.state || "");
+  const [postal, setPostal] = useState(data.order.postal || "");
+
+  const [shippingMethod, setShippingMethod] = useState(data.order.shippingMethod || "standard");
   const [paymentMethod, setPaymentMethod] = useState<string>("");
+
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvc, setCardCvc] = useState("");
+  const [cardHolder, setCardHolder] = useState("");
+  const [cardPostal, setCardPostal] = useState("");
+
+  const loading = fetcher.state !== "idle" || submitting;
+
+  const subtotal = data.summary.subtotal;
+  const couponTotal = data.summary.coupon;
+  const shippingTotal = shippingMethod === "standard" ? (subtotal > 40 ? 0 : 2.99) : 10;
+
+  const total = subtotal - couponTotal + shippingTotal;
+
+  function getCardBrand(input?: string) {
+    const cleaned = (input ?? cardNumber).replace(/\D/g, "");
+
+    if (/^4/.test(cleaned)) {
+      return "VISA";
+    } else if (/^5[1-5]/.test(cleaned) || /^(222[1-9]|22[3-9]\d|2[3-6]\d{2}|27[01]\d|2720)/.test(cleaned)) {
+      return "MASTERCARD";
+    } else if (/^3[47]/.test(cleaned)) {
+      return "AMEX";
+    } else if (
+      /^6011/.test(cleaned) ||
+      /^65/.test(cleaned) ||
+      /^64[4-9]/.test(cleaned) ||
+      /^(62212[6-9]|6221[3-9]\d|622[2-8]\d{2}|6229[01]\d|62292[0-5])/.test(cleaned)
+    ) {
+      return "DISCOVER";
+    }
+
+    return "";
+  }
+
+  function getCardIcons() {
+    const brand = getCardBrand();
+
+    const icons = [];
+
+    if (brand === "VISA") {
+      icons.push(<img key="visa" className="h-5 rounded-xs" src="/img/visa.svg" alt="Visa" />);
+    }
+
+    if (brand === "MASTERCARD") {
+      icons.push(<img key="mastercard" className="h-5 rounded-xs" src="/img/mastercard.svg" alt="MasterCard" />);
+    }
+
+    if (brand === "DISCOVER") {
+      icons.push(<img key="discover" className="h-5 rounded-xs" src="/img/discover.svg" alt="Discover" />);
+    }
+
+    if (brand === "AMEX") {
+      icons.push(<img key="amex" className="h-5 rounded-xs" src="/img/amex.svg" alt="American Express" />);
+    }
+
+    // If no match yet (input too short or invalid prefix), show all
+    if (icons.length === 0) {
+      return (
+        <>
+          <img alt="Visa" className="h-5 rounded-xs" src="/img/visa.svg" />
+
+          <img alt="Mastercard" className="h-5 rounded-xs" src="/img/mastercard.svg" />
+
+          <img alt="American Express" className="h-5 rounded-xs" src="/img/amex.svg" />
+
+          <p className="pl-1 font-medium leading-3 text-center text-xs">+2</p>
+        </>
+      );
+    }
+
+    return <>{icons}</>;
+  }
+
+  function onCardNumberChange(value: string) {
+    const raw = value.replace(/\D/g, ""); // Digits only
+    const brand = getCardBrand(raw);
+
+    // Set max length by brand
+    let maxLength = 16;
+    if (brand === "AMEX") {
+      maxLength = 15;
+    } else if (brand === "VISA") {
+      maxLength = 19;
+    }
+
+    const trimmed = raw.slice(0, maxLength);
+
+    let formatted = trimmed;
+
+    if (brand === "AMEX") {
+      // AMEX: 4-6-5 format
+      formatted = trimmed.replace(/^(\d{0,4})(\d{0,6})(\d{0,5}).*/, (_, p1, p2, p3) =>
+        [p1, p2, p3].filter(Boolean).join(" "),
+      );
+    } else {
+      // Default: space every 4 digits
+      formatted = trimmed.replace(/(.{1,4})/g, "$1 ").trim();
+    }
+
+    setCardNumber(formatted);
+  }
+
+  function onCardExpiryChange(value: string) {
+    let digitsOnly = value.replace(/\D/g, "");
+
+    // Auto-prepend 0 if user types a single-digit month like 3 → 03
+    if (digitsOnly.length === 1 && parseInt(digitsOnly, 10) > 1) {
+      digitsOnly = "0" + digitsOnly;
+    }
+
+    digitsOnly = digitsOnly.slice(0, 4); // MMYY
+
+    let month = digitsOnly.slice(0, 2);
+    let year = digitsOnly.slice(2);
+
+    // Auto-correct invalid month
+    if (month.length === 2) {
+      let monthNum = parseInt(month, 10);
+      if (monthNum < 1) monthNum = 1;
+      if (monthNum > 12) monthNum = 12;
+      month = monthNum < 10 ? "0" + monthNum : "" + monthNum;
+    }
+
+    // Auto-correct year if in past (assume 20YY)
+    if (year.length === 2) {
+      const currentYear = new Date().getFullYear() % 100; // last 2 digits
+      const currentMonth = new Date().getMonth() + 1; // 1–12
+
+      const yearNum = parseInt(year, 10);
+      if (yearNum < currentYear) {
+        year = currentYear.toString().padStart(2, "0");
+      } else if (yearNum === currentYear && parseInt(month, 10) < currentMonth) {
+        // If same year, make sure month isn't in past
+        month = currentMonth.toString().padStart(2, "0");
+      }
+    }
+
+    const formatted = year ? `${month}/${year}` : month;
+    setCardExpiry(formatted);
+  }
+
+  function onAddressSelect(place: google.maps.places.PlaceResult) {
+    if (!place || !place.address_components) return;
+    if (place.address_components.length === 0) return;
+
+    const data = {
+      addressLine1: "",
+    };
+
+    for (const component of place.address_components) {
+      if (component.types.includes("street_number")) {
+        data.addressLine1 = component.long_name + data.addressLine1;
+        continue;
+      }
+
+      if (component.types.includes("route")) {
+        data.addressLine1 = data.addressLine1 + " " + component.long_name;
+        continue;
+      }
+
+      if (component.types.includes("subpremise")) {
+        setAddressLine2(component.long_name.toLowerCase());
+        continue;
+      }
+
+      if (component.types.includes("country")) {
+        setCountry(component.short_name);
+        continue;
+      }
+
+      if (component.types.includes("locality")) {
+        setCity(component.long_name.toLowerCase());
+        continue;
+      }
+
+      if (component.types.includes("administrative_area_level_1")) {
+        setState(component.short_name);
+        continue;
+      }
+
+      if (component.types.includes("postal_code")) {
+        setPostal(component.long_name);
+        continue;
+      }
+    }
+
+    setAddressLine1(data.addressLine1.toLowerCase());
+  }
+
+  function onCheckoutChange() {
+    const changes: { [key: string]: string } = {};
+
+    if (email && validator.isEmail(email) && email !== data.order.email) {
+      changes.email = email;
+    }
+
+    if (firstName && firstName !== data.order.firstName) {
+      changes.firstName = firstName;
+    }
+
+    if (lastName && lastName !== data.order.lastName) {
+      changes.lastName = lastName;
+    }
+
+    if (addressLine1 && addressLine1 !== data.order.addressLine1) {
+      changes.addressLine1 = addressLine1;
+    }
+
+    const al2 = addressLine2 || null;
+
+    if (al2 !== data.order.addressLine2) {
+      changes.addressLine2 = addressLine2;
+    }
+
+    if (country && country !== data.order.country) {
+      changes.country = country;
+    }
+
+    if (city && city !== data.order.city) {
+      changes.city = city;
+    }
+
+    if (state && state !== data.order.state) {
+      changes.state = state;
+    }
+
+    if (postal && postal !== data.order.postal) {
+      changes.postal = postal;
+    }
+
+    if (shippingMethod && shippingMethod !== data.order.shippingMethod) {
+      changes.shippingMethod = shippingMethod;
+    }
+
+    if (Object.keys(changes).length > 0) {
+      fetcher.submit({ ...changes, order: data.order.id }, { action: "/checkout/update", method: "post" });
+    }
+  }
+
+  function onPaymentChange(method: string) {
+    setPaymentMethod(method);
+
+    if (method === "credit-card") {
+      setCardNumber("");
+      setCardExpiry("");
+      setCardCvc("");
+      setCardHolder(firstName + " " + lastName);
+      setCardPostal(postal);
+    }
+  }
+
+  function onCheckoutError(error: string) {
+    setError(error);
+    setSubmitting(false);
+
+    window.scrollTo(0, 0);
+  }
+
+  function onCheckoutClick(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+
+    if (submitting) return;
+
+    setSubmitting(true);
+
+    if (!email) {
+      return onCheckoutError("email is required.");
+    }
+
+    if (!validator.isEmail(email)) {
+      return onCheckoutError("invalid email.");
+    }
+
+    if (!firstName) {
+      return onCheckoutError("first name is required.");
+    }
+
+    if (!lastName) {
+      return onCheckoutError("last name is required.");
+    }
+
+    if (!addressLine1) {
+      return onCheckoutError("address is required.");
+    }
+
+    if (!country) {
+      return onCheckoutError("country is required.");
+    }
+
+    if (!city) {
+      return onCheckoutError("city is required.");
+    }
+
+    if (!state) {
+      return onCheckoutError("state is required.");
+    }
+
+    if (!postal) {
+      return onCheckoutError("postal code is required.");
+    }
+
+    if (!shippingMethod) {
+      return onCheckoutError("shipping method is required.");
+    }
+
+    if (!paymentMethod) {
+      return onCheckoutError("payment method is required.");
+    }
+
+    if (paymentMethod === "credit-card") {
+      if (!cardNumber) {
+        return onCheckoutError("card number is required.");
+      }
+
+      if (!cardExpiry) {
+        return onCheckoutError("card expiry is required.");
+      }
+
+      if (!cardCvc) {
+        return onCheckoutError("card cvc is required.");
+      }
+
+      if (!cardHolder) {
+        return onCheckoutError("card holder is required.");
+      }
+
+      if (!cardPostal) {
+        return onCheckoutError("card postal code is required.");
+      }
+
+      if (cardExpiry.split("/").length !== 2) {
+        return onCheckoutError("invalid card expiry date.");
+      }
+
+      if (cardPostal.length > 20) {
+        return onCheckoutError("billing zip cannot exceed 20 characters");
+      }
+
+      if (cardHolder.length > 64) {
+        return onCheckoutError("name of card holder cannot exceed 64 characters");
+      }
+
+      if (typeof window.Accept === "undefined" || !window.Accept) {
+        return onCheckoutError(
+          "unable to process payment, failed to load gateway. please contact support or try a different payment method.",
+        );
+      }
+
+      const authData = {
+        apiLoginID: "24Vg8c39Tq",
+        clientKey: "5w8JFWVuSetGb25LK5UgBfVaK36g94Sq7Nq423XshPsqt5Qbx7GKRBYq2Z6mGssv",
+      };
+
+      const cardData = {
+        cardNumber: cardNumber.replace(/\D/g, ""),
+        month: parseInt(cardExpiry.split("/")[0]).toString(),
+        year: cardExpiry.split("/")[1],
+        cardCode: cardCvc,
+        zip: cardPostal.trim(),
+        fullName: cardHolder.trim(),
+      };
+
+      const secureData = {
+        authData,
+        cardData,
+      };
+
+      window.Accept.dispatchData(secureData, (response) => {
+        if (response.messages.resultCode === "Error") {
+          return onCheckoutError(response.messages.message[0].text);
+        }
+
+        const { dataDescriptor, dataValue } = response.opaqueData;
+
+        submitCheckout({
+          paymentDataDescriptor: dataDescriptor,
+          paymentDataValue: dataValue,
+        });
+      });
+
+      return;
+    }
+
+    submitCheckout();
+  }
+
+  function submitCheckout(dataExtra?: { [key: string]: string }) {
+    const data = {
+      email,
+      firstName,
+      lastName,
+      addressLine1,
+      addressLine2,
+      country,
+      city,
+      state,
+      postal,
+      shippingMethod,
+      paymentMethod,
+      ...dataExtra,
+    };
+
+    submit(data, { method: "post" });
+  }
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onCheckoutChange();
+    }, 1000);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [email, firstName, lastName, addressLine1, addressLine2, country, city, state, postal, shippingMethod]);
+
+  useEffect(() => {
+    if (aData && aData.error) {
+      onCheckoutError(aData.error);
+    }
+  }, [aData]);
 
   return (
     <>
       <H1>checkout</H1>
 
       <div className="flex flex-col gap-4 mt-4">
-        <CheckoutDeliveryThreshold />
+        {error && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-red-950/50 border border-red-500 rounded text-red-500">
+            <AlertCircle className="min-w-4 w-4 h-4" />
+            <p className="text-sm font-semibold">{error}</p>
+          </div>
+        )}
 
         <CheckoutSection title="contact">
           <InputControl>
             <Label htmlFor="email">email</Label>
 
-            <Input id="email" name="email" type="email" required />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </InputControl>
 
           <div className="flex items-center gap-2 mt-2">
@@ -48,31 +904,72 @@ export default function Checkout() {
             <InputControl>
               <Label htmlFor="first_name">first name</Label>
 
-              <Input id="first_name" name="first_name" type="text" required />
+              <Input
+                autoComplete="given-name"
+                id="first_name"
+                name="first_name"
+                type="text"
+                required
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
             </InputControl>
 
             <InputControl>
               <Label htmlFor="last_name">last name</Label>
 
-              <Input id="last_name" name="last_name" type="text" required />
+              <Input
+                autoComplete="family-name"
+                id="last_name"
+                name="last_name"
+                type="text"
+                required
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
             </InputControl>
 
             <InputControl>
               <Label htmlFor="address_line_1">address</Label>
 
-              <Input id="address_line_1" name="address_line_1" type="text" required />
+              <Input
+                autoComplete="address-line1"
+                id="address_line_1"
+                name="address_line_1"
+                placeholder="enter your address"
+                ref={addressRef}
+                type="text"
+                required
+                value={addressLine1}
+                onChange={(e) => setAddressLine1(e.target.value)}
+              />
             </InputControl>
 
             <InputControl>
               <Label htmlFor="address_line_2">apt / suite / unit</Label>
 
-              <Input id="address_line_2" placeholder="optional" name="address_line_2" type="text" />
+              <Input
+                autoComplete="address-line2"
+                id="address_line_2"
+                placeholder="optional"
+                name="address_line_2"
+                type="text"
+                value={addressLine2}
+                onChange={(e) => setAddressLine2(e.target.value)}
+              />
             </InputControl>
 
             <InputControl>
               <Label htmlFor="country">country</Label>
 
-              <Select defaultValue="" id="country" name="country" required>
+              <Select
+                autoComplete="country"
+                id="country"
+                name="country"
+                required
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+              >
                 <option value="" disabled></option>
                 <option value="US">united states</option>
               </Select>
@@ -81,13 +978,28 @@ export default function Checkout() {
             <InputControl>
               <Label htmlFor="city">city</Label>
 
-              <Input id="city" name="city" type="text" required />
+              <Input
+                autoComplete="address-level2"
+                id="city"
+                name="city"
+                type="text"
+                required
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+              />
             </InputControl>
 
             <InputControl>
               <Label htmlFor="state">state</Label>
 
-              <Select defaultValue="" id="state" name="state" required>
+              <Select
+                autoComplete="address-level1"
+                id="state"
+                name="state"
+                required
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+              >
                 <option disabled value=""></option>
                 <option value="AL">alabama</option>
                 <option value="AK">alaska</option>
@@ -144,13 +1056,15 @@ export default function Checkout() {
             <InputControl>
               <Label htmlFor="postal">zip code</Label>
 
-              <Input id="postal" name="postal" type="text" required />
-            </InputControl>
-
-            <InputControl>
-              <Label htmlFor="phone">phone</Label>
-
-              <Input id="phone" placeholder="optional" name="phone" type="text" />
+              <Input
+                autoComplete="postal-code"
+                id="postal"
+                name="postal"
+                type="text"
+                required
+                value={postal}
+                onChange={(e) => setPostal(e.target.value)}
+              />
             </InputControl>
           </div>
         </CheckoutSection>
@@ -161,7 +1075,7 @@ export default function Checkout() {
               active={shippingMethod === "standard"}
               title="standard shipping"
               days={5}
-              price={2.99}
+              price={data.summary.subtotal > 40 ? 0 : 2.99}
               onClick={() => setShippingMethod("standard")}
             />
 
@@ -180,47 +1094,81 @@ export default function Checkout() {
             <CheckoutPaymentOption
               active={paymentMethod === "credit-card"}
               title="credit card"
-              icons={
-                <>
-                  <img alt="visa" className="h-5 rounded-xs" src="/img/visa.svg" />
-                  <img alt="mastercard" className="h-5 rounded-xs" src="/img/mastercard.svg" />
-                  <img alt="amex" className="h-5 rounded-xs" src="/img/amex.svg" />
-
-                  <p className="pl-1 font-medium leading-3 text-center text-xs">+2</p>
-                </>
-              }
+              icons={getCardIcons()}
               content={
                 <>
                   <InputControl>
                     <Label htmlFor="card_number">card number</Label>
 
-                    <Input id="card_number" name="card_number" type="text" required />
+                    <Input
+                      autoComplete="cc-number"
+                      inputMode="numeric"
+                      id="card_number"
+                      name="card_number"
+                      type="text"
+                      required
+                      value={cardNumber}
+                      onChange={(e) => onCardNumberChange(e.target.value)}
+                    />
                   </InputControl>
 
                   <div className="grid grid-cols-2 gap-2">
                     <InputControl>
-                      <Label htmlFor="expiry_date">expiration date</Label>
+                      <Label htmlFor="card_expiry">expiration date</Label>
 
-                      <Input id="expiry_date" name="expiry_date" placeholder="mm/yy" type="text" required />
+                      <Input
+                        autoComplete="cc-exp"
+                        id="card_expiry"
+                        name="card_expiry"
+                        placeholder="mm/yy"
+                        type="text"
+                        required
+                        value={cardExpiry}
+                        onChange={(e) => onCardExpiryChange(e.target.value)}
+                      />
                     </InputControl>
 
                     <InputControl>
-                      <Label htmlFor="security_code">security code</Label>
+                      <Label htmlFor="card_cvc">security code</Label>
 
-                      <Input id="security_code" name="security_code" type="text" required />
+                      <Input
+                        autoComplete="cc-csc"
+                        id="card_cvc"
+                        name="card_cvc"
+                        type="number"
+                        required
+                        value={cardCvc}
+                        onChange={(e) => setCardCvc(e.target.value)}
+                      />
                     </InputControl>
                   </div>
 
                   <InputControl>
                     <Label htmlFor="card_holder">name on card</Label>
 
-                    <Input id="card_holder" name="card_holder" type="text" required />
+                    <Input
+                      autoComplete="cc-name"
+                      id="card_holder"
+                      name="card_holder"
+                      type="text"
+                      required
+                      value={cardHolder}
+                      onChange={(e) => setCardHolder(e.target.value)}
+                    />
                   </InputControl>
 
                   <InputControl>
                     <Label htmlFor="card_postal">billing zip</Label>
 
-                    <Input id="card_postal" name="card_postal" type="text" required />
+                    <Input
+                      autoComplete="billing postal-code"
+                      id="card_postal"
+                      name="card_postal"
+                      type="text"
+                      required
+                      value={cardPostal}
+                      onChange={(e) => setCardPostal(e.target.value)}
+                    />
 
                     <div className="flex items-center gap-1 mt-1 font-medium leading-3 text-xs text-zinc-300">
                       <CircleAlert className="w-3 h-3" />
@@ -229,47 +1177,28 @@ export default function Checkout() {
                   </InputControl>
                 </>
               }
-              onClick={() => setPaymentMethod("credit-card")}
+              onClick={() => onPaymentChange("credit-card")}
+            />
+
+            <CheckoutPaymentOption
+              active={paymentMethod === "cash-app"}
+              title="cash app"
+              icons={<img alt="Cash App" className="h-5 rounded-xs" src="/img/cash-app.svg" />}
+              content={<p>Hello World</p>}
+              onClick={() => onPaymentChange("cash-app")}
             />
           </div>
         </CheckoutSection>
       </div>
 
-      <div className="flex flex-col mt-12">
-        <CheckoutUpsell />
-
-        <CheckoutSummary />
+      <div className="flex flex-col mt-8">
+        <CheckoutSummary
+          loading={loading}
+          onCheckoutClick={onCheckoutClick}
+          summary={{ subtotal, coupon: couponTotal, shipping: shippingTotal, total }}
+        />
       </div>
     </>
-  );
-}
-
-function CheckoutDeliveryThreshold() {
-  // const data = useLoaderData<typeof loader>();
-
-  const threshold = 40;
-  const subtotal = 10;
-  // const subtotal = data?.summary.subtotal || 0;
-  const difference = threshold - subtotal;
-
-  return (
-    <Card>
-      {difference <= 0 ? (
-        <p className="text-sm font-medium">you've unlocked free shipping 🚚</p>
-      ) : (
-        <p className="text-sm font-medium">
-          you're{" "}
-          <span className="mx-0.25 px-1 py-0.5 bg-pink-500 rounded font-semibold">
-            {format.currency(difference > 0 ? difference : 0)}
-          </span>{" "}
-          away from free shipping!
-        </p>
-      )}
-
-      <div className="mt-2">
-        <ProgressBar width={`${Math.min((subtotal / threshold) * 100, 100)}%`} />
-      </div>
-    </Card>
   );
 }
 
@@ -298,7 +1227,7 @@ function CheckoutShippingOption({ active, title, days, price, onClick }: Checkou
 
         <div className="flex flex-col">
           <p className="text-sm font-semibold leading-3.5">{title}</p>
-          <p className="mt-1 text-zinc-300 text-xs leading-3">est. to arrive by {getDeliveryEstimate(days)}</p>
+          <p className="mt-1 text-zinc-300 text-xs leading-3">est. arrival by {getDeliveryEstimate(days)}</p>
         </div>
 
         <p className="ml-auto text-sm font-semibold leading-3.5">{price === 0 ? "free" : format.currency(price)}</p>
@@ -317,7 +1246,7 @@ function CheckoutPaymentOption({ onClick, ...props }: CheckoutPaymentOptionProps
             props.active && "bg-pink-950/25 border-pink-500 rounded-b-none",
           )}
         >
-          <input className="mt-0.5 accent-pink-500" checked={props.active} readOnly type="radio" />
+          <input className="mt-0.25 accent-pink-500" checked={props.active} readOnly type="radio" />
 
           <p className="text-sm font-semibold leading-3.5">{props.title}</p>
 
@@ -334,10 +1263,14 @@ function CheckoutPaymentOption({ onClick, ...props }: CheckoutPaymentOptionProps
   );
 }
 
-function CheckoutSummary() {
+function CheckoutSummary({ loading, summary, onCheckoutClick }: CheckoutSummaryProps) {
+  const data = useLoaderData<typeof loader>();
+
   return (
     <div className="mt-8">
       <H2>order summary</H2>
+
+      <CheckoutDeliveryThreshold />
 
       <CheckoutItems />
 
@@ -345,48 +1278,86 @@ function CheckoutSummary() {
         <Card className="flex flex-col gap-2 mt-2">
           <div className="flex items-center justify-between gap-3">
             <p>subtotal</p>
-            <p className="font-semibold">{format.currency(0)}</p>
+            <p className="font-semibold">{format.currency(summary.subtotal)}</p>
           </div>
 
           <div className="flex items-center justify-between gap-3">
             <p>coupon</p>
-            <p className={cn("font-semibold text-green-500")}>{format.currency(-5)}</p>
+            <p className={cn("font-semibold", data?.coupon && "text-green-500")}>
+              {format.currency(data && data.coupon ? -summary.coupon : 0)}
+            </p>
           </div>
 
           <div className="flex items-center justify-between gap-3">
             <p>shipping</p>
-            <p className="font-semibold">{format.currency(2.99)}</p>
+            <p className="font-semibold">{format.currency(summary.shipping)}</p>
           </div>
 
           <div className="flex items-center justify-between gap-3 mt-1 pt-3 border-t border-zinc-700 text-lg font-semibold">
             <p>total</p>
-            <p>{format.currency(0)}</p>
+            <p>{format.currency(summary.total)}</p>
           </div>
         </Card>
 
         <CheckoutCoupon />
 
-        <div className="flex flex-col mt-2">
-          <Form action="/checkout" method="post">
-            <Button className="w-full">
-              <span>pay now</span>
+        <Button className="w-full mt-2" disabled={loading} onClick={onCheckoutClick}>
+          {loading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <>
+              <span>checkout</span>
               <MoveRight className="w-4 h-4" />
-            </Button>
-          </Form>
-        </div>
+            </>
+          )}
+        </Button>
       </BackgroundGradient>
     </div>
   );
 }
 
+function CheckoutDeliveryThreshold() {
+  const data = useLoaderData<typeof loader>();
+
+  const threshold = 40;
+  const subtotal = data?.summary.subtotal || 0;
+  const difference = threshold - subtotal;
+
+  return (
+    <Card className="mt-2">
+      {difference <= 0 ? (
+        <p className="text-sm font-medium">you've unlocked free shipping 🚚</p>
+      ) : (
+        <p className="text-sm font-medium">
+          you're{" "}
+          <span className="mx-0.25 px-1 py-0.5 bg-pink-500 rounded font-semibold">
+            {format.currency(difference > 0 ? difference : 0)}
+          </span>{" "}
+          away from free shipping!
+        </p>
+      )}
+
+      <div className="mt-2">
+        <ProgressBar width={`${Math.min((subtotal / threshold) * 100, 100)}%`} />
+      </div>
+    </Card>
+  );
+}
+
 function CheckoutItems() {
+  const data = useLoaderData<typeof loader>();
+
   const [open, setOpen] = useState(false);
+
+  const count = data?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
   return (
     <BackgroundGradient className="mt-3">
       <Card className="p-0">
         <div className="flex items-center justify-between px-4 py-2">
-          <p className="font-semibold text-base">5 items</p>
+          <p className="font-semibold text-base">
+            {count} {format.plural(count, "item", "items")}
+          </p>
 
           <Button className="gap-1.5 px-3 h-8 text-xs" variant="outline" onClick={() => setOpen(!open)}>
             <span>{open ? "hide" : "show"}</span>
@@ -396,9 +1367,9 @@ function CheckoutItems() {
 
         {open && (
           <div className="flex flex-col p-3 border-t border-zinc-700">
-            <CheckoutItem />
-
-            <CheckoutItem />
+            {data.items.map((item) => (
+              <CheckoutItem key={item.id} {...item} />
+            ))}
           </div>
         )}
       </Card>
@@ -406,155 +1377,90 @@ function CheckoutItems() {
   );
 }
 
-function CheckoutItem() {
+function CheckoutItem(props: CheckoutItemProps) {
   return (
     <div className="flex items-center gap-3 mt-4 pt-4 border-t border-zinc-700 first:mt-0 first:pt-0 first:border-t-0">
-      <Card className="relative min-w-16 w-16 h-16 p-2 border-zinc-700">
-        <img
-          alt=""
-          className="w-full h-full object-contain"
-          src="https://cdn.puffly.io/img/products/geek-bar-pulse-x/blue-razz-ice.png"
-        />
+      {props.visible ? (
+        <Card className="relative min-w-16 w-16 h-16 p-2 border-zinc-700">
+          <img alt={props.image.alt} className="w-full h-full object-contain" src={props.image.source} />
 
-        <span className="absolute -top-2 -right-2 w-4 h-4 bg-pink-500 rounded-full text-xs text-center font-semibold leading-4">
-          1
-        </span>
-      </Card>
+          <span className="absolute -top-2 -right-2 w-4 h-4 bg-pink-500 rounded-full text-xs text-center font-semibold leading-4">
+            {props.quantity}
+          </span>
+        </Card>
+      ) : (
+        <div className="flex items-center justify-center min-w-16 w-16 h-16 bg-pink-800/50 border border-pink-500 text-pink-500 rounded-lg">
+          <CircleQuestionMark className="w-8 h-8" />
+        </div>
+      )}
 
       <div className="flex flex-col">
-        <p className="font-bold leading-4">geek bar pulse x</p>
+        <p className="font-bold leading-4">{props.name}</p>
 
         <p className="mt-1 text-zinc-300 text-xs font-medium leading-3">
-          <span>
-            flavour: <span className="font-semibold">blue razz ice</span>
-          </span>
+          {props.variants.map((variant) => (
+            <span key={variant.name}>
+              {variant.name}: <span className="font-semibold">{variant.value}</span>
+              {props.variants.indexOf(variant) < props.variants.length - 1 ? ", " : ""}
+            </span>
+          ))}
         </p>
       </div>
 
-      <p className="ml-auto font-bold leading-4">{format.currency(5)}</p>
+      <p className="ml-auto font-bold leading-4">{format.currency(props.price * props.quantity)}</p>
     </div>
-  );
-}
-
-function CheckoutUpsell() {
-  return (
-    <div>
-      <H2>add a mystery vape?</H2>
-      <p className="mt-1 text-zinc-300 text-sm font-medium leading-4">🎁 discover new flavours from top brands</p>
-
-      <BackgroundGradient>
-        <div className="flex flex-col gap-2 mt-3">
-          <CartMysteryItem
-            slug="mystery-vape-800"
-            name="mystery vape - 800 puffs"
-            tagline="surprise flavour picked just for you!"
-            price={6.0}
-          />
-          {/* <CartMysteryItem /> */}
-        </div>
-      </BackgroundGradient>
-    </div>
-  );
-}
-
-function CartMysteryItem(props: CheckoutMysteryItemProps) {
-  // const data = useLoaderData<typeof loader>();
-
-  // const fetcher = useFetcher();
-  // const loading = fetcher.state !== "idle";
-
-  // const exists = data?.items.find((item) => item.slug === props.slug);
-
-  const loading = false;
-
-  const exists = { id: 1 };
-
-  return (
-    <Card className="flex gap-3">
-      <div className="flex items-center justify-center min-w-16 w-16 h-16 bg-pink-800/50 border border-pink-500 text-pink-500 rounded-lg">
-        <CircleQuestionMark className="w-8 h-8" />
-      </div>
-
-      <div className="flex flex-col h-16 w-full">
-        <p className="font-bold leading-4">{props.name}</p>
-
-        <p className="mt-1 text-zinc-300 text-xs font-medium leading-3">{props.tagline}</p>
-
-        <div className="flex items-end justify-between gap-3 mt-auto">
-          <p className="font-bold leading-4">{format.currency(props.price)}</p>
-
-          <Form action={exists ? "/cart/update" : "/cart/add"} method="post">
-            {exists ? (
-              <input type="hidden" name="item" value={exists.id} />
-            ) : (
-              <input type="hidden" name="product" value={props.slug} />
-            )}
-
-            <Button
-              className="h-6 px-3 py-1 text-xs"
-              disabled={loading}
-              name="action"
-              value={exists ? "remove" : ""}
-              variant={exists ? "outline" : "primary"}
-            >
-              {exists ? <Trash className="w-3 h-3" /> : "add"}
-            </Button>
-          </Form>
-        </div>
-      </div>
-    </Card>
   );
 }
 
 function CheckoutCoupon() {
-  // const data = useLoaderData<typeof loader>();
+  const data = useLoaderData<typeof loader>();
 
-  // const fetcher = useFetcher();
-  const loading = false;
-  const error = null;
+  const fetcher = useFetcher();
+  const loading = fetcher.state !== "idle";
+  const error = fetcher.data?.error;
 
   const [edit, setEdit] = useState(false);
   const [code, setCode] = useState("");
 
-  // function onEditClick() {
-  //   if (data && data.coupon) {
-  //     setCode(data.coupon.code);
-  //   }
+  function onEditClick() {
+    if (data && data.coupon) {
+      setCode(data.coupon.code);
+    }
 
-  //   setEdit(true);
-  // }
+    setEdit(true);
+  }
 
-  // async function onRemoveClick() {
-  //   await fetcher.submit({ action: "remove" }, { action: "/cart/coupon", method: "post" });
+  async function onRemoveClick() {
+    await fetcher.submit({ action: "remove", order: data.order.id }, { action: "/checkout/coupon", method: "post" });
 
-  //   setEdit(false);
-  //   setCode("");
-  // }
+    setEdit(false);
+    setCode("");
+  }
 
-  // useEffect(() => {
-  //   if (data && data.coupon) {
-  //     setEdit(false);
-  //     setCode(data.coupon.code);
-  //   }
-  // }, [data]);
+  useEffect(() => {
+    if (data && data.coupon) {
+      setEdit(false);
+      setCode(data.coupon.code);
+    }
+  }, [data]);
 
-  // if (data && data.coupon && !edit) {
-  //   return (
-  //     <Card className="flex items-center gap-2 mt-2">
-  //       <CheckCircle className="w-4 h-4 text-green-500" />
+  if (data && data.coupon && !edit) {
+    return (
+      <Card className="flex items-center gap-2 mt-2">
+        <CheckCircle className="w-4 h-4 text-green-500" />
 
-  //       <p className="text-sm font-medium leading-4">
-  //         coupon <strong>{data.coupon.code}</strong> applied for{" "}
-  //         {data.coupon.type === "PERCENTAGE" ? `${data.coupon.discount}%` : `${format.currency(data.coupon.discount)}`}{" "}
-  //         off
-  //       </p>
+        <p className="text-sm font-medium leading-4">
+          coupon <strong>{data.coupon.code}</strong> applied for{" "}
+          {data.coupon.type === "PERCENTAGE" ? `${data.coupon.discount}%` : `${format.currency(data.coupon.discount)}`}{" "}
+          off
+        </p>
 
-  //       <Button variant="outline" className="w-6 h-6 ml-auto px-0" onClick={onEditClick}>
-  //         <Pencil className="w-3 h-3" />
-  //       </Button>
-  //     </Card>
-  //   );
-  // }
+        <Button variant="outline" className="w-6 h-6 ml-auto px-0" onClick={onEditClick}>
+          <Pencil className="w-3 h-3" />
+        </Button>
+      </Card>
+    );
+  }
 
   return (
     <Card className="flex flex-col items-start mt-2">
@@ -565,7 +1471,9 @@ function CheckoutCoupon() {
         </div>
       )}
 
-      <Form action="/cart/coupon" className="flex w-full" method="post">
+      <fetcher.Form action="/checkout/coupon" className="flex w-full" method="post">
+        <input type="hidden" name="order" value={data.order.id} />
+
         <Input
           className="w-full rounded-r-none"
           type="text"
@@ -584,16 +1492,34 @@ function CheckoutCoupon() {
         >
           apply
         </Button>
-      </Form>
+      </fetcher.Form>
 
-      {/* {edit && (
+      {edit && (
         <button className="mt-1 text-xs text-zinc-300 font-medium leading-3" disabled={loading} onClick={onRemoveClick}>
           remove coupon
         </button>
-      )} */}
+      )}
     </Card>
   );
 }
+
+type CheckoutItemProps = {
+  id: string;
+  slug: string;
+  name: string;
+  image: {
+    id: string;
+    alt: string;
+    source: string;
+  };
+  price: number;
+  quantity: number;
+  visible: boolean;
+  variants: {
+    name: string;
+    value: string;
+  }[];
+};
 
 type CheckoutSectionProps = {
   title: string;
@@ -616,9 +1542,66 @@ type CheckoutPaymentOptionProps = {
   onClick?: () => void;
 };
 
-type CheckoutMysteryItemProps = {
-  slug: string;
-  name: string;
-  tagline: string;
-  price: number;
+type CheckoutSummaryProps = {
+  summary: {
+    subtotal: number;
+    coupon: number;
+    shipping: number;
+    total: number;
+  };
+  loading: boolean;
+  onCheckoutClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 };
+
+declare global {
+  interface Window {
+    Accept?: AcceptJS;
+  }
+}
+
+type AcceptJS = {
+  dispatchData: AcceptJSDispatchData;
+};
+
+type AcceptJSDispatchData = (secureData: AcceptJSSecureData, onCardResponse: AcceptJSResponse) => void;
+
+type AcceptJSAuthData = {
+  apiLoginID: string;
+  clientKey: string;
+};
+
+type AcceptJSCardData = {
+  cardNumber: string;
+  month: string;
+  year: string;
+  cardCode: string;
+  zip: string;
+  fullName: string;
+};
+
+type AcceptJSSecureData = {
+  authData: AcceptJSAuthData;
+  cardData: AcceptJSCardData;
+};
+
+type AcceptJSOpaqueData = {
+  dataDescriptor: string;
+  dataValue: string;
+};
+
+type AcceptJSResponseMessage = {
+  code: string;
+  text: string;
+};
+
+type AcceptJSResponseCode = "Ok" | "Error";
+
+type AcceptJSResponseData = {
+  opaqueData: AcceptJSOpaqueData;
+  messages: {
+    resultCode: AcceptJSResponseCode;
+    message: AcceptJSResponseMessage[];
+  };
+};
+
+type AcceptJSResponse = (response: AcceptJSResponseData) => void;

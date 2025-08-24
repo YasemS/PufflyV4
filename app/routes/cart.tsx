@@ -453,7 +453,7 @@ function CartSummary() {
 
         <div className="flex flex-col mt-2">
           <Form action="/checkout" method="post">
-            <Button className="w-full">
+            <Button className="w-full" disabled={data ? data.items.length === 0 : true}>
               <Lock className="w-4 h-4" />
               <span>secure checkout</span>
             </Button>

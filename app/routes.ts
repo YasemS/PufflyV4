@@ -13,5 +13,7 @@ export default [
   route("cart/update", "routes/cart.update.tsx"),
   route("cart/coupon", "routes/cart.coupon.tsx"),
   route("checkout", "routes/checkout.tsx"),
+  route("checkout/coupon", "routes/checkout.coupon.tsx"),
+  route("checkout/update", "routes/checkout.update.tsx"),
   route("checkout/:id", "routes/checkout.$id.tsx"),
 ] satisfies RouteConfig;

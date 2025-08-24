@@ -4,5 +4,8 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
+  server: {
+    allowedHosts: [".loca.lt", ".ngrok-free.app"],
+  },
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
 });

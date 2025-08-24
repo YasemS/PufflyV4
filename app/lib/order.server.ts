@@ -51,27 +51,37 @@ export async function addOrderItem(
   });
 }
 
+export async function getOrder(orderId: string) {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: { coupon: true, items: { include: { variants: true } } },
+  });
+
+  return order;
+}
+
 export async function createOrder() {
   return await prisma.order.create({
     data: {
       id: generateOrderId(8),
+      shippingMethod: "standard",
     },
     include: { coupon: true, items: { include: { variants: true } } },
   });
 }
 
-export async function addOrderCoupon(cartId: string, couponId: string) {
+export async function addOrderCoupon(orderId: string, couponId: string) {
   await prisma.order.update({
-    where: { id: cartId },
+    where: { id: orderId },
     data: { couponId: couponId },
   });
 
   return true;
 }
 
-export async function removeOrderCoupon(cartId: string) {
+export async function removeOrderCoupon(orderId: string) {
   await prisma.order.update({
-    where: { id: cartId },
+    where: { id: orderId },
     data: { couponId: null },
   });
 

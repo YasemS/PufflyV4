@@ -30,6 +30,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body>
         {children}
 
+        <script type="text/javascript" src="https://js.authorize.net/v1/Accept.js"></script>
+
         <ScrollRestoration />
         <Scripts />
       </body>

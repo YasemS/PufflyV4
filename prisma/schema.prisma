@@ -180,6 +180,11 @@ model Order {
 
   items     OrderItem[]
 
+  subtotal      Float?
+  couponTotal   Float?
+  shippingTotal Float?
+  total         Float?
+
   coupon    Coupon? @relation(fields: [couponId], references: [id])
   couponId  String?
 
