@@ -229,7 +229,7 @@ function AddressMarker({ address }: { address: string }) {
 
   return (
     <Map
-      zoom={10}
+      zoom={14}
       center={coords}
       cameraControl={false}
       colorScheme="DARK"
