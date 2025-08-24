@@ -7,9 +7,7 @@ export default function Help() {
   return (
     <>
       <H1>help</H1>
-      <p className="mt-1 text-zinc-300 text-sm font-medium leading-4">
-        find answers or get in touch with us.
-      </p>
+      <p className="mt-1 text-zinc-300 text-sm font-medium leading-4">find answers or get in touch with us.</p>
 
       <div className="relative mt-8">
         <div className="flex flex-col gap-12 relative z-1">
@@ -30,6 +28,7 @@ export default function Help() {
                 title="email"
                 description="contact us via email for support."
                 action="send email"
+                to="mailto:support@puffly.io"
               />
 
               <HelpContactItem
@@ -37,6 +36,7 @@ export default function Help() {
                 title="instagram"
                 description="message us for fast support."
                 action="message us"
+                to="https://www.instagram.com/pufflyio"
               />
             </div>
           </div>
@@ -59,18 +59,15 @@ function HelpAccordion() {
     },
     {
       question: "do you offer discreet shipping?",
-      answer:
-        "yes, all orders are shipped in non-branded, discreet packaging to ensure your privacy.",
+      answer: "yes, all orders are shipped in non-branded, discreet packaging to ensure your privacy.",
     },
     {
       question: "do you offer international shipping?",
-      answer:
-        "no, we currently only ship within the united states. overseas shipping is not available at this time.",
+      answer: "no, we currently only ship within the united states. overseas shipping is not available at this time.",
     },
     {
       question: "how long does shipping take?",
-      answer:
-        "our standard shipping time is estimated at 2-4 business days after your order is processed.",
+      answer: "our standard shipping time is estimated at 2-4 business days after your order is processed.",
     },
     {
       question: "what is your return policy?",
@@ -105,27 +102,16 @@ type HelpAccordionItemProps = {
   onClick?: () => void;
 };
 
-function HelpAccordionItem({
-  active,
-  question,
-  answer,
-  onClick,
-}: HelpAccordionItemProps) {
+function HelpAccordionItem({ active, question, answer, onClick }: HelpAccordionItemProps) {
   return (
     <div className="flex flex-col border-b border-zinc-700 last:border-b-0">
       <button className="flex items-center gap-2 p-3" onClick={onClick}>
-        <div className="flex items-center w-5 h-5 text-pink-500">
-          {active ? <Minus /> : <Plus />}
-        </div>
+        <div className="flex items-center w-5 h-5 text-pink-500">{active ? <Minus /> : <Plus />}</div>
 
         <p className="text-sm font-semibold">{question}</p>
       </button>
 
-      {active && (
-        <div className="p-3 border-t border-zinc-700 text-sm text-zinc-300">
-          {answer}
-        </div>
-      )}
+      {active && <div className="p-3 border-t border-zinc-700 text-sm text-zinc-300">{answer}</div>}
     </div>
   );
 }
@@ -135,16 +121,17 @@ type HelpContactItemProps = {
   title: string;
   description: string;
   action: string;
+  to: string;
 };
 
-function HelpContactItem({
-  title,
-  description,
-  icon,
-  action,
-}: HelpContactItemProps) {
+function HelpContactItem({ title, description, icon, action, to }: HelpContactItemProps) {
   return (
-    <div className="flex gap-3 w-full p-3 bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl rounded-lg">
+    <a
+      className="flex gap-3 w-full p-3 bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl rounded-lg"
+      href={to}
+      target="_blank"
+      rel="noreferrer"
+    >
       <div className="flex items-center justify-center aspect-square h-12 bg-pink-950/50 border border-pink-500 rounded text-pink-500">
         {icon}
       </div>
@@ -159,6 +146,6 @@ function HelpContactItem({
           <MoveRight className="w-4 h-4" />
         </div>
       </div>
-    </div>
+    </a>
   );
 }
