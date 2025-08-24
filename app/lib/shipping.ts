@@ -1,8 +1,14 @@
-export function getDeliveryEstimate(shippingDays: number) {
+export function getDeliveryEstimate(shippingDays: number, from?: Date) {
   // Get EST time
-  const dateEstStr = new Date().toLocaleString("en-US", {
+  let dateEstStr = new Date().toLocaleString("en-US", {
     timeZone: "America/New_York",
   });
+
+  if (from) {
+    dateEstStr = from.toLocaleString("en-US", {
+      timeZone: "America/New_York",
+    });
+  }
 
   // EST Date Object
   const date = new Date(dateEstStr);
