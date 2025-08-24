@@ -12,9 +12,9 @@ import Scroller from "~/components/Scroller";
 import { H1, H2, H3 } from "~/components/Heading";
 
 import cn from "~/lib/cn";
+import format from "~/lib/format";
 import { getOrder } from "~/lib/order.server";
 import { getProduct } from "~/lib/product.server";
-import format from "~/lib/format";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const { id } = params;
@@ -103,6 +103,12 @@ export async function loader({ params }: Route.LoaderArgs) {
     });
   }
 
+  const keys = {
+    google: {
+      mapsApiKey: process.env.GOOGLE_MAPS_API_KEY!,
+    },
+  };
+
   return {
     order: {
       id: order.id,
@@ -129,6 +135,7 @@ export async function loader({ params }: Route.LoaderArgs) {
       shipping: order.shippingTotal,
       total: order.total,
     },
+    keys,
   };
 }
 
@@ -182,16 +189,14 @@ function OrderItemsScroller() {
 }
 
 function OrderMap() {
-  const { order } = useLoaderData<typeof loader>();
+  const { order, keys } = useLoaderData<typeof loader>();
 
   const address = `${order.addressLine1 + (order.addressLine2 ? ", " + order.addressLine2 : "")}, ${order.city}, ${order.state} ${order.postal}`;
-
-  //TODO: Save api key in env
 
   return (
     <BackgroundGradient className="mt-2" gradientClassName="h-1/2">
       <Card className="relative w-full h-100 p-0 overflow-hidden">
-        <APIProvider apiKey={"AIzaSyCAKJnuSa3PDUxJtb1qsoHH4zy7vUOGsCM"}>
+        <APIProvider apiKey={keys.google.mapsApiKey}>
           <AddressMarker address={address} />
         </APIProvider>
       </Card>
@@ -229,6 +234,7 @@ function AddressMarker({ address }: { address: string }) {
       fullscreenControl={false}
       mapTypeControl={false}
       keyboardShortcuts={false}
+      gestureHandling="none"
     >
       <Marker position={coords} />
     </Map>

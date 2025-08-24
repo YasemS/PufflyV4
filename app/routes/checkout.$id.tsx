@@ -227,8 +227,8 @@ export async function action({ params, request }: Route.ActionArgs) {
       total,
       { descriptor: cardDescriptor, value: cardValue },
       {
-        loginId: "24Vg8c39Tq",
-        transactionKey: "67fq8bP32NLdsZ5z",
+        loginId: process.env.AUTHORIZENET_LOGIN_ID!,
+        transactionKey: process.env.AUTHORIZENET_TRANSACTION_KEY!,
       },
     );
 
@@ -379,6 +379,16 @@ export async function loader({ params }: Route.LoaderArgs) {
     }
   }
 
+  const keys = {
+    authorizenet: {
+      apiLoginId: process.env.AUTHORIZENET_LOGIN_ID!,
+      clientKey: process.env.AUTHORIZENET_CLIENT_KEY!,
+    },
+    google: {
+      mapsApiKey: process.env.GOOGLE_MAPS_API_KEY!,
+    },
+  };
+
   return {
     order: {
       id: order.id,
@@ -407,6 +417,7 @@ export async function loader({ params }: Route.LoaderArgs) {
       subtotal,
       coupon: couponTotal,
     },
+    keys,
   };
 }
 
@@ -418,7 +429,7 @@ export default function Checkout() {
   const submit = useSubmit();
 
   const { ref: addressRef } = usePlacesWidget<HTMLInputElement>({
-    apiKey: "AIzaSyCAKJnuSa3PDUxJtb1qsoHH4zy7vUOGsCM",
+    apiKey: data.keys.google.mapsApiKey,
     onPlaceSelected: onAddressSelect,
     options: {
       types: ["address"],
@@ -792,8 +803,8 @@ export default function Checkout() {
       }
 
       const authData = {
-        apiLoginID: "24Vg8c39Tq",
-        clientKey: "5w8JFWVuSetGb25LK5UgBfVaK36g94Sq7Nq423XshPsqt5Qbx7GKRBYq2Z6mGssv",
+        apiLoginID: data.keys.authorizenet.apiLoginId,
+        clientKey: data.keys.authorizenet.clientKey,
       };
 
       const cardData = {
