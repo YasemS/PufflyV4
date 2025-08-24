@@ -63,7 +63,7 @@ export async function getOrder(orderId: string) {
 export async function createOrder() {
   return await prisma.order.create({
     data: {
-      id: generateOrderId(8),
+      id: generateOrderId(10),
       shippingMethod: "standard",
     },
     include: { coupon: true, items: { include: { variants: true } } },
