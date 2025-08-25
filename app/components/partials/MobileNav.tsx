@@ -1,7 +1,9 @@
-import { CircleQuestionMark, Gem, Menu, ShoppingBag, ShoppingCart, Truck } from "lucide-react";
+import { CircleQuestionMark, ShoppingBag, ShoppingCart, Truck } from "lucide-react";
+import { useContext } from "react";
 import { NavLink, type NavLinkProps } from "react-router";
 
 import cn from "~/lib/cn";
+import { GlobalContext } from "~/lib/global";
 
 type MobileNavLinkProps = {
   icon: React.ReactNode;
@@ -28,6 +30,8 @@ function MobileNavLink({ icon, text, to, ...props }: MobileNavLinkProps) {
 }
 
 export default function MobileNav() {
+  const { cart } = useContext(GlobalContext);
+
   return (
     <nav className="grid grid-cols-4 fixed bottom-0 left-0 w-full h-16 bg-zinc-800/25 border-y border-zinc-800 backdrop-blur-xl z-10 sm:hidden">
       <MobileNavLink icon={<ShoppingBag />} text="products" to="/products" />
@@ -35,10 +39,15 @@ export default function MobileNav() {
       <MobileNavLink icon={<Truck />} text="track" to="/track" />
       <MobileNavLink icon={<CircleQuestionMark />} text="help" to="/help" />
       <MobileNavLink
-        icon={<ShoppingCart />}
+        icon={
+          <div className="relative">
+            <ShoppingCart className={cn("w-5 h-5", cart ? "fill-white" : "text-zinc-300")} />
+
+            {cart && <span className="absolute top-0 -right-0.5 w-2 h-2 bg-pink-500 rounded-full"></span>}
+          </div>
+        }
         text="cart"
         to="/cart"
-        // onClick={(e) => e.preventDefault()}
       />
     </nav>
   );

@@ -1,4 +1,5 @@
-import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import { createContext, useState } from "react";
+import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from "react-router";
 
 import type { Route } from "./+types/root";
 
@@ -10,7 +11,10 @@ import Nav from "~/components/partials/Nav";
 import MobileNav from "~/components/partials/MobileNav";
 import Footer from "~/components/partials/Footer";
 import AgePopup from "~/components/partials/AgePopup";
-import Container from "./components/Container";
+import Container from "~/components/Container";
+
+import { cartCookie, getCart } from "~/lib/cart.server";
+import { GlobalContext } from "~/lib/global";
 
 export const links: Route.LinksFunction = () => [
   {
@@ -18,6 +22,23 @@ export const links: Route.LinksFunction = () => [
     href: "https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap",
   },
 ];
+
+export async function loader({ request }: Route.LoaderArgs) {
+  let cartExists = false;
+
+  const cookieHeader = request.headers.get("Cookie");
+  const cartId = await cartCookie.parse(cookieHeader);
+
+  if (cartId) {
+    const cart = await getCart(cartId);
+
+    if (cart && cart.items.length > 0) {
+      cartExists = true;
+    }
+  }
+
+  return { cart: cartExists };
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -41,8 +62,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const { cart: cartExists } = useLoaderData<typeof loader>();
+
+  const [cart, setCart] = useState(cartExists);
+
   return (
-    <>
+    <GlobalContext.Provider value={{ cart, setCart }}>
       <Loader />
 
       <Announcement />
@@ -59,7 +84,7 @@ export default function App() {
       <AgePopup />
 
       <Footer />
-    </>
+    </GlobalContext.Provider>
   );
 }
 

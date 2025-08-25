@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AlertCircle, CheckCircle, CircleQuestionMark, Lock, Minus, MoveLeft, Pencil, Plus, Trash } from "lucide-react";
 import { Form, Link, useFetcher, useLoaderData } from "react-router";
 
@@ -15,6 +15,7 @@ import { H1, H2 } from "~/components/Heading";
 import cn from "~/lib/cn";
 import format from "~/lib/format";
 import { cartCookie, getCart } from "~/lib/cart.server";
+import { GlobalContext } from "~/lib/global";
 import { getProduct } from "~/lib/product.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -136,9 +137,17 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export default function Cart() {
+  const { setCart } = useContext(GlobalContext);
+
   const data = useLoaderData<typeof loader>();
 
   const count = data?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
+
+  useEffect(() => {
+    if (!data) return;
+
+    setCart(data.items.length > 0);
+  }, [data]);
 
   return (
     <>

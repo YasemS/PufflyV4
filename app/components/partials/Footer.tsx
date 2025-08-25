@@ -7,7 +7,7 @@ import { H3 } from "~/components/Heading";
 export default function Footer() {
   return (
     <BackgroundGradient>
-      <footer className="mt-4 p-8 pb-24 bg-zinc-800/50 border-t border-zinc-800 backdrop-blur-xl md:pb-8">
+      <footer className="mt-4 p-8 pb-24 bg-zinc-800/50 border-t border-zinc-800 backdrop-blur-xl sm:pb-8">
         <Container>
           <div className="grid grid-cols-1 md:grid-cols-4 md:gap-8">
             <div className="md:col-span-2">

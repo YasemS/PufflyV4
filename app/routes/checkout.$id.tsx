@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { data as rdata, redirect, useFetcher, useLoaderData, useSubmit, useActionData } from "react-router";
 import {
   AlertCircle,
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { usePlacesWidget } from "react-google-autocomplete";
 import validator, { type PostalCodeLocale } from "validator";
+import QRCode from "react-qr-code";
 
 import type { Route } from "./+types/checkout.$id";
 import type { OrderStatus } from "generated/prisma/client";
@@ -33,10 +34,10 @@ import authorizenet from "~/lib/authorizenet.server";
 import prisma from "~/lib/prisma.server";
 import { template as emailTemplate, resend } from "~/lib/email.server";
 import { cartCookie } from "~/lib/cart.server";
+import { GlobalContext } from "~/lib/global";
 import { getOrder } from "~/lib/order.server";
 import { getDeliveryEstimate } from "~/lib/shipping";
 import { getProduct } from "~/lib/product.server";
-import QRCode from "react-qr-code";
 
 export async function action({ params, request }: Route.ActionArgs) {
   const { id } = params;
@@ -463,6 +464,8 @@ export default function Checkout() {
   const fetcher = useFetcher();
   const submit = useSubmit();
 
+  const { setCart } = useContext(GlobalContext);
+
   const { ref: addressRef } = usePlacesWidget<HTMLInputElement>({
     apiKey: data.keys.google.mapsApiKey,
     onPlaceSelected: onAddressSelect,
@@ -876,6 +879,8 @@ export default function Checkout() {
   }
 
   function submitCheckout(dataExtra?: { [key: string]: string }) {
+    setCart(false);
+
     const data = {
       email,
       firstName,
@@ -1255,7 +1260,7 @@ export default function Checkout() {
             </div>
           </CheckoutSection>
 
-          <Button className="w-full" disabled={loading} onClick={onCheckoutClick}>
+          <Button className="hidden w-full md:flex" disabled={loading} onClick={onCheckoutClick}>
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
