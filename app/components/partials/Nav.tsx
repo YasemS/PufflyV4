@@ -41,7 +41,3 @@ function NavLink({ to, children, ...props }: NavLinkProps) {
     </RNavLink>
   );
 }
-
-type NavProps = {
-  cart?: boolean;
-};
