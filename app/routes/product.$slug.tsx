@@ -92,7 +92,7 @@ export default function Product() {
   return (
     <ProductContext.Provider value={{ price, quantity }}>
       <div className="grid grid-cols-1 md:grid-cols-2 md:gap-8">
-        <div className="flex flex-col">
+        <div className="flex flex-col max-w-sm md:max-w-none">
           <div className="sticky top-24">
             <ProductImage {...imageActive} />
 
