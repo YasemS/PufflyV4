@@ -1,67 +1,78 @@
 import { Link } from "react-router";
 
 import BackgroundGradient from "~/components/BackgroundGradient";
-import { H3 } from "../Heading";
+import Container from "~/components/Container";
+import { H3 } from "~/components/Heading";
 
 export default function Footer() {
   return (
     <BackgroundGradient>
-      <footer className="mt-4 p-8 pb-24 bg-zinc-800/50 border-t border-zinc-800 backdrop-blur-xl">
-        <FooterLogo />
+      <footer className="mt-4 p-8 pb-24 bg-zinc-800/50 border-t border-zinc-800 backdrop-blur-xl md:pb-8">
+        <Container>
+          <div className="grid grid-cols-1 md:grid-cols-4 md:gap-8">
+            <div className="md:col-span-2">
+              <FooterLogo />
+              <FooterSlogan />
+              <FooterSocials />
+            </div>
 
-        <FooterSlogan />
+            <div>
+              <FooterLinks
+                title="links"
+                links={[
+                  {
+                    to: "/products",
+                    text: "products",
+                  },
+                  // {
+                  //   to: "/rewards",
+                  //   text: "rewards",
+                  // },
+                  {
+                    to: "/help",
+                    text: "help",
+                  },
+                  {
+                    to: "/track",
+                    text: "track your order",
+                  },
+                ]}
+              />
+            </div>
 
-        <FooterSocials />
+            <div>
+              <FooterLinks
+                title="policies"
+                links={[
+                  {
+                    to: "/legal/privacy",
+                    text: "privacy policy",
+                  },
+                  {
+                    to: "/legal/refund",
+                    text: "refund policy",
+                  },
+                  {
+                    to: "/legal/shipping",
+                    text: "shipping policy",
+                  },
+                  {
+                    to: "/legal/terms",
+                    text: "terms of service",
+                  },
+                ]}
+              />
+            </div>
+          </div>
 
-        <FooterLinks
-          title="links"
-          links={[
-            {
-              to: "/products",
-              text: "products",
-            },
-            // {
-            //   to: "/rewards",
-            //   text: "rewards",
-            // },
-            {
-              to: "/help",
-              text: "help",
-            },
-            {
-              to: "/track",
-              text: "track your order",
-            },
-          ]}
-        />
+          <div>
+            <FooterDisclaimer />
 
-        <FooterLinks
-          title="policies"
-          links={[
-            {
-              to: "/legal/privacy",
-              text: "privacy policy",
-            },
-            {
-              to: "/legal/refund",
-              text: "refund policy",
-            },
-            {
-              to: "/legal/shipping",
-              text: "shipping policy",
-            },
-            {
-              to: "/legal/terms",
-              text: "terms of service",
-            },
-          ]}
-        />
+            <FooterPaymentMethods />
 
-        <FooterDisclaimer />
-
-        <FooterPaymentMethods />
-
-        <FooterCopy />
+            <FooterCopy />
+          </div>
+        </Container>
       </footer>
     </BackgroundGradient>
   );
@@ -139,7 +150,7 @@ type FooterLinksProps = {
 
 function FooterLinks({ title, links }: FooterLinksProps) {
   return (
-    <div className="flex flex-col gap-2 mt-8 pt-8 border-t border-zinc-700">
+    <div className="flex flex-col gap-2 mt-8 pt-8 border-t border-zinc-700 md:mt-0 md:pt-0 md:border-t-0">
       <H3>{title}</H3>
 
       {links.map((link) => (

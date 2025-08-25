@@ -10,6 +10,7 @@ import Nav from "~/components/partials/Nav";
 import MobileNav from "~/components/partials/MobileNav";
 import Footer from "~/components/partials/Footer";
 import AgePopup from "~/components/partials/AgePopup";
+import Container from "./components/Container";
 
 export const links: Route.LinksFunction = () => [
   {
@@ -49,8 +50,10 @@ export default function App() {
       <Nav />
       <MobileNav />
 
-      <main className="p-8">
-        <Outlet />
+      <main className="p-8 md:pb-16">
+        <Container>
+          <Outlet />
+        </Container>
       </main>
 
       <AgePopup />

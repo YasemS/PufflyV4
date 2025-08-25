@@ -7,6 +7,7 @@ import {
   CircleAlert,
   CircleQuestionMark,
   Loader2,
+  Lock,
   MoveRight,
   Pencil,
 } from "lucide-react";
@@ -734,7 +735,7 @@ export default function Checkout() {
       setCardNumber("");
       setCardExpiry("");
       setCardCvc("");
-      setCardHolder(firstName + " " + lastName);
+      setCardHolder(firstName + lastName ? " " + lastName : "");
       setCardPostal(postal);
     }
   }
@@ -913,351 +914,366 @@ export default function Checkout() {
     <>
       <H1>checkout</H1>
 
-      <div className="flex flex-col gap-4 mt-4">
-        {error && (
-          <div className="flex items-center gap-2 px-3 py-2 bg-red-950/50 border border-red-500 rounded text-red-500">
-            <AlertCircle className="min-w-4 w-4 h-4" />
-            <p className="text-sm font-semibold">{error}</p>
-          </div>
-        )}
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-5">
+        <div className="flex flex-col gap-4 mt-4 md:col-span-3">
+          {error && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-red-950/50 border border-red-500 rounded text-red-500">
+              <AlertCircle className="min-w-4 w-4 h-4" />
+              <p className="text-sm font-semibold">{error}</p>
+            </div>
+          )}
 
-        <CheckoutSection title="contact">
-          <InputControl>
-            <Label htmlFor="email">email</Label>
-
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </InputControl>
-
-          <div className="flex items-center gap-2 mt-2">
-            <input type="checkbox" name="" id="" />
-
-            <label className="leading-4 text-sm text-zinc-300" htmlFor="">
-              email me with news and offers
-            </label>
-          </div>
-        </CheckoutSection>
-
-        <CheckoutSection title="address">
-          <div className="flex flex-col gap-3">
+          <CheckoutSection title="contact">
             <InputControl>
-              <Label htmlFor="first_name">first name</Label>
+              <Label htmlFor="email">email</Label>
 
               <Input
-                autoComplete="given-name"
-                id="first_name"
-                name="first_name"
-                type="text"
+                id="email"
+                name="email"
+                type="email"
                 required
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </InputControl>
 
-            <InputControl>
-              <Label htmlFor="last_name">last name</Label>
+            <div className="flex items-center gap-2 mt-2">
+              <input type="checkbox" name="" id="" />
 
-              <Input
-                autoComplete="family-name"
-                id="last_name"
-                name="last_name"
-                type="text"
-                required
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
+              <label className="leading-4 text-sm text-zinc-300" htmlFor="">
+                email me with news and offers
+              </label>
+            </div>
+          </CheckoutSection>
+
+          <CheckoutSection title="address">
+            <div className="flex flex-col gap-3">
+              <InputControl>
+                <Label htmlFor="first_name">first name</Label>
+
+                <Input
+                  autoComplete="given-name"
+                  id="first_name"
+                  name="first_name"
+                  type="text"
+                  required
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+              </InputControl>
+
+              <InputControl>
+                <Label htmlFor="last_name">last name</Label>
+
+                <Input
+                  autoComplete="family-name"
+                  id="last_name"
+                  name="last_name"
+                  type="text"
+                  required
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+              </InputControl>
+
+              <InputControl>
+                <Label htmlFor="address_line_1">address</Label>
+
+                <Input
+                  autoComplete="address-line1"
+                  id="address_line_1"
+                  name="address_line_1"
+                  placeholder="enter your address"
+                  ref={addressRef}
+                  type="text"
+                  required
+                  value={addressLine1}
+                  onChange={(e) => setAddressLine1(e.target.value)}
+                />
+              </InputControl>
+
+              <InputControl>
+                <Label htmlFor="address_line_2">apt / suite / unit</Label>
+
+                <Input
+                  autoComplete="address-line2"
+                  id="address_line_2"
+                  placeholder="optional"
+                  name="address_line_2"
+                  type="text"
+                  value={addressLine2}
+                  onChange={(e) => setAddressLine2(e.target.value)}
+                />
+              </InputControl>
+
+              <InputControl>
+                <Label htmlFor="country">country</Label>
+
+                <Select
+                  autoComplete="country"
+                  id="country"
+                  name="country"
+                  required
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                >
+                  <option value="" disabled></option>
+                  <option value="US">united states</option>
+                </Select>
+              </InputControl>
+
+              <InputControl>
+                <Label htmlFor="city">city</Label>
+
+                <Input
+                  autoComplete="address-level2"
+                  id="city"
+                  name="city"
+                  type="text"
+                  required
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                />
+              </InputControl>
+
+              <InputControl>
+                <Label htmlFor="state">state</Label>
+
+                <Select
+                  autoComplete="address-level1"
+                  id="state"
+                  name="state"
+                  required
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                >
+                  <option disabled value=""></option>
+                  <option value="AL">alabama</option>
+                  <option value="AK">alaska</option>
+                  <option value="AZ">arizona</option>
+                  <option value="AR">arkansas</option>
+                  <option value="CA">california</option>
+                  <option value="CO">colorado</option>
+                  <option value="CT">connecticut</option>
+                  <option value="DE">delaware</option>
+                  <option value="DC">district of columbia</option>
+                  <option value="FL">florida</option>
+                  <option value="GA">georgia</option>
+                  <option value="HI">hawaii</option>
+                  <option value="ID">idaho</option>
+                  <option value="IL">illinois</option>
+                  <option value="IN">indiana</option>
+                  <option value="IA">iowa</option>
+                  <option value="KS">kansas</option>
+                  <option value="KY">kentucky</option>
+                  <option value="LA">louisiana</option>
+                  <option value="ME">maine</option>
+                  <option value="MD">maryland</option>
+                  <option value="MI">michigan</option>
+                  <option value="MN">minnesota</option>
+                  <option value="MS">mississippi</option>
+                  <option value="MO">missouri</option>
+                  <option value="MT">montana</option>
+                  <option value="NE">nebraska</option>
+                  <option value="NV">nevada</option>
+                  <option value="NH">new hampshire</option>
+                  <option value="NJ">new jersey</option>
+                  <option value="NM">new mexico</option>
+                  <option value="NY">new york</option>
+                  <option value="NC">north carolina</option>
+                  <option value="ND">north dakota</option>
+                  <option value="OH">ohio</option>
+                  <option value="OK">oklahoma</option>
+                  <option value="OR">oregon</option>
+                  <option value="PA">pennsylvania</option>
+                  <option value="RI">rhode island</option>
+                  <option value="SC">south carolina</option>
+                  <option value="SD">south dakota</option>
+                  <option value="TN">tennessee</option>
+                  <option value="TX">texas</option>
+                  <option value="VT">vermont</option>
+                  <option value="VA">virginia</option>
+                  <option value="WA">washington</option>
+                  <option value="WV">west virginia</option>
+                  <option value="WI">wisconsin</option>
+                  <option value="WY">wyoming</option>
+                </Select>
+              </InputControl>
+
+              <InputControl>
+                <Label htmlFor="postal">zip code</Label>
+
+                <Input
+                  autoComplete="postal-code"
+                  id="postal"
+                  name="postal"
+                  type="text"
+                  required
+                  value={postal}
+                  onChange={(e) => setPostal(e.target.value)}
+                />
+              </InputControl>
+            </div>
+          </CheckoutSection>
+
+          <CheckoutSection title="shipping">
+            <div className="flex flex-col gap-1.5">
+              <CheckoutShippingOption
+                active={shippingMethod === "standard"}
+                title="standard shipping"
+                days={5}
+                price={data.summary.subtotal > 40 ? 0 : 2.99}
+                onClick={() => setShippingMethod("standard")}
               />
-            </InputControl>
 
-            <InputControl>
-              <Label htmlFor="address_line_1">address</Label>
-
-              <Input
-                autoComplete="address-line1"
-                id="address_line_1"
-                name="address_line_1"
-                placeholder="enter your address"
-                ref={addressRef}
-                type="text"
-                required
-                value={addressLine1}
-                onChange={(e) => setAddressLine1(e.target.value)}
+              <CheckoutShippingOption
+                active={shippingMethod === "express"}
+                title="express shipping"
+                days={3}
+                price={10}
+                onClick={() => setShippingMethod("express")}
               />
-            </InputControl>
+            </div>
+          </CheckoutSection>
 
-            <InputControl>
-              <Label htmlFor="address_line_2">apt / suite / unit</Label>
-
-              <Input
-                autoComplete="address-line2"
-                id="address_line_2"
-                placeholder="optional"
-                name="address_line_2"
-                type="text"
-                value={addressLine2}
-                onChange={(e) => setAddressLine2(e.target.value)}
+          <CheckoutSection title="payment">
+            <div className="flex flex-col gap-1.5">
+              <CheckoutPaymentOption
+                active={paymentMethod === "apple-cash"}
+                title="apple cash"
+                icons={<img alt="Apple" className="h-5 rounded-xs" src="/img/apple.svg" />}
+                content={<CheckoutAppleCashContent total={total} />}
+                onClick={() => onPaymentChange("apple-cash")}
               />
-            </InputControl>
 
-            <InputControl>
-              <Label htmlFor="country">country</Label>
-
-              <Select
-                autoComplete="country"
-                id="country"
-                name="country"
-                required
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-              >
-                <option value="" disabled></option>
-                <option value="US">united states</option>
-              </Select>
-            </InputControl>
-
-            <InputControl>
-              <Label htmlFor="city">city</Label>
-
-              <Input
-                autoComplete="address-level2"
-                id="city"
-                name="city"
-                type="text"
-                required
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-              />
-            </InputControl>
-
-            <InputControl>
-              <Label htmlFor="state">state</Label>
-
-              <Select
-                autoComplete="address-level1"
-                id="state"
-                name="state"
-                required
-                value={state}
-                onChange={(e) => setState(e.target.value)}
-              >
-                <option disabled value=""></option>
-                <option value="AL">alabama</option>
-                <option value="AK">alaska</option>
-                <option value="AZ">arizona</option>
-                <option value="AR">arkansas</option>
-                <option value="CA">california</option>
-                <option value="CO">colorado</option>
-                <option value="CT">connecticut</option>
-                <option value="DE">delaware</option>
-                <option value="DC">district of columbia</option>
-                <option value="FL">florida</option>
-                <option value="GA">georgia</option>
-                <option value="HI">hawaii</option>
-                <option value="ID">idaho</option>
-                <option value="IL">illinois</option>
-                <option value="IN">indiana</option>
-                <option value="IA">iowa</option>
-                <option value="KS">kansas</option>
-                <option value="KY">kentucky</option>
-                <option value="LA">louisiana</option>
-                <option value="ME">maine</option>
-                <option value="MD">maryland</option>
-                <option value="MI">michigan</option>
-                <option value="MN">minnesota</option>
-                <option value="MS">mississippi</option>
-                <option value="MO">missouri</option>
-                <option value="MT">montana</option>
-                <option value="NE">nebraska</option>
-                <option value="NV">nevada</option>
-                <option value="NH">new hampshire</option>
-                <option value="NJ">new jersey</option>
-                <option value="NM">new mexico</option>
-                <option value="NY">new york</option>
-                <option value="NC">north carolina</option>
-                <option value="ND">north dakota</option>
-                <option value="OH">ohio</option>
-                <option value="OK">oklahoma</option>
-                <option value="OR">oregon</option>
-                <option value="PA">pennsylvania</option>
-                <option value="RI">rhode island</option>
-                <option value="SC">south carolina</option>
-                <option value="SD">south dakota</option>
-                <option value="TN">tennessee</option>
-                <option value="TX">texas</option>
-                <option value="VT">vermont</option>
-                <option value="VA">virginia</option>
-                <option value="WA">washington</option>
-                <option value="WV">west virginia</option>
-                <option value="WI">wisconsin</option>
-                <option value="WY">wyoming</option>
-              </Select>
-            </InputControl>
-
-            <InputControl>
-              <Label htmlFor="postal">zip code</Label>
-
-              <Input
-                autoComplete="postal-code"
-                id="postal"
-                name="postal"
-                type="text"
-                required
-                value={postal}
-                onChange={(e) => setPostal(e.target.value)}
-              />
-            </InputControl>
-          </div>
-        </CheckoutSection>
-
-        <CheckoutSection title="shipping">
-          <div className="flex flex-col gap-1.5">
-            <CheckoutShippingOption
-              active={shippingMethod === "standard"}
-              title="standard shipping"
-              days={5}
-              price={data.summary.subtotal > 40 ? 0 : 2.99}
-              onClick={() => setShippingMethod("standard")}
-            />
-
-            <CheckoutShippingOption
-              active={shippingMethod === "express"}
-              title="express shipping"
-              days={3}
-              price={10}
-              onClick={() => setShippingMethod("express")}
-            />
-          </div>
-        </CheckoutSection>
-
-        <CheckoutSection title="payment">
-          <div className="flex flex-col gap-1.5">
-            <CheckoutPaymentOption
-              active={paymentMethod === "apple-cash"}
-              title="apple cash"
-              icons={<img alt="Apple" className="h-5 rounded-xs" src="/img/apple.svg" />}
-              content={<CheckoutAppleCashContent total={total} />}
-              onClick={() => onPaymentChange("apple-cash")}
-            />
-
-            <CheckoutPaymentOption
-              active={paymentMethod === "credit-card"}
-              title="credit card"
-              icons={getCardIcons()}
-              content={
-                <>
-                  <InputControl>
-                    <Label htmlFor="card_number">card number</Label>
-
-                    <Input
-                      autoComplete="cc-number"
-                      inputMode="numeric"
-                      id="card_number"
-                      name="card_number"
-                      type="text"
-                      required
-                      value={cardNumber}
-                      onChange={(e) => onCardNumberChange(e.target.value)}
-                    />
-                  </InputControl>
-
-                  <div className="grid grid-cols-2 gap-2">
+              <CheckoutPaymentOption
+                active={paymentMethod === "credit-card"}
+                title="credit card"
+                icons={getCardIcons()}
+                content={
+                  <>
                     <InputControl>
-                      <Label htmlFor="card_expiry">expiration date</Label>
+                      <Label htmlFor="card_number">card number</Label>
 
                       <Input
-                        autoComplete="cc-exp"
-                        id="card_expiry"
-                        name="card_expiry"
-                        placeholder="mm/yy"
+                        autoComplete="cc-number"
+                        inputMode="numeric"
+                        id="card_number"
+                        name="card_number"
                         type="text"
                         required
-                        value={cardExpiry}
-                        onChange={(e) => onCardExpiryChange(e.target.value)}
+                        value={cardNumber}
+                        onChange={(e) => onCardNumberChange(e.target.value)}
                       />
                     </InputControl>
 
-                    <InputControl>
-                      <Label htmlFor="card_cvc">security code</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <InputControl>
+                        <Label htmlFor="card_expiry">expiration date</Label>
 
-                      <Input
-                        autoComplete="cc-csc"
-                        id="card_cvc"
-                        name="card_cvc"
-                        type="number"
-                        required
-                        value={cardCvc}
-                        onChange={(e) => setCardCvc(e.target.value)}
-                      />
-                    </InputControl>
-                  </div>
+                        <Input
+                          autoComplete="cc-exp"
+                          id="card_expiry"
+                          name="card_expiry"
+                          placeholder="mm/yy"
+                          type="text"
+                          required
+                          value={cardExpiry}
+                          onChange={(e) => onCardExpiryChange(e.target.value)}
+                        />
+                      </InputControl>
 
-                  <InputControl>
-                    <Label htmlFor="card_holder">name on card</Label>
+                      <InputControl>
+                        <Label htmlFor="card_cvc">security code</Label>
 
-                    <Input
-                      autoComplete="cc-name"
-                      id="card_holder"
-                      name="card_holder"
-                      type="text"
-                      required
-                      value={cardHolder}
-                      onChange={(e) => setCardHolder(e.target.value)}
-                    />
-                  </InputControl>
-
-                  <InputControl>
-                    <Label htmlFor="card_postal">billing zip</Label>
-
-                    <Input
-                      autoComplete="billing postal-code"
-                      id="card_postal"
-                      name="card_postal"
-                      type="text"
-                      required
-                      value={cardPostal}
-                      onChange={(e) => setCardPostal(e.target.value)}
-                    />
-
-                    <div className="flex items-center gap-1 mt-1 font-medium leading-3 text-xs text-zinc-300">
-                      <CircleAlert className="w-3 h-3" />
-                      <span>must match card address</span>
+                        <Input
+                          autoComplete="cc-csc"
+                          id="card_cvc"
+                          name="card_cvc"
+                          type="number"
+                          required
+                          value={cardCvc}
+                          onChange={(e) => setCardCvc(e.target.value)}
+                        />
+                      </InputControl>
                     </div>
-                  </InputControl>
-                </>
-              }
-              onClick={() => onPaymentChange("credit-card")}
-            />
 
-            <CheckoutPaymentOption
-              active={paymentMethod === "cash-app"}
-              title="cash app"
-              icons={<img alt="Cash App" className="h-5 rounded-xs" src="/img/cash-app.svg" />}
-              content={<CheckoutCashAppContent total={total} />}
-              onClick={() => onPaymentChange("cash-app")}
-            />
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      <InputControl>
+                        <Label htmlFor="card_holder">name on card</Label>
 
-            <CheckoutPaymentOption
-              active={paymentMethod === "zelle"}
-              title="zelle"
-              icons={<img alt="Zelle" className="h-5 rounded-xs" src="/img/zelle.svg" />}
-              content={<CheckoutZelleContent total={total} />}
-              onClick={() => onPaymentChange("zelle")}
-            />
-          </div>
-        </CheckoutSection>
-      </div>
+                        <Input
+                          autoComplete="cc-name"
+                          id="card_holder"
+                          name="card_holder"
+                          type="text"
+                          required
+                          value={cardHolder}
+                          onChange={(e) => setCardHolder(e.target.value)}
+                        />
+                      </InputControl>
 
-      <div className="flex flex-col mt-8">
-        <CheckoutSummary
-          loading={loading}
-          onCheckoutClick={onCheckoutClick}
-          summary={{ subtotal, coupon: couponTotal, shipping: shippingTotal, total }}
-        />
+                      <InputControl>
+                        <Label htmlFor="card_postal">billing zip</Label>
+
+                        <Input
+                          autoComplete="billing postal-code"
+                          id="card_postal"
+                          name="card_postal"
+                          type="text"
+                          required
+                          value={cardPostal}
+                          onChange={(e) => setCardPostal(e.target.value)}
+                        />
+
+                        <div className="flex items-center gap-1 mt-1 font-medium leading-3 text-xs text-zinc-300 sm:hidden">
+                          <CircleAlert className="w-3 h-3" />
+                          <span>must match card address</span>
+                        </div>
+                      </InputControl>
+                    </div>
+                  </>
+                }
+                onClick={() => onPaymentChange("credit-card")}
+              />
+
+              <CheckoutPaymentOption
+                active={paymentMethod === "cash-app"}
+                title="cash app"
+                icons={<img alt="Cash App" className="h-5 rounded-xs" src="/img/cash-app.svg" />}
+                content={<CheckoutCashAppContent total={total} />}
+                onClick={() => onPaymentChange("cash-app")}
+              />
+
+              <CheckoutPaymentOption
+                active={paymentMethod === "zelle"}
+                title="zelle"
+                icons={<img alt="Zelle" className="h-5 rounded-xs" src="/img/zelle.svg" />}
+                content={<CheckoutZelleContent total={total} />}
+                onClick={() => onPaymentChange("zelle")}
+              />
+            </div>
+          </CheckoutSection>
+
+          <Button className="w-full" disabled={loading} onClick={onCheckoutClick}>
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <>
+                <span>checkout</span>
+                <MoveRight className="w-4 h-4" />
+              </>
+            )}
+          </Button>
+        </div>
+
+        <div className="flex flex-col md:col-span-2">
+          <CheckoutSummary
+            loading={loading}
+            onCheckoutClick={onCheckoutClick}
+            summary={{ subtotal, coupon: couponTotal, shipping: shippingTotal, total }}
+          />
+        </div>
       </div>
     </>
   );
@@ -1405,14 +1421,14 @@ function CheckoutSummary({ loading, summary, onCheckoutClick }: CheckoutSummaryP
   const data = useLoaderData<typeof loader>();
 
   return (
-    <div className="mt-8">
+    <div className="h-full">
       <H2>order summary</H2>
 
       <CheckoutDeliveryThreshold />
 
       <CheckoutItems />
 
-      <BackgroundGradient>
+      <BackgroundGradient className="sticky top-20">
         <Card className="flex flex-col gap-2 mt-2">
           <div className="flex items-center justify-between gap-3">
             <p>subtotal</p>
@@ -1449,6 +1465,13 @@ function CheckoutSummary({ loading, summary, onCheckoutClick }: CheckoutSummaryP
             </>
           )}
         </Button>
+
+        <div className="flex items-center justify-center mt-4">
+          <div className="flex items-center justify-center gap-1 px-4 py-1 bg-green-950 border border-green-500 rounded-full text-green-500 text-xs font-medium leading-3 select-none">
+            <Lock className="w-3 h-3" />
+            <span>secure and encrypted</span>
+          </div>
+        </div>
       </BackgroundGradient>
     </div>
   );

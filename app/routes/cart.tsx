@@ -144,17 +144,23 @@ export default function Cart() {
     <>
       <H1>cart ({count})</H1>
 
-      <BackgroundGradient gradientClassName="h-3/4">
-        <CartDeliveryThreshold />
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-5">
+        <div className="md:col-span-3">
+          <BackgroundGradient gradientClassName="h-3/4">
+            <CartDeliveryThreshold />
 
-        <CartItems />
+            <CartItems />
 
-        <CartContinueShopping />
-      </BackgroundGradient>
+            <CartContinueShopping />
+          </BackgroundGradient>
+        </div>
 
-      <CartUpsell />
+        <div className="md:col-span-2">
+          <CartUpsell />
 
-      <CartSummary />
+          <CartSummary />
+        </div>
+      </div>
     </>
   );
 }
@@ -353,7 +359,7 @@ function CartContinueShopping() {
 
 function CartUpsell() {
   return (
-    <div className="mt-8">
+    <div>
       <H2>add a mystery vape?</H2>
       <p className="mt-1 text-zinc-300 text-sm font-medium leading-4">🎁 discover new flavours from top brands</p>
 
@@ -392,7 +398,7 @@ function CartMysteryItem(props: CartMysteryItemProps) {
         <CircleQuestionMark className="w-8 h-8" />
       </div>
 
-      <div className="flex flex-col h-16 w-full">
+      <div className="flex flex-col min-h-16 w-full">
         <p className="font-bold leading-4">{props.name}</p>
 
         <p className="mt-1 text-zinc-300 text-xs font-medium leading-3">{props.tagline}</p>

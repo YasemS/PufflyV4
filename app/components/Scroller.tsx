@@ -1,14 +1,12 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import cn from "~/lib/cn";
 
 type ScrollerProps = React.ComponentProps<"div">;
 
-export default function Scroller({
-  className,
-  children,
-  ...props
-}: ScrollerProps) {
+export default function Scroller({ className, children, ...props }: ScrollerProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
   const [showStartGradient, setShowStartGradient] = useState(false);
   const [showEndGradient, setShowEndGradient] = useState(true);
 
@@ -20,9 +18,16 @@ export default function Scroller({
     setShowEndGradient(scrolled < maxScroll - 1); // -1 to avoid showing gradient when at the end
   }
 
+  useEffect(() => {
+    // if no need to scroll then hide the end gradient
+    if (ref.current && ref.current.scrollWidth - ref.current.clientWidth <= ref.current.scrollLeft) {
+      setShowEndGradient(false);
+    }
+  }, []);
+
   return (
     <div className={cn("relative", className)} {...props}>
-      <div className="overflow-auto no-scroll" onScroll={onScroll}>
+      <div className="overflow-auto no-scroll" onScroll={onScroll} ref={ref}>
         {children}
       </div>
 

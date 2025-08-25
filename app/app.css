@@ -23,8 +23,22 @@ body {
   @apply text-white bg-zinc-950;
 }
 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 option {
   @apply text-white bg-zinc-950;
+}
+
+button {
+  cursor: pointer;
 }
 
 .no-scroll {

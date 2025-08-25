@@ -49,35 +49,37 @@ export default function Track() {
 
   return (
     <>
-      <H1>track your order</H1>
-      <p className="mt-1 text-zinc-300 text-sm font-medium leading-4">see the status of your purchase</p>
+      <div className="max-w-md w-full mx-auto md:py-8">
+        <H1>track your order</H1>
+        <p className="mt-1 text-zinc-300 text-sm font-medium leading-4">see the status of your purchase</p>
 
-      <BackgroundGradient className="mt-4">
-        <Card className="p-4">
-          <H2 className="mb-4 pb-4 border-b border-zinc-700">enter your order id</H2>
+        <BackgroundGradient className="mt-4">
+          <Card className="p-4">
+            <H2 className="mb-4 pb-4 border-b border-zinc-700">enter your order id</H2>
 
-          <Form className="flex flex-col gap-4" method="post">
-            {error && <ErrorMessage error={error} />}
+            <Form className="flex flex-col gap-4" method="post">
+              {error && <ErrorMessage error={error} />}
 
-            <InputControl>
-              <Label htmlFor="order_id">order id</Label>
+              <InputControl>
+                <Label htmlFor="order_id">order id</Label>
 
-              <Input
-                id="order_id"
-                name="order"
-                type="text"
-                value={orderId}
-                onChange={(e) => setOrderId(e.target.value)}
-              />
-            </InputControl>
+                <Input
+                  id="order_id"
+                  name="order"
+                  type="text"
+                  value={orderId}
+                  onChange={(e) => setOrderId(e.target.value)}
+                />
+              </InputControl>
 
-            <Button type="submit">
-              <span>track</span>
-              <MoveRight className="w-5 h-5" />
-            </Button>
-          </Form>
-        </Card>
-      </BackgroundGradient>
+              <Button type="submit">
+                <span>track</span>
+                <MoveRight className="w-5 h-5" />
+              </Button>
+            </Form>
+          </Card>
+        </BackgroundGradient>
+      </div>
     </>
   );
 }

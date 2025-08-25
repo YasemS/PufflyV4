@@ -67,6 +67,8 @@ export async function action({ request }: ActionFunctionArgs) {
         continue;
       }
 
+      // TODO: handle out of stock
+
       await addCartItem(cart.id, product.slug, {
         [variant.id]: option.value,
       });

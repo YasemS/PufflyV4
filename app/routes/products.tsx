@@ -16,12 +16,12 @@ export default function Products() {
 
   return (
     <>
-      <div className="fixed top-16 left-0 w-full h-full z-0 bg-gradient-to-r from-pink-500 via-pink-800/20 to-purple-500 blur-3xl opacity-20 rounded-bl-full"></div>
+      <div className="fixed top-16 left-0 w-full h-full z-0 bg-gradient-to-r from-pink-500 via-pink-800/20 to-purple-500 blur-3xl opacity-20 rounded-bl-full md:hidden"></div>
 
       <div className="relative z-1">
         <H1>products</H1>
 
-        <div className="grid grid-cols-2 gap-2 mt-4">
+        <div className="grid grid-cols-2 gap-2 mt-4 sm:grid-cols-3 md:grid-cols-4">
           {products.map((product) => (
             <ProductCard
               key={product.slug}

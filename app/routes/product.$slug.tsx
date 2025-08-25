@@ -91,29 +91,35 @@ export default function Product() {
 
   return (
     <ProductContext.Provider value={{ price, quantity }}>
-      <ProductImage {...imageActive} />
+      <div className="grid grid-cols-1 md:grid-cols-2 md:gap-8">
+        <div className="flex flex-col">
+          <div className="sticky top-24">
+            <ProductImage {...imageActive} />
 
-      <ProductThumbnails>
-        {product.images.map((image) => (
-          <ProductThumbnail
-            key={image.id}
-            alt={image.alt}
-            selected={imageActive.id === image.id}
-            source={image.source}
-            onClick={() => setImageActive(image)}
-          />
-        ))}
-      </ProductThumbnails>
+            <ProductThumbnails>
+              {product.images.map((image) => (
+                <ProductThumbnail
+                  key={image.id}
+                  alt={image.alt}
+                  selected={imageActive.id === image.id}
+                  source={image.source}
+                  onClick={() => setImageActive(image)}
+                />
+              ))}
+            </ProductThumbnails>
+          </div>
+        </div>
 
-      <ProductInformation />
+        <div className="flex flex-col">
+          <ProductInformation />
 
-      <ProductForm onQuantityChange={onQuantityChange} onVariantChange={onVariantChange} />
+          <ProductForm onQuantityChange={onQuantityChange} onVariantChange={onVariantChange} />
 
-      {/* <ProductAlsoBought /> */}
+          <ProductFeatures />
 
-      <ProductFeatures />
-
-      <ProductFAQ />
+          <ProductFAQ />
+        </div>
+      </div>
 
       <ProductReviews />
 
@@ -143,7 +149,7 @@ function ProductThumbnails({ children }: { children: React.ReactNode }) {
 function ProductThumbnail({ alt, selected, source, onClick }: ProductThumbnailProps) {
   return (
     <button onClick={onClick}>
-      <Card className={cn("h-16 min-w-16 w-16 aspect-square p-2", selected && "border-zinc-700")}>
+      <Card className={cn("h-16 min-w-16 w-16 aspect-square p-2 cursor-pointer", selected && "border-zinc-700")}>
         <img alt={alt} className="w-full h-full object-cover" src={source} />
       </Card>
     </button>
@@ -491,7 +497,10 @@ function ProductReviews() {
     <div className="mt-4 pt-4 border-t border-zinc-800/50">
       <H2>customer reviews</H2>
 
-      <BackgroundGradient className="mt-2" gradientClassName="bg-gradient-to-r left-3/4 w-1/2">
+      <BackgroundGradient
+        className="mt-2 max-w-sm w-full"
+        gradientClassName="bg-gradient-to-r left-3/4 w-1/2 md:opacity-10"
+      >
         <div className="flex items-center gap-4">
           <div className="flex flex-col">
             <p className="text-5xl font-bold leading-12">{product.reviews.stats.average?.toFixed(1)}</p>
@@ -532,8 +541,8 @@ function ProductReviews() {
         </div>
       </BackgroundGradient>
 
-      <BackgroundGradient className="mt-4">
-        <div className="flex flex-col gap-2">
+      <BackgroundGradient className="mt-4" gradientClassName="md:opacity-10">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
           {product.reviews.list.map((review) => (
             <ProductReview key={review.id} {...review} />
           ))}
@@ -552,10 +561,10 @@ function ProductSimilar() {
     <div className="mt-4 pt-4 border-t border-zinc-800/50">
       <H2>similar products</H2>
 
-      <BackgroundGradient className="mt-4" gradientClassName="w-1/2 h-1/2 bg-gradient-to-r">
+      <BackgroundGradient className="mt-4" gradientClassName="w-1/2 h-1/2 bg-gradient-to-r md:opacity-10">
         <Scroller>
           <div className="flex items-center gap-2">
-            <div className="flex min-w-1/2 w-1/2">
+            <div className="flex min-w-1/2 w-1/2 sm:w-1/3 sm:min-w-1/3 md:w-1/4 md:min-w-1/4">
               {similar.map((product) => (
                 <ProductCard
                   key={product.slug}

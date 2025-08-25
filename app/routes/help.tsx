@@ -10,8 +10,8 @@ export default function Help() {
       <p className="mt-1 text-zinc-300 text-sm font-medium leading-4">find answers or get in touch with us.</p>
 
       <div className="relative mt-8">
-        <div className="flex flex-col gap-12 relative z-1">
-          <div>
+        <div className="grid grid-cols-1 gap-8 relative z-1 md:grid-cols-5">
+          <div className="md:col-span-3">
             <H2>frequently asked questions</H2>
 
             <div className="mt-3">
@@ -19,7 +19,7 @@ export default function Help() {
             </div>
           </div>
 
-          <div>
+          <div className="md:col-span-2">
             <H2>still need help?</H2>
 
             <div className="flex flex-col mt-3 gap-2">

@@ -146,21 +146,27 @@ export default function Order() {
     <>
       <H1>your order</H1>
 
-      {order.status === "AWAITING_PAYMENT" && <OrderAlertPayment />}
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-5">
+        <div className="md:col-span-3">
+          {order.status === "AWAITING_PAYMENT" && <OrderAlertPayment />}
 
-      <OrderItemsScroller />
+          <OrderItemsScroller />
 
-      <OrderMap />
+          <OrderMap />
+        </div>
 
-      <OrderStatus />
+        <div className="md:col-span-2">
+          <OrderStatus />
 
-      <OrderInformation />
+          <OrderInformation />
 
-      <OrderItems />
+          <OrderItems />
 
-      <OrderSummary />
+          <OrderSummary />
 
-      {["AWAITING_PAYMENT", "PROCESSING", "AWAITING_FULFILLMENT"].includes(order.status) && <OrderCancellation />}
+          {["AWAITING_PAYMENT", "PROCESSING", "AWAITING_FULFILLMENT"].includes(order.status) && <OrderCancellation />}
+        </div>
+      </div>
     </>
   );
 }

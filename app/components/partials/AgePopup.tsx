@@ -42,7 +42,7 @@ export default function AgePopup() {
     <>
       <div className="flex flex-col items-center justify-center fixed top-0 left-0 w-full h-full p-8 backdrop-blur-sm z-998">
         <BackgroundGradient>
-          <Card className="relative text-center overflow-hidden">
+          <Card className="relative text-center overflow-hidden bg-zinc-800/90">
             <H2>age verification</H2>
 
             <p className="mt-2 text-sm text-zinc-300 leading-4">
@@ -61,7 +61,7 @@ export default function AgePopup() {
         </BackgroundGradient>
       </div>
 
-      <Card className="flex items-center justify-center absolute top-0 left-0 w-full p-4 border-t-0 border-x-0 rounded-none z-999">
+      <Card className="flex items-center justify-center fixed top-0 left-0 w-full p-4 border-t-0 border-x-0 rounded-none z-999">
         <p className="text-white text-center font-bold leading-5">
           nicotine is a highly addictive substance and poses serious risks to anyone under 21.
         </p>
