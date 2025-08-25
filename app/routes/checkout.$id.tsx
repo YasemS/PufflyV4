@@ -35,6 +35,7 @@ import { cartCookie } from "~/lib/cart.server";
 import { getOrder } from "~/lib/order.server";
 import { getDeliveryEstimate } from "~/lib/shipping";
 import { getProduct } from "~/lib/product.server";
+import QRCode from "react-qr-code";
 
 export async function action({ params, request }: Route.ActionArgs) {
   const { id } = params;
@@ -205,7 +206,7 @@ export async function action({ params, request }: Route.ActionArgs) {
     return rdata({ error: "payment method is required." }, { status: 400 });
   }
 
-  if (!["credit-card", "cash-app"].includes(paymentMethod)) {
+  if (!["apple-cash", "credit-card", "cash-app", "zelle"].includes(paymentMethod)) {
     return rdata({ error: "invalid payment method." }, { status: 400 });
   }
 
@@ -1136,6 +1137,14 @@ export default function Checkout() {
         <CheckoutSection title="payment">
           <div className="flex flex-col gap-1.5">
             <CheckoutPaymentOption
+              active={paymentMethod === "apple-cash"}
+              title="apple cash"
+              icons={<img alt="Apple" className="h-5 rounded-xs" src="/img/apple.svg" />}
+              content={<CheckoutAppleCashContent total={total} />}
+              onClick={() => onPaymentChange("apple-cash")}
+            />
+
+            <CheckoutPaymentOption
               active={paymentMethod === "credit-card"}
               title="credit card"
               icons={getCardIcons()}
@@ -1228,8 +1237,16 @@ export default function Checkout() {
               active={paymentMethod === "cash-app"}
               title="cash app"
               icons={<img alt="Cash App" className="h-5 rounded-xs" src="/img/cash-app.svg" />}
-              content={<p>Hello World</p>}
+              content={<CheckoutCashAppContent total={total} />}
               onClick={() => onPaymentChange("cash-app")}
+            />
+
+            <CheckoutPaymentOption
+              active={paymentMethod === "zelle"}
+              title="zelle"
+              icons={<img alt="Zelle" className="h-5 rounded-xs" src="/img/zelle.svg" />}
+              content={<CheckoutZelleContent total={total} />}
+              onClick={() => onPaymentChange("zelle")}
             />
           </div>
         </CheckoutSection>
@@ -1303,6 +1320,83 @@ function CheckoutPaymentOption({ onClick, ...props }: CheckoutPaymentOptionProps
           {props.content}
         </Card>
       )}
+    </div>
+  );
+}
+
+function CheckoutAppleCashContent({ total }: { total: number }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => setVisible(true), []);
+
+  if (!visible) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center py-2 text-center">
+      <p className="text-sm">
+        please send <span className="font-semibold">{format.currency(total)}</span> to the number below
+      </p>
+
+      <p className="mt-2 text-xl font-semibold font-mono leading-6">786-416-1137</p>
+
+      <p className="mt-2 text-xs text-zinc-300 leading-4">complete the payment via apple cash, then click checkout.</p>
+    </div>
+  );
+}
+
+function CheckoutCashAppContent({ total }: { total: number }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => setVisible(true), []);
+
+  return (
+    <div className="flex flex-col items-center justify-center py-2 text-center">
+      <p className="text-sm">
+        please send <span className="font-semibold">{format.currency(total)}</span> to the qr/tag below
+      </p>
+
+      {visible && (
+        <div className="max-w-48 max-h-48 mt-4 mx-auto p-2 bg-white rounded-md">
+          <QRCode className="h-full w-full" value="https://cash.app/$pufflyio?qr=1" />
+        </div>
+      )}
+
+      <p className="mt-4 text-xl font-semibold font-mono leading-6">A at PFL</p>
+
+      <p className="mt-1 text-xl font-semibold font-mono leading-6">
+        <span className="text-[#00CF31]">$</span>pufflyio
+      </p>
+
+      <p className="mt-2 text-xs text-zinc-300 leading-4">complete the payment via cash app, then click checkout.</p>
+    </div>
+  );
+}
+
+function CheckoutZelleContent({ total }: { total: number }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => setVisible(true), []);
+
+  return (
+    <div className="flex flex-col items-center justify-center py-2 text-center">
+      <p className="text-sm">
+        please send <span className="font-semibold">{format.currency(total)}</span> to the qr/number below
+      </p>
+
+      {visible && (
+        <div className="max-w-48 max-h-48 mt-4 mx-auto p-2 bg-white rounded-md">
+          <QRCode
+            className="h-full w-full"
+            value="https://www.zellepay.com/qr-codes/?data=eyJ0b2tlbiI6Ijc4Ni01NjYtMzMzMCIsIm5hbWUiOiJBTlRIT05ZIFJJVkVSTyJ9"
+          />
+        </div>
+      )}
+
+      <p className="mt-4 text-xl font-semibold font-mono leading-6">786-566-3330</p>
+
+      <p className="mt-2 text-xs text-zinc-300 leading-4">complete the payment via zelle, then click checkout.</p>
     </div>
   );
 }
