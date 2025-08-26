@@ -738,7 +738,7 @@ export default function Checkout() {
       setCardNumber("");
       setCardExpiry("");
       setCardCvc("");
-      setCardHolder(firstName + lastName ? " " + lastName : "");
+      setCardHolder(firstName + (lastName ? " " + lastName : ""));
       setCardPostal(postal);
     }
   }
