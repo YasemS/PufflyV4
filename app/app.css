@@ -41,6 +41,34 @@ button {
   cursor: pointer;
 }
 
+.legal h1 {
+  @apply mb-2 text-3xl font-bold;
+}
+
+.legal h2 {
+  @apply mt-8 mb-2 text-2xl font-bold;
+}
+
+.legal h3 {
+  @apply mt-8 mb-2 text-xl font-bold;
+}
+
+.legal a {
+  @apply text-pink-500 font-medium hover:underline;
+}
+
+.legal p {
+  @apply mt-2 text-zinc-300;
+}
+
+.legal ul {
+  @apply my-4 text-zinc-300 list-disc list-inside;
+}
+
+.legal li {
+  @apply mb-1 last:mb-0;
+}
+
 .no-scroll {
   scrollbar-width: none;
 }
