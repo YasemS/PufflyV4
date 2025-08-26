@@ -384,7 +384,7 @@ function OrderInformation() {
         </div>
 
         <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-zinc-700 text-sm leading-4">
-          <p className="text-zinc-300">payment method</p>
+          <p className="text-zinc-300 font-medium">payment method</p>
 
           <div className="flex items-center justify-center gap-1.5">
             <p className="font-medium">{order.paymentMethod!.split("-").join(" ")}</p>
