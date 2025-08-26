@@ -1,6 +1,6 @@
 import prisma from "~/lib/prisma.server";
 
-export async function getProducts() {
+export async function getProducts(brandSlug?: string) {
   const products = await prisma.product.findMany({
     select: {
       slug: true,
@@ -25,6 +25,7 @@ export async function getProducts() {
     },
     where: {
       visible: true,
+      brandSlug,
     },
   });
 
