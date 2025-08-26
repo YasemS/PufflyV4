@@ -41,16 +41,20 @@ button {
   cursor: pointer;
 }
 
+.legal {
+  @apply lowercase;
+}
+
 .legal h1 {
   @apply mb-2 text-3xl font-bold;
 }
 
 .legal h2 {
-  @apply mt-8 mb-2 text-2xl font-bold;
+  @apply mt-8 mb-2 text-xl font-bold;
 }
 
 .legal h3 {
-  @apply mt-8 mb-2 text-xl font-bold;
+  @apply mt-8 mb-2 text-lg font-bold;
 }
 
 .legal a {
@@ -58,11 +62,11 @@ button {
 }
 
 .legal p {
-  @apply mt-2 text-zinc-300;
+  @apply mt-2 text-zinc-300 text-sm;
 }
 
 .legal ul {
-  @apply my-4 text-zinc-300 list-disc list-inside;
+  @apply my-4 text-zinc-300 text-sm list-disc list-inside;
 }
 
 .legal li {
