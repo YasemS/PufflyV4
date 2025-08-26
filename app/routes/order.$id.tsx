@@ -496,7 +496,7 @@ function OrderCancellation() {
   return (
     <Card className="mt-2 text-center">
       <p className="text-base font-semibold leading-4">want to cancel your order?</p>
-      <Link className="text-sm text-pink-500 font-medium leading-4" to="/help">
+      <Link className="text-sm text-pink-500 font-medium leading-4" target="_blank" to="/help">
         contact us
       </Link>
     </Card>
