@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
 
+import BackgroundGradient from "~/components/BackgroundGradient";
 import Button from "~/components/Button";
 import Card from "~/components/Card";
 import { H2 } from "~/components/Heading";
-import BackgroundGradient from "../BackgroundGradient";
 
 export default function AgePopup() {
   const [visible, setVisible] = useState(false);
