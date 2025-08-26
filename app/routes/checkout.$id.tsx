@@ -943,7 +943,7 @@ export default function Checkout() {
             </InputControl>
 
             <div className="flex items-center gap-2 mt-2">
-              <input type="checkbox" name="" id="" />
+              <input type="checkbox" checked />
 
               <label className="leading-4 text-sm text-zinc-300" htmlFor="">
                 email me with news and offers
