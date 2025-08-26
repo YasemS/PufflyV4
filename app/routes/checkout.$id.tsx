@@ -1259,17 +1259,6 @@ export default function Checkout() {
               />
             </div>
           </CheckoutSection>
-
-          <Button className="hidden w-full md:flex" disabled={loading} onClick={onCheckoutClick}>
-            {loading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <>
-                <span>checkout</span>
-                <MoveRight className="w-4 h-4" />
-              </>
-            )}
-          </Button>
         </div>
 
         <div className="flex flex-col md:col-span-2">
