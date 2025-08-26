@@ -1433,7 +1433,7 @@ function CheckoutSummary({ loading, summary, onCheckoutClick }: CheckoutSummaryP
 
       <CheckoutItems />
 
-      <BackgroundGradient className="sticky top-20">
+      <BackgroundGradient className="sticky top-24">
         <Card className="flex flex-col gap-2 mt-2">
           <div className="flex items-center justify-between gap-3">
             <p>subtotal</p>

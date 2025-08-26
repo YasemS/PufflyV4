@@ -18,7 +18,7 @@ type ProductCardProps = {
 export function ProductCard(product: ProductCardProps) {
   return (
     <Link
-      className="p-3 bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl rounded-lg"
+      className="w-full p-3 bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl rounded-lg"
       to={`/product/${product.slug}`}
     >
       <img className="block w-full aspect-square object-contain" alt={product.name} src={product.image} />

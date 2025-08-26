@@ -564,10 +564,9 @@ function ProductSimilar() {
       <BackgroundGradient className="mt-4" gradientClassName="w-1/2 h-1/2 bg-gradient-to-r md:opacity-10">
         <Scroller>
           <div className="flex items-center gap-2">
-            <div className="flex min-w-1/2 w-1/2 sm:w-1/3 sm:min-w-1/3 md:w-1/4 md:min-w-1/4">
-              {similar.map((product) => (
+            {similar.map((product) => (
+              <div className="flex min-w-1/2 w-1/2 sm:w-1/3 sm:min-w-1/3 md:w-1/4 md:min-w-1/4" key={product.slug}>
                 <ProductCard
-                  key={product.slug}
                   slug={product.slug}
                   name={product.name}
                   image={product.image}
@@ -575,8 +574,8 @@ function ProductSimilar() {
                   rating={product.rating}
                   brand={product.brand}
                 />
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </Scroller>
       </BackgroundGradient>
