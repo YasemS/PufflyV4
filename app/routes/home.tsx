@@ -1,7 +1,7 @@
 import { MoveRight } from "lucide-react";
 import { Link } from "react-router";
-import BackgroundGradient from "~/components/BackgroundGradient";
 
+import BackgroundGradient from "~/components/BackgroundGradient";
 import Button from "~/components/Button";
 import Card from "~/components/Card";
 import { H1, H2 } from "~/components/Heading";
