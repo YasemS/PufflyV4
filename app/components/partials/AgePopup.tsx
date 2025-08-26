@@ -46,7 +46,7 @@ export default function AgePopup() {
             <H2>age verification</H2>
 
             <p className="mt-2 text-sm text-zinc-300 leading-4">
-              please confirm you are 21 years of age or older to enter this site.
+              please confirm you are at least 21 years old to enter this site.
             </p>
 
             <div className="flex items-center gap-2 mt-4 pt-3 border-t border-zinc-700">
