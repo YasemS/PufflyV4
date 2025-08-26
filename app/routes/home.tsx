@@ -1,12 +1,33 @@
 import { MoveRight } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useLoaderData } from "react-router";
 
 import BackgroundGradient from "~/components/BackgroundGradient";
 import Button from "~/components/Button";
 import Card from "~/components/Card";
 import { H1, H2 } from "~/components/Heading";
+import { ProductCard } from "~/components/Product";
+
+import prisma from "~/lib/prisma.server";
+import { getProducts } from "~/lib/product.server";
+
+export async function loader() {
+  const products = await getProducts(null, 8);
+
+  const brands = await prisma.brand.findMany({
+    where: {
+      visible: true,
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  return { brands, products };
+}
 
 export default function Home() {
+  const { brands, products } = useLoaderData<typeof loader>();
+
   return (
     <>
       <BackgroundGradient className="col-span-2">
@@ -56,6 +77,42 @@ export default function Home() {
           </div>
         </div>
       </BackgroundGradient>
+
+      <div className="mt-12">
+        <H2 className="text-2xl">🔥 popular products</H2>
+
+        <div className="grid grid-cols-2 gap-2 mt-4 sm:grid-cols-3 md:grid-cols-4">
+          {products.map((product) => (
+            <ProductCard
+              key={product.slug}
+              slug={product.slug}
+              name={product.name}
+              image={product.image}
+              price={product.price}
+              rating={product.rating}
+              brand={product.brand}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-12">
+        <H2 className="text-2xl">🛍️ shop by brands</H2>
+
+        <div className="grid grid-cols-2 gap-2 mt-4 sm:grid-cols-4 md:grid-cols-5">
+          {brands.map((brand) => (
+            <Link to={`/brand/${brand.slug}`} key={brand.slug}>
+              <Card className="aspect-video">
+                {brand.image ? (
+                  <img className="w-full h-full object-contain" src={brand.image} alt={brand.name} />
+                ) : (
+                  <p>no image</p>
+                )}
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </div>
     </>
   );
 }

@@ -15,9 +15,10 @@ datasource db {
 }
 
 model Brand {
-  slug  String @id @unique
-  name  String
-  image String
+  slug    String @id @unique
+  name    String
+  image   String
+  visible Boolean @default(true)
 
   products Product[]
 }

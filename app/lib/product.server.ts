@@ -1,6 +1,6 @@
 import prisma from "~/lib/prisma.server";
 
-export async function getProducts(brandSlug?: string) {
+export async function getProducts(brandSlug?: string | null, limit?: number | null) {
   const products = await prisma.product.findMany({
     select: {
       slug: true,
@@ -25,8 +25,9 @@ export async function getProducts(brandSlug?: string) {
     },
     where: {
       visible: true,
-      brandSlug,
+      brandSlug: brandSlug || undefined,
     },
+    take: limit || undefined,
   });
 
   const results = [];
