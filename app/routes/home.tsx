@@ -1,4 +1,4 @@
-import { CheckCircle, CircleAlert, CircleQuestionMark, Mail, MoveRight, Star } from "lucide-react";
+import { CheckCircle, CircleAlert, Mail, MoveRight, Star } from "lucide-react";
 import { Link, useFetcher, useLoaderData } from "react-router";
 import Marquee from "react-fast-marquee";
 
