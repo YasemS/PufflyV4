@@ -17,6 +17,7 @@ export default [
   route("checkout/coupon", "routes/checkout.coupon.tsx"),
   route("checkout/update", "routes/checkout.update.tsx"),
   route("checkout/:id", "routes/checkout.$id.tsx"),
+  route("email/subscribe", "routes/email.subscribe.tsx"),
   route("legal/privacy", "routes/legal.privacy.tsx"),
   route("legal/refund", "routes/legal.refund.tsx"),
   route("legal/shipping", "routes/legal.shipping.tsx"),

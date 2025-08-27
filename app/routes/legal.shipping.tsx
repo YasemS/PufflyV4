@@ -12,8 +12,8 @@ export default function LegalShipping() {
 
       <h2>Processing Time</h2>
       <p>
-        All orders are processed within 1-2 business days (excluding weekends and holidays) after receiving your order
-        confirmation email.
+        All orders are usually processed within 1-2 business days (excluding weekends and holidays) after receiving your
+        order confirmation email.
       </p>
       <p>
         You will receive another notification when your order has shipped. During high volume periods, processing may
