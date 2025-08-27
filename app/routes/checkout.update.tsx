@@ -1,5 +1,5 @@
 import validator from "validator";
-import { data } from "react-router";
+import { data, redirect } from "react-router";
 
 import type { Route } from "./+types/checkout.update";
 
@@ -73,4 +73,8 @@ export async function action({ request }: Route.ActionArgs) {
   });
 
   return data({ success: true });
+}
+
+export function loader() {
+  return redirect("/cart");
 }

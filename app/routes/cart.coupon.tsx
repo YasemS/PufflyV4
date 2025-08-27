@@ -1,4 +1,4 @@
-import { data } from "react-router";
+import { data, redirect } from "react-router";
 
 import type { Route } from "./+types/cart.coupon";
 
@@ -130,4 +130,8 @@ export async function action({ request }: Route.ActionArgs) {
       },
     },
   );
+}
+
+export function loader() {
+  return redirect("/cart");
 }

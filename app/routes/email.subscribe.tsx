@@ -1,7 +1,8 @@
-import { data } from "react-router";
+import { data, redirect } from "react-router";
 import validator from "validator";
 
 import type { Route } from "./+types/email.subscribe";
+
 import { resend } from "~/lib/email.server";
 
 export async function action({ request }: Route.ActionArgs) {
@@ -23,4 +24,8 @@ export async function action({ request }: Route.ActionArgs) {
   });
 
   return data({ success: true });
+}
+
+export function loader() {
+  return redirect("/cart");
 }
