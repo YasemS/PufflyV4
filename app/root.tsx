@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from "react-router";
 
 import type { Route } from "./+types/root";
@@ -13,6 +13,8 @@ import Footer from "~/components/partials/Footer";
 import AgePopup from "~/components/partials/AgePopup";
 import Container from "~/components/Container";
 
+import fbq from "~/lib/analytics/fbq.client";
+import gtag from "~/lib/analytics/gtag.client";
 import { cartCookie, getCart } from "~/lib/cart.server";
 import { GlobalContext } from "~/lib/global";
 
@@ -37,7 +39,15 @@ export async function loader({ request }: Route.LoaderArgs) {
     }
   }
 
-  return { cart: cartExists };
+  const keys = {
+    analytics: {
+      datafast: process.env.DATAFAST_WEBSITE_ID,
+      google: process.env.GOOGLE_ANALYTICS_ID,
+      meta: process.env.META_PIXEL_ID,
+    },
+  };
+
+  return { cart: cartExists, keys };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -62,9 +72,29 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const { cart: cartExists } = useLoaderData<typeof loader>();
+  const { cart: cartExists, keys } = useLoaderData<typeof loader>();
 
   const [cart, setCart] = useState(cartExists);
+
+  useEffect(() => {
+    // Add DataFast script
+    const script = document.createElement("script");
+    script.defer = true;
+    script.setAttribute("data-website-id", keys.analytics.datafast || "");
+    script.setAttribute("data-domain", "www.puffly.io");
+    script.src = "/js/script.js";
+    document.head.appendChild(script);
+
+    // Cleanup on unmount
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
+
+  useEffect(() => {
+    fbq.init(keys.analytics.meta || "");
+    gtag.init(keys.analytics.google || "");
+  }, []);
 
   return (
     <GlobalContext.Provider value={{ cart, setCart }}>

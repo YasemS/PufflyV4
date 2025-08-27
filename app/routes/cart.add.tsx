@@ -38,11 +38,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (product.variants.length === 0) {
     await addCartItem(cart.id, product.slug);
 
-    return redirect("/cart", {
-      headers: {
-        "Set-Cookie": await cartCookie.serialize(cart.id),
-      },
-    });
+    return data({ success: true }, { headers: { "Set-Cookie": await cartCookie.serialize(cart.id) } });
   }
 
   for (const variant of product.variants) {
@@ -75,11 +71,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   }
 
-  return redirect("/cart", {
-    headers: {
-      "Set-Cookie": await cartCookie.serialize(cart.id),
-    },
-  });
+  return data({ success: true }, { headers: { "Set-Cookie": await cartCookie.serialize(cart.id) } });
 }
 
 export function loader() {

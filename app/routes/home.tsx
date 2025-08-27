@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { CheckCircle, CircleAlert, Mail, MoveRight, Star } from "lucide-react";
 import { Link, useFetcher, useLoaderData } from "react-router";
 import Marquee from "react-fast-marquee";
@@ -13,7 +14,6 @@ import { ProductCard } from "~/components/Product";
 
 import prisma from "~/lib/prisma.server";
 import { getProducts } from "~/lib/product.server";
-import { useEffect, useState } from "react";
 
 export async function loader() {
   const products = await getProducts(null, 8);

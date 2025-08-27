@@ -12,7 +12,9 @@ import Scroller from "~/components/Scroller";
 import { H1, H2, H3 } from "~/components/Heading";
 
 import cn from "~/lib/cn";
+import fbq from "~/lib/analytics/fbq.client";
 import format from "~/lib/format";
+import gtag from "~/lib/analytics/gtag.client";
 import { getOrder } from "~/lib/order.server";
 import { getProduct } from "~/lib/product.server";
 
@@ -140,7 +142,36 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export default function Order() {
-  const { order } = useLoaderData<typeof loader>();
+  const { order, items, summary } = useLoaderData<typeof loader>();
+
+  useEffect(() => {
+    if (order.status !== "PROCESSING") return;
+
+    fbq.track("Purchase", {
+      contents: items.map((item) => ({
+        id: item.slug,
+        quantity: item.quantity,
+        item_price: item.price,
+      })),
+      content_ids: items.map((item) => item.slug),
+      content_type: "product",
+      value: summary.total,
+      currency: "USD",
+    });
+
+    gtag.track("purchase", {
+      transaction_id: order.id,
+      currency: "USD",
+      value: summary.total,
+      items: items.map((item) => ({
+        item_id: item.slug,
+        item_name: item.name,
+        item_variant: item.variants.length > 0 ? item.variants[0].name : null,
+        price: item.price,
+        quantity: item.quantity,
+      })),
+    });
+  }, []);
 
   return (
     <>

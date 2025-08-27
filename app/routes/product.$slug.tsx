@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { AlertCircle, Cigarette, Cloud, Star, Zap } from "lucide-react";
-import { Link, redirect, useFetcher, useLoaderData } from "react-router";
+import { Link, redirect, useFetcher, useLoaderData, useNavigate } from "react-router";
 
 import type { Route } from "./+types/product.$slug";
 
@@ -16,7 +16,9 @@ import { H1, H2, H3 } from "~/components/Heading";
 import { ProductCard } from "~/components/Product";
 
 import cn from "~/lib/cn";
+import fbq from "~/lib/analytics/fbq.client";
 import format from "~/lib/format";
+import gtag from "~/lib/analytics/gtag.client";
 import { getProduct, getSimilarProducts } from "~/lib/product.server";
 import { getDeliveryEstimate } from "~/lib/shipping";
 
@@ -68,6 +70,8 @@ export default function Product() {
   }
 
   function onVariantChange(id: string, value: string) {
+    fbq.track("CustomizeProduct");
+
     const variant = product.variants.find((variant) => variant.id === id);
 
     if (!variant) return;
@@ -82,6 +86,30 @@ export default function Product() {
 
     setImageActive(image);
   }
+
+  useEffect(() => {
+    fbq.track("ViewContent", {
+      content_ids: [product.slug],
+      content_type: "product",
+      contents: [{ id: product.slug, quantity, item_price: product.price }],
+      currency: "USD",
+      value: product.price,
+    });
+
+    gtag.track("view_item", {
+      currency: "USD",
+      value: product.price,
+      items: [
+        {
+          item_id: product.slug,
+          item_name: product.name,
+          item_brand: product.brand.name,
+          price: product.price,
+          quantity,
+        },
+      ],
+    });
+  }, [product]);
 
   useEffect(() => {
     setImageActive(imageDefault);
@@ -214,11 +242,49 @@ function ProductStars() {
 function ProductForm({ onQuantityChange, onVariantChange }: ProductFormProps) {
   const { product } = useLoaderData<typeof loader>();
 
-  const { quantity } = useContext(ProductContext);
+  const { quantity, price } = useContext(ProductContext);
 
   const fetcher = useFetcher();
+  const nav = useNavigate();
 
   const error = fetcher.data?.error;
+
+  useEffect(() => {
+    if (fetcher.state !== "idle") return;
+    if (!fetcher.data) return;
+
+    if ("success" in fetcher.data) {
+      fbq.track("AddToCart", {
+        contents: [
+          {
+            id: product.slug,
+            quantity: quantity,
+            item_price: price,
+          },
+        ],
+        content_ids: [product.slug],
+        content_type: "product", // Type of content (product, product_group, etc.)
+        value: price, // Total value of added items (sum of all quantities * prices)
+        currency: "USD", // Currency code (ISO 4217)
+      });
+
+      gtag.track("add_to_cart", {
+        currency: "USD",
+        value: price,
+        items: [
+          {
+            item_id: product.slug,
+            item_name: product.name,
+            item_brand: product.brand.name,
+            price: price,
+            quantity: quantity,
+          },
+        ],
+      });
+
+      nav("/cart");
+    }
+  }, [fetcher.state, fetcher.data]);
 
   return (
     <div className="mt-4 py-4 border-y border-zinc-800/50">

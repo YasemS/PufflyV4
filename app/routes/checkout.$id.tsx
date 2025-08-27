@@ -28,9 +28,13 @@ import ProgressBar from "~/components/ProgressBar";
 import Select from "~/components/Select";
 import { H1, H2 } from "~/components/Heading";
 
-import cn from "~/lib/cn";
-import format from "~/lib/format";
 import authorizenet from "~/lib/authorizenet.server";
+import cn from "~/lib/cn";
+import datafast from "~/lib/datafast.server";
+import fbq from "~/lib/analytics/fbq.client";
+import format from "~/lib/format";
+import gtag from "~/lib/analytics/gtag.client";
+import ntfy from "~/lib/ntfy.server";
 import prisma from "~/lib/prisma.server";
 import { template as emailTemplate, resend } from "~/lib/email.server";
 import { cartCookie } from "~/lib/cart.server";
@@ -301,7 +305,27 @@ export async function action({ params, request }: Route.ActionArgs) {
     ...template,
   });
 
-  // TODO: add ntfy and datafast
+  await ntfy({
+    message: `new order placed for (${format.currency(total)} - ${paymentMethod}) to ${postal}, ${state}`,
+    title: "new order - " + firstName,
+    tags: "money_mouth_face",
+  });
+
+  const cookieHeader = request.headers.get("Cookie");
+  const datafastVisitorId =
+    cookieHeader
+      ?.split(";")
+      .find((c) => c.trim().startsWith("datafast_visitor_id="))
+      ?.split("=")[1] || "";
+
+  await datafast.payment({
+    orderId: order.id,
+    email: order.email!,
+    name: firstName + " " + lastName,
+    total: total,
+    datafastVisitorId: datafastVisitorId,
+    datafastApiKey: process.env.DATAFAST_API_KEY!,
+  });
 
   return redirect("/order/" + order.id, {
     headers: {
@@ -741,6 +765,32 @@ export default function Checkout() {
       setCardHolder(firstName + (lastName ? " " + lastName : ""));
       setCardPostal(postal);
     }
+
+    if (!paymentMethod) {
+      fbq.track("AddPaymentInfo", {
+        contents: data.items.map((item) => ({
+          id: item.slug,
+          quantity: item.quantity,
+          item_price: item.price,
+        })),
+        content_ids: data.items.map((item) => item.slug),
+        value: subtotal,
+        currency: "USD",
+      });
+    }
+
+    gtag.track("add_payment_info", {
+      currency: "USD",
+      value: subtotal,
+      payment_type: method,
+      items: data.items.map((item) => ({
+        item_id: item.slug,
+        item_name: item.name,
+        item_variant: item.variants.length > 0 ? item.variants[0].name : null,
+        price: item.price,
+        quantity: item.quantity,
+      })),
+    });
   }
 
   function onCheckoutError(error: string) {
@@ -900,6 +950,32 @@ export default function Checkout() {
   }
 
   useEffect(() => {
+    fbq.track("InitiateCheckout", {
+      contents: data.items.map((item) => ({
+        id: item.slug,
+        quantity: item.quantity,
+        item_price: item.price,
+      })),
+      content_ids: data.items.map((item) => item.slug),
+      content_type: "product",
+      value: subtotal,
+      currency: "USD",
+    });
+
+    gtag.track("begin_checkout", {
+      currency: "USD",
+      value: subtotal,
+      items: data.items.map((item) => ({
+        item_id: item.slug,
+        item_name: item.name,
+        item_variant: item.variants.length > 0 ? item.variants[0].name : null,
+        price: item.price,
+        quantity: item.quantity,
+      })),
+    });
+  }, []);
+
+  useEffect(() => {
     const timeout = setTimeout(() => {
       onCheckoutChange();
     }, 1000);
@@ -943,7 +1019,7 @@ export default function Checkout() {
             </InputControl>
 
             <div className="flex items-center gap-2 mt-2">
-              <input type="checkbox" checked />
+              <input type="checkbox" checked readOnly />
 
               <label className="leading-4 text-sm text-zinc-300" htmlFor="">
                 email me with news and offers
