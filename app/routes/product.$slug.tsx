@@ -514,41 +514,43 @@ function ProductFAQ() {
 
 function ProductReview(review: ProductReviewProps) {
   return (
-    <Card className="flex flex-col">
-      <div className="flex gap-3">
-        <div className="flex items-center justify-center min-w-10 w-10 h-10 rounded-full bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl">
-          <p className="text-2xl font-bold">{review.name.charAt(0) || "?"}</p>
-        </div>
-
-        <div className="flex flex-col pt-1">
-          <p className="text-sm font-semibold leading-4">{review.name}</p>
-
-          <div className="flex items-center gap-1 mt-1">
-            {[...Array(review.rating)].map((_, i) => (
-              <Star key={i} className="w-3 h-3 text-amber-500 fill-amber-500" />
-            ))}
-
-            {[...Array(5 - (review.rating || 0))].map((_, i) => (
-              <Star key={i} className="w-3 h-3 text-amber-500" />
-            ))}
+    <div>
+      <Card className="flex flex-col">
+        <div className="flex gap-3">
+          <div className="flex items-center justify-center min-w-10 w-10 h-10 rounded-full bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl">
+            <p className="text-2xl font-bold">{review.name.charAt(0) || "?"}</p>
           </div>
+
+          <div className="flex flex-col pt-1">
+            <p className="text-sm font-semibold leading-4">{review.name}</p>
+
+            <div className="flex items-center gap-1 mt-1">
+              {[...Array(review.rating)].map((_, i) => (
+                <Star key={i} className="w-3 h-3 text-amber-500 fill-amber-500" />
+              ))}
+
+              {[...Array(5 - (review.rating || 0))].map((_, i) => (
+                <Star key={i} className="w-3 h-3 text-amber-500" />
+              ))}
+            </div>
+          </div>
+
+          <p className="mt-1 ml-auto text-xs text-zinc-300">
+            {review.created
+              .toLocaleDateString(undefined, {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })
+              .toLowerCase()}
+          </p>
         </div>
 
-        <p className="mt-1 ml-auto text-xs text-zinc-300">
-          {review.created
-            .toLocaleDateString(undefined, {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            })
-            .toLowerCase()}
-        </p>
-      </div>
+        <p className="mt-2 pt-2 border-t border-zinc-700 text-sm font-semibold">{review.title}</p>
 
-      <p className="mt-2 pt-2 border-t border-zinc-700 text-sm font-semibold">{review.title}</p>
-
-      <p className="mt-0.5 text-zinc-300 text-xs leading-4">{review.content}</p>
-    </Card>
+        <p className="mt-0.5 text-zinc-300 text-xs leading-4">{review.content}</p>
+      </Card>
+    </div>
   );
 }
 
