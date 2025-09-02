@@ -123,7 +123,7 @@ export async function getProduct(slug: string) {
         orderBy: {
           rating: "desc",
         },
-        take: 6,
+        // take: 6,
       },
     },
     where: {
