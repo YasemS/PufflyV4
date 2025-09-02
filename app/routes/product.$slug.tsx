@@ -40,7 +40,171 @@ export const meta: Route.MetaFunction = ({ data }) => {
     puffs = puffs.split(" ").pop() || "";
   }
 
-  return [{ title: `${data.product.name} vape - ${puffs} puffs - ${format.currency(data.product.price)}` }];
+  const title = `${data.product.name} vape - ${puffs} puffs - ${format.currency(data.product.price)}`;
+  const image = data.product.images[0];
+  const canonical = "https://www.puffly.io/product/" + data.product.slug;
+
+  const ratings = {
+    average: data.product.reviews.stats.average || 5,
+    count: data.product.reviews.stats.count || 0,
+    worst: Math.min(...data.product.reviews.list.map((review) => review.rating)),
+    best: Math.max(...data.product.reviews.list.map((review) => review.rating)),
+  };
+
+  return [
+    { title },
+    {
+      name: "description",
+      content: data.product.tagline,
+    },
+    {
+      property: "og:site_name",
+      content: "Puffly",
+    },
+    {
+      property: "og:url",
+      content: canonical,
+    },
+    {
+      property: "og:title",
+      content: title,
+    },
+    {
+      property: "og:type",
+      content: "product",
+    },
+    {
+      property: "og:description",
+      content: data.product.tagline,
+    },
+    {
+      property: "og:image",
+      content: image.source,
+    },
+    {
+      property: "og:image:width",
+      content: "1000",
+    },
+    {
+      property: "og:image:height",
+      content: "1000",
+    },
+    {
+      property: "og:price:amount",
+      content: data.product.price.toFixed(2),
+    },
+    {
+      property: "og:price:currency",
+      content: "USD",
+    },
+    {
+      name: "twitter:site",
+      content: "@pufflyio",
+    },
+    {
+      name: "twitter:card",
+      content: "summary_large_image",
+    },
+    {
+      name: "twitter:title",
+      content: title,
+    },
+    {
+      name: "twitter:description",
+      content: data.product.tagline,
+    },
+    {
+      tagName: "link",
+      rel: "canonical",
+      href: canonical,
+    },
+    {
+      "script:ld+json": [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "puffly",
+          url: "https://www.puffly.io",
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "puffly",
+          url: "https://www.puffly.io",
+          logo: "https://cdn.puffly.io/img/logo.png",
+        },
+      ],
+    },
+    {
+      "script:ld+json": {
+        "@context": "http://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: "https://www.puffly.io",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: data.product.name + " vape",
+            item: canonical,
+          },
+        ],
+      },
+    },
+    {
+      "script:ld+json": {
+        "@context": "http://schema.org",
+        "@type": "Product",
+        name: data.product.name + " vape",
+        url: canonical,
+        offers:
+          data.product.variants.length >= 1
+            ? data.product.variants[0].options.map((option) => ({
+                "@type": "https://schema.org/Offer",
+                availability: "https://schema.org/InStock",
+                url: canonical,
+                price: data.product.price,
+                priceCurrency: "USD",
+                name: `${data.product.name} vape - ${option.name}`,
+              }))
+            : [
+                {
+                  "@type": "https://schema.org/Offer",
+                  availability: "https://schema.org/InStock",
+                  url: canonical,
+                  price: data.product.price,
+                  priceCurrency: "USD",
+                  name: `${data.product.name} vape`,
+                },
+              ],
+        brand: {
+          "@type": "Brand",
+          name: data.product.brand.name,
+        },
+        description: data.product.description,
+        category: "vape",
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: ratings.average.toFixed(2),
+          reviewCount: ratings.count,
+          worstRating: ratings.worst,
+          bestRating: ratings.best,
+        },
+        image: {
+          "@type": "ImageObject",
+          url: image.source,
+          image: image.source,
+          name: data.product.name + " vape",
+          width: "1000",
+          height: "1000",
+        },
+      },
+    },
+  ];
 };
 
 export async function loader({ params }: Route.LoaderArgs) {
