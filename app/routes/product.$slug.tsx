@@ -40,7 +40,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
     puffs = puffs.split(" ").pop() || "";
   }
 
-  const title = `${data.product.name} vape - ${puffs} puffs - ${format.currency(data.product.price)}`;
+  const title = `${data.product.name} ${puffs} vape - ${format.currency(data.product.price)}`;
   const image = data.product.images[0];
   const canonical = "https://www.puffly.io/product/" + data.product.slug;
 
@@ -52,7 +52,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
   };
 
   return [
-    { title },
+    { title: title + " | puffly" },
     {
       name: "description",
       content: data.product.tagline,
