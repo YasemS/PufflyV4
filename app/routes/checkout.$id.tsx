@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { data as rdata, redirect, useFetcher, useLoaderData, useSubmit, useActionData } from "react-router";
+import { data as rdata, redirect, useFetcher, useLoaderData, useSubmit, useActionData, Link } from "react-router";
 import {
   AlertCircle,
   CheckCircle,
@@ -217,7 +217,8 @@ export async function action({ params, request }: Route.ActionArgs) {
     return rdata({ error: "payment method is required." }, { status: 400 });
   }
 
-  if (!["apple-cash", "credit-card", "cash-app", "zelle"].includes(paymentMethod)) {
+  // "credit-card" - temporarily disabled
+  if (!["apple-cash", "cash-app", "paypal", "zelle"].includes(paymentMethod)) {
     return rdata({ error: "invalid payment method." }, { status: 400 });
   }
 
@@ -857,77 +858,79 @@ export default function Checkout() {
     }
 
     if (paymentMethod === "credit-card") {
-      if (!cardNumber) {
-        return onCheckoutError("card number is required.");
-      }
+      return onCheckoutError("credit card payments are temporarily unavailable.");
 
-      if (!cardExpiry) {
-        return onCheckoutError("card expiry is required.");
-      }
+      // if (!cardNumber) {
+      //   return onCheckoutError("card number is required.");
+      // }
 
-      if (!cardCvc) {
-        return onCheckoutError("card cvc is required.");
-      }
+      // if (!cardExpiry) {
+      //   return onCheckoutError("card expiry is required.");
+      // }
 
-      if (!cardHolder) {
-        return onCheckoutError("card holder is required.");
-      }
+      // if (!cardCvc) {
+      //   return onCheckoutError("card cvc is required.");
+      // }
 
-      if (!cardPostal) {
-        return onCheckoutError("card postal code is required.");
-      }
+      // if (!cardHolder) {
+      //   return onCheckoutError("card holder is required.");
+      // }
 
-      if (cardExpiry.split("/").length !== 2) {
-        return onCheckoutError("invalid card expiry date.");
-      }
+      // if (!cardPostal) {
+      //   return onCheckoutError("card postal code is required.");
+      // }
 
-      if (cardPostal.length > 20) {
-        return onCheckoutError("billing zip cannot exceed 20 characters");
-      }
+      // if (cardExpiry.split("/").length !== 2) {
+      //   return onCheckoutError("invalid card expiry date.");
+      // }
 
-      if (cardHolder.length > 64) {
-        return onCheckoutError("name of card holder cannot exceed 64 characters");
-      }
+      // if (cardPostal.length > 20) {
+      //   return onCheckoutError("billing zip cannot exceed 20 characters");
+      // }
 
-      if (typeof window.Accept === "undefined" || !window.Accept) {
-        return onCheckoutError(
-          "unable to process payment, failed to load gateway. please contact support or try a different payment method.",
-        );
-      }
+      // if (cardHolder.length > 64) {
+      //   return onCheckoutError("name of card holder cannot exceed 64 characters");
+      // }
 
-      const authData = {
-        apiLoginID: data.keys.authorizenet.apiLoginId,
-        clientKey: data.keys.authorizenet.clientKey,
-      };
+      // if (typeof window.Accept === "undefined" || !window.Accept) {
+      //   return onCheckoutError(
+      //     "unable to process payment, failed to load gateway. please contact support or try a different payment method.",
+      //   );
+      // }
 
-      const cardData = {
-        cardNumber: cardNumber.replace(/\D/g, ""),
-        month: parseInt(cardExpiry.split("/")[0]).toString(),
-        year: cardExpiry.split("/")[1],
-        cardCode: cardCvc,
-        zip: cardPostal.trim(),
-        fullName: cardHolder.trim(),
-      };
+      // const authData = {
+      //   apiLoginID: data.keys.authorizenet.apiLoginId,
+      //   clientKey: data.keys.authorizenet.clientKey,
+      // };
 
-      const secureData = {
-        authData,
-        cardData,
-      };
+      // const cardData = {
+      //   cardNumber: cardNumber.replace(/\D/g, ""),
+      //   month: parseInt(cardExpiry.split("/")[0]).toString(),
+      //   year: cardExpiry.split("/")[1],
+      //   cardCode: cardCvc,
+      //   zip: cardPostal.trim(),
+      //   fullName: cardHolder.trim(),
+      // };
 
-      window.Accept.dispatchData(secureData, (response) => {
-        if (response.messages.resultCode === "Error") {
-          return onCheckoutError(response.messages.message[0].text);
-        }
+      // const secureData = {
+      //   authData,
+      //   cardData,
+      // };
 
-        const { dataDescriptor, dataValue } = response.opaqueData;
+      // window.Accept.dispatchData(secureData, (response) => {
+      //   if (response.messages.resultCode === "Error") {
+      //     return onCheckoutError(response.messages.message[0].text);
+      //   }
 
-        submitCheckout({
-          paymentDataDescriptor: dataDescriptor,
-          paymentDataValue: dataValue,
-        });
-      });
+      //   const { dataDescriptor, dataValue } = response.opaqueData;
 
-      return;
+      //   submitCheckout({
+      //     paymentDataDescriptor: dataDescriptor,
+      //     paymentDataValue: dataValue,
+      //   });
+      // });
+
+      // return;
     }
 
     submitCheckout();
@@ -1237,88 +1240,14 @@ export default function Checkout() {
                 title="credit card"
                 icons={getCardIcons()}
                 content={
-                  <>
-                    <InputControl>
-                      <Label htmlFor="card_number">card number</Label>
-
-                      <Input
-                        autoComplete="cc-number"
-                        inputMode="numeric"
-                        id="card_number"
-                        name="card_number"
-                        type="text"
-                        required
-                        value={cardNumber}
-                        onChange={(e) => onCardNumberChange(e.target.value)}
-                      />
-                    </InputControl>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <InputControl>
-                        <Label htmlFor="card_expiry">expiration date</Label>
-
-                        <Input
-                          autoComplete="cc-exp"
-                          id="card_expiry"
-                          name="card_expiry"
-                          placeholder="mm/yy"
-                          type="text"
-                          required
-                          value={cardExpiry}
-                          onChange={(e) => onCardExpiryChange(e.target.value)}
-                        />
-                      </InputControl>
-
-                      <InputControl>
-                        <Label htmlFor="card_cvc">security code</Label>
-
-                        <Input
-                          autoComplete="cc-csc"
-                          id="card_cvc"
-                          name="card_cvc"
-                          type="number"
-                          required
-                          value={cardCvc}
-                          onChange={(e) => setCardCvc(e.target.value)}
-                        />
-                      </InputControl>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                      <InputControl>
-                        <Label htmlFor="card_holder">name on card</Label>
-
-                        <Input
-                          autoComplete="cc-name"
-                          id="card_holder"
-                          name="card_holder"
-                          type="text"
-                          required
-                          value={cardHolder}
-                          onChange={(e) => setCardHolder(e.target.value)}
-                        />
-                      </InputControl>
-
-                      <InputControl>
-                        <Label htmlFor="card_postal">billing zip</Label>
-
-                        <Input
-                          autoComplete="billing postal-code"
-                          id="card_postal"
-                          name="card_postal"
-                          type="text"
-                          required
-                          value={cardPostal}
-                          onChange={(e) => setCardPostal(e.target.value)}
-                        />
-
-                        <div className="flex items-center gap-1 mt-1 font-medium leading-3 text-xs text-zinc-300 sm:hidden">
-                          <CircleAlert className="w-3 h-3" />
-                          <span>must match card address</span>
-                        </div>
-                      </InputControl>
-                    </div>
-                  </>
+                  <p className="py-1.5 px-2.5 bg-amber-800/50 border border-amber-500 rounded text-amber-500 text-xs font-semibold leading-4">
+                    credit card payments are temporarily unavailable. to pay with a card or another method not listed
+                    here, message us on instagram{" "}
+                    <Link className="underline" to="https://www.instagram.com/pufflyio" target="_blank">
+                      @pufflyio
+                    </Link>
+                    .
+                  </p>
                 }
                 onClick={() => onPaymentChange("credit-card")}
               />
@@ -1329,6 +1258,14 @@ export default function Checkout() {
                 icons={<img alt="Cash App" className="h-5 rounded-xs" src="/img/cash-app.svg" />}
                 content={<CheckoutCashAppContent total={total} />}
                 onClick={() => onPaymentChange("cash-app")}
+              />
+
+              <CheckoutPaymentOption
+                active={paymentMethod === "paypal"}
+                title="paypal"
+                icons={<img alt="PayPal" className="h-5 rounded-xs" src="/img/paypal.svg" />}
+                content={<CheckoutPayPalContent total={total} />}
+                onClick={() => onPaymentChange("paypal")}
               />
 
               <CheckoutPaymentOption
@@ -1461,6 +1398,28 @@ function CheckoutCashAppContent({ total }: { total: number }) {
       </p>
 
       <p className="mt-2 text-xs text-zinc-300 leading-4">complete the payment via cash app, then click checkout.</p>
+    </div>
+  );
+}
+
+function CheckoutPayPalContent({ total }: { total: number }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => setVisible(true), []);
+
+  if (!visible) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center py-2 text-center">
+      <p className="text-sm">
+        please send <span className="font-semibold">{format.currency(total)}</span> to the paypal email below
+      </p>
+
+      <p className="mt-2 text-xl font-semibold font-mono leading-6">antthonyrivero@gmail.com</p>
+
+      <p className="mt-2 text-xs text-zinc-300 leading-4">complete the payment via paypal, then click checkout.</p>
     </div>
   );
 }
