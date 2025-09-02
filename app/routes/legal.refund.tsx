@@ -1,3 +1,9 @@
+import type { Route } from "./+types/legal.refund";
+
+export const meta: Route.MetaFunction = () => {
+  return [{ title: `refund policy - puffly` }];
+};
+
 export default function LegalRefund() {
   return (
     <div className="legal">

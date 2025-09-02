@@ -1,3 +1,9 @@
+import type { Route } from "./+types/legal.privacy";
+
+export const meta: Route.MetaFunction = () => {
+  return [{ title: `privacy policy - puffly` }];
+};
+
 export default function LegalPrivacy() {
   return (
     <div className="legal">

@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { AtSign, Mail, Minus, MoveRight, Plus } from "lucide-react";
 
+import type { Route } from "./+types/help";
+
 import { H1, H2, H3 } from "~/components/Heading";
+
+export const meta: Route.MetaFunction = () => {
+  return [{ title: `help - puffly` }];
+};
 
 export default function Help() {
   return (

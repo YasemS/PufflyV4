@@ -14,6 +14,10 @@ import { H1, H2 } from "~/components/Heading";
 
 import prisma from "~/lib/prisma.server";
 
+export const meta: Route.MetaFunction = () => {
+  return [{ title: `track your order - puffly` }];
+};
+
 export async function action({ request }: Route.ActionArgs) {
   const form = await request.formData();
 

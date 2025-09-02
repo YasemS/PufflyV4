@@ -19,6 +19,10 @@ import img from "~/lib/img";
 import { getOrder } from "~/lib/order.server";
 import { getProduct } from "~/lib/product.server";
 
+export const meta: Route.MetaFunction = () => {
+  return [{ title: `order - puffly` }, { name: "robots", content: "noindex" }];
+};
+
 export async function loader({ params }: Route.LoaderArgs) {
   const { id } = params;
 

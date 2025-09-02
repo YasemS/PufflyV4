@@ -1,3 +1,9 @@
+import type { Route } from "./+types/legal.shipping";
+
+export const meta: Route.MetaFunction = () => {
+  return [{ title: `shipping policy - puffly` }];
+};
+
 export default function LegalShipping() {
   return (
     <div className="legal">

@@ -1,9 +1,15 @@
 import { useLoaderData } from "react-router";
 
+import type { Route } from "./+types/products";
+
 import { H1 } from "~/components/Heading";
 import { ProductCard } from "~/components/Product";
 
 import { getProducts } from "~/lib/product.server";
+
+export const meta: Route.MetaFunction = () => {
+  return [{ title: `products - puffly` }];
+};
 
 export async function loader() {
   const products = await getProducts();

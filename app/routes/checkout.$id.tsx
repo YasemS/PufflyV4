@@ -44,6 +44,10 @@ import { getOrder } from "~/lib/order.server";
 import { getDeliveryEstimate } from "~/lib/shipping";
 import { getProduct } from "~/lib/product.server";
 
+export const meta: Route.MetaFunction = () => {
+  return [{ title: `checkout - puffly` }, { name: "robots", content: "noindex" }];
+};
+
 export async function action({ params, request }: Route.ActionArgs) {
   const { id } = params;
 

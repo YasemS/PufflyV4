@@ -31,6 +31,18 @@ const ProductContext = createContext<{
   quantity: 1,
 });
 
+export const meta: Route.MetaFunction = ({ data }) => {
+  if (!data) return [];
+
+  let puffs = data.product.metadata.find((item) => item.key === "puffs")?.value || "";
+
+  if (puffs.indexOf(" ") !== -1) {
+    puffs = puffs.split(" ").pop() || "";
+  }
+
+  return [{ title: `${data.product.name} vape - ${puffs} puffs - ${format.currency(data.product.price)}` }];
+};
+
 export async function loader({ params }: Route.LoaderArgs) {
   const { slug } = params;
 

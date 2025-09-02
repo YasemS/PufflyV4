@@ -8,6 +8,12 @@ import { ProductCard } from "~/components/Product";
 import prisma from "~/lib/prisma.server";
 import { getProducts } from "~/lib/product.server";
 
+export const meta: Route.MetaFunction = ({ data }) => {
+  if (!data) return [];
+
+  return [{ title: `shop ${data.brand.name} vapes online - puffly` }];
+};
+
 export async function loader({ params }: Route.LoaderArgs) {
   const { slug } = params;
 

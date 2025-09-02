@@ -19,6 +19,10 @@ import { cartCookie, getCart } from "~/lib/cart.server";
 import { GlobalContext } from "~/lib/global";
 import { getProduct } from "~/lib/product.server";
 
+export const meta: Route.MetaFunction = () => {
+  return [{ title: `cart - puffly` }];
+};
+
 export async function loader({ request }: Route.LoaderArgs) {
   const cookieHeader = request.headers.get("Cookie");
   const cartId = await cartCookie.parse(cookieHeader);
