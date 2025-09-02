@@ -15,6 +15,7 @@ import cn from "~/lib/cn";
 import fbq from "~/lib/analytics/fbq.client";
 import format from "~/lib/format";
 import gtag from "~/lib/analytics/gtag.client";
+import img from "~/lib/img";
 import { getOrder } from "~/lib/order.server";
 import { getProduct } from "~/lib/product.server";
 
@@ -211,7 +212,11 @@ function OrderItemsScroller() {
           {items.map((item) =>
             item.visible ? (
               <Card key={item.id} className="min-w-20 w-20 h-20 p-2">
-                <img alt={item.image.alt} className="w-full h-full object-contain" src={item.image.source} />
+                <img
+                  alt={item.image.alt}
+                  className="w-full h-full object-contain"
+                  src={img.transform(item.image.source, { width: 100 })}
+                />
               </Card>
             ) : (
               <div
@@ -461,7 +466,11 @@ function OrderItem(props: OrderItemProps) {
     <div className="flex items-center gap-3 mt-4 pt-4 border-t border-zinc-700 first:mt-0 first:pt-0 first:border-t-0">
       {props.visible ? (
         <Card className="relative min-w-16 w-16 h-16 p-2 border-zinc-700">
-          <img alt={props.image.alt} className="w-full h-full object-contain" src={props.image.source} />
+          <img
+            alt={props.image.alt}
+            className="w-full h-full object-contain"
+            src={img.transform(props.image.source, { width: 100 })}
+          />
 
           <span className="absolute -top-2 -right-2 w-4 h-4 bg-pink-500 rounded-full text-xs text-center font-semibold leading-4">
             {props.quantity}

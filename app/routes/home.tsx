@@ -12,6 +12,7 @@ import Input from "~/components/Input";
 import { H1, H2 } from "~/components/Heading";
 import { ProductCard } from "~/components/Product";
 
+import img from "~/lib/img";
 import prisma from "~/lib/prisma.server";
 import { getProducts } from "~/lib/product.server";
 
@@ -41,7 +42,7 @@ export default function Home() {
         <div className="grid gap-4 h-100 lg:grid-cols-7">
           <div className="flex flex-col items-center justify-end col-span-5 relative p-8 bg-zinc-900 rounded-xl text-center overflow-hidden">
             <img
-              src="/img/geek-bar-pulse-banner.png"
+              src={img.transform("/img/geek-bar-pulse-banner.png", { width: 800 })}
               alt="geek bar pulse banner"
               className="absolute top-1/2 left-1/2 -translate-1/2 w-[120%] h-[120%] object-cover"
             />
@@ -63,7 +64,10 @@ export default function Home() {
           <div className="hidden col-span-2 lg:block">
             <Link to="/product/sea-xs">
               <Card className="flex flex-col items-center justify-end relative h-full py-6 text-center">
-                <img src="https://cdn.puffly.io/img/products/sea-xs/blue-razz-ice.png" alt="" />
+                <img
+                  alt="sea xs - blue razz ice"
+                  src={img.transform("https://cdn.puffly.io/img/products/sea-xs/blue-razz-ice.png", { width: 260 })}
+                />
 
                 <H2 className="mt-6">sea xs</H2>
 
@@ -114,7 +118,11 @@ export default function Home() {
               <Link to={`/brand/${brand.slug}`} key={brand.slug}>
                 <Card className="aspect-video">
                   {brand.image ? (
-                    <img className="w-full h-full object-contain" src={brand.image} alt={brand.name} />
+                    <img
+                      className="w-full h-full object-contain"
+                      src={img.transform(brand.image, { width: 150 })}
+                      alt={brand.name}
+                    />
                   ) : (
                     <p>no image</p>
                   )}
@@ -176,7 +184,11 @@ function HomeSubscribe() {
       <BackgroundGradient>
         <Card className="grid gap-8 p-3 sm:grid-cols-2">
           <div className="hidden relative rounded overflow-hidden sm:block md:aspect-video">
-            <img className="w-full h-full object-cover" src="/img/email-banner.jpg" alt="email banner" />
+            <img
+              className="w-full h-full object-cover"
+              src={img.transform("/img/email-banner.jpg", { width: 500 })}
+              alt="email banner"
+            />
 
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-transparent to-pink-500 opacity-80"></div>
           </div>

@@ -14,6 +14,7 @@ import { H1, H2 } from "~/components/Heading";
 
 import cn from "~/lib/cn";
 import format from "~/lib/format";
+import img from "~/lib/img";
 import { cartCookie, getCart } from "~/lib/cart.server";
 import { GlobalContext } from "~/lib/global";
 import { getProduct } from "~/lib/product.server";
@@ -273,7 +274,7 @@ function CartItem(props: CartItemProps) {
         <img
           alt={props.name}
           className="w-full h-full object-contain"
-          src={props.image.source || "/img/placeholder.png"}
+          src={img.transform(props.image.source || "/img/placeholder.png", { width: 100 })}
         />
       </Card>
 

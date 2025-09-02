@@ -34,6 +34,7 @@ import datafast from "~/lib/datafast.server";
 import fbq from "~/lib/analytics/fbq.client";
 import format from "~/lib/format";
 import gtag from "~/lib/analytics/gtag.client";
+import img from "~/lib/img";
 import ntfy from "~/lib/ntfy.server";
 import prisma from "~/lib/prisma.server";
 import { template as emailTemplate, resend } from "~/lib/email.server";
@@ -1613,7 +1614,11 @@ function CheckoutItem(props: CheckoutItemProps) {
     <div className="flex items-center gap-3 mt-4 pt-4 border-t border-zinc-700 first:mt-0 first:pt-0 first:border-t-0">
       {props.visible ? (
         <Card className="relative min-w-16 w-16 h-16 p-2 border-zinc-700">
-          <img alt={props.image.alt} className="w-full h-full object-contain" src={props.image.source} />
+          <img
+            alt={props.image.alt}
+            className="w-full h-full object-contain"
+            src={img.transform(props.image.source || "/img/placeholder.png", { width: 100 })}
+          />
 
           <span className="absolute -top-2 -right-2 w-4 h-4 bg-pink-500 rounded-full text-xs text-center font-semibold leading-4">
             {props.quantity}

@@ -19,6 +19,7 @@ import cn from "~/lib/cn";
 import fbq from "~/lib/analytics/fbq.client";
 import format from "~/lib/format";
 import gtag from "~/lib/analytics/gtag.client";
+import img from "~/lib/img";
 import { getProduct, getSimilarProducts } from "~/lib/product.server";
 import { getDeliveryEstimate } from "~/lib/shipping";
 
@@ -160,7 +161,11 @@ function ProductImage({ alt, source }: { alt: string; source: string }) {
   return (
     <BackgroundGradient gradientClassName="h-3/4">
       <Card className="w-full aspect-square p-4">
-        <img alt={alt} className="w-full h-full object-contain" src={source} />
+        <img
+          alt={alt}
+          className="w-full h-full object-contain"
+          src={img.transform(source, { width: 460, height: 460 })}
+        />
       </Card>
     </BackgroundGradient>
   );
@@ -178,7 +183,7 @@ function ProductThumbnail({ alt, selected, source, onClick }: ProductThumbnailPr
   return (
     <button onClick={onClick}>
       <Card className={cn("h-16 min-w-16 w-16 aspect-square p-2 cursor-pointer", selected && "border-zinc-700")}>
-        <img alt={alt} className="w-full h-full object-cover" src={source} />
+        <img alt={alt} className="w-full h-full object-cover" src={img.transform(source, { width: 50, height: 50 })} />
       </Card>
     </button>
   );

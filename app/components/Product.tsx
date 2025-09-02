@@ -2,6 +2,7 @@ import { Star } from "lucide-react";
 import { Link } from "react-router";
 
 import format from "~/lib/format";
+import img from "~/lib/img";
 
 type ProductCardProps = {
   slug: string;
@@ -21,7 +22,11 @@ export function ProductCard(product: ProductCardProps) {
       className="w-full p-3 bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl rounded-lg"
       to={`/product/${product.slug}`}
     >
-      <img className="block w-full aspect-square object-contain" alt={product.name} src={product.image} />
+      <img
+        className="block w-full aspect-square object-contain"
+        alt={product.name}
+        src={img.transform(product.image, { width: 250, height: 250 })}
+      />
 
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-zinc-700 text-zinc-300 text-xs leading-3">
         <p className="font-medium">{product.brand.name}</p>
