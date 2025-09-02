@@ -1,5 +1,14 @@
 import { useContext, useEffect, useState } from "react";
-import { data as rdata, redirect, useFetcher, useLoaderData, useSubmit, useActionData, Link } from "react-router";
+import {
+  data as rdata,
+  redirect,
+  useFetcher,
+  useLoaderData,
+  useSubmit,
+  useActionData,
+  Link,
+  useNavigate,
+} from "react-router";
 import {
   AlertCircle,
   CheckCircle,
@@ -333,11 +342,14 @@ export async function action({ params, request }: Route.ActionArgs) {
     datafastApiKey: process.env.DATAFAST_API_KEY!,
   });
 
-  return redirect("/order/" + order.id, {
-    headers: {
-      "Set-Cookie": await cartCookie.serialize("", { maxAge: 0 }),
+  return rdata(
+    { success: true },
+    {
+      headers: {
+        "Set-Cookie": await cartCookie.serialize("", { maxAge: 0 }),
+      },
     },
-  });
+  );
 }
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -491,6 +503,7 @@ export default function Checkout() {
   const aData = useActionData<typeof action>();
   const data = useLoaderData<typeof loader>();
 
+  const nav = useNavigate();
   const fetcher = useFetcher();
   const submit = useSubmit();
 
@@ -994,8 +1007,39 @@ export default function Checkout() {
   }, [email, firstName, lastName, addressLine1, addressLine2, country, city, state, postal, shippingMethod]);
 
   useEffect(() => {
-    if (aData && aData.error) {
-      onCheckoutError(aData.error);
+    if (aData) {
+      if ("success" in aData) {
+        fbq.track("Purchase", {
+          contents: data.items.map((item) => ({
+            id: item.slug,
+            quantity: item.quantity,
+            item_price: item.price,
+          })),
+          content_ids: data.items.map((item) => item.slug),
+          content_type: "product",
+          value: total,
+          currency: "USD",
+        });
+
+        gtag.track("purchase", {
+          transaction_id: data.order.id,
+          currency: "USD",
+          value: total,
+          items: data.items.map((item) => ({
+            item_id: item.slug,
+            item_name: item.name,
+            item_variant: item.variants.length > 0 ? item.variants[0].name : null,
+            price: item.price,
+            quantity: item.quantity,
+          })),
+        });
+
+        nav(`/order/${data.order.id}`);
+      }
+
+      if ("error" in aData) {
+        onCheckoutError(aData.error);
+      }
     }
   }, [aData]);
 
