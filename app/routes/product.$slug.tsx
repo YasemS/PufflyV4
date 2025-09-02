@@ -169,6 +169,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
                 url: canonical,
                 price: data.product.price,
                 priceCurrency: "USD",
+                priceValidUntil: new Date().setFullYear(new Date().getFullYear() + 1),
                 name: `${data.product.name} vape - ${option.name}`,
               }))
             : [

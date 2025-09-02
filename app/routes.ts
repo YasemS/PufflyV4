@@ -22,4 +22,5 @@ export default [
   route("legal/refund", "routes/legal.refund.tsx"),
   route("legal/shipping", "routes/legal.shipping.tsx"),
   route("legal/terms", "routes/legal.terms.tsx"),
+  route("sitemap.xml", "routes/[sitemap.xml].tsx"),
 ] satisfies RouteConfig;

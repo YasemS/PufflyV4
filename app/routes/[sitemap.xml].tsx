@@ -1,0 +1,95 @@
+import prisma from "~/lib/prisma.server";
+
+const date = new Date();
+
+export async function loader() {
+  const origin = "https://www.puffly.io";
+
+  const brands = await prisma.brand.findMany({
+    where: {
+      visible: true,
+    },
+    select: {
+      slug: true,
+    },
+  });
+
+  const products = await prisma.product.findMany({
+    where: {
+      visible: true,
+    },
+    select: {
+      slug: true,
+    },
+  });
+
+  const routes = [
+    {
+      path: "/",
+      lastmod: date,
+    },
+    {
+      path: "/track",
+      lastmod: date,
+    },
+    {
+      path: "/help",
+      lastmod: date,
+    },
+    {
+      path: "/cart",
+      lastmod: date,
+    },
+    {
+      path: "/legal/privacy",
+      lastmod: date,
+    },
+    {
+      path: "/legal/refund",
+      lastmod: date,
+    },
+    {
+      path: "/legal/shipping",
+      lastmod: date,
+    },
+    {
+      path: "/legal/terms",
+      lastmod: date,
+    },
+    {
+      path: "/products",
+      lastmod: date,
+    },
+    ...brands.map((brand) => ({
+      path: "/brand/" + brand.slug,
+      lastmod: date,
+    })),
+    ...products.map((product) => ({
+      path: "/product/" + product.slug,
+      lastmod: date,
+    })),
+  ];
+
+  return new Response(
+    `<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+  ${routes
+    .map(
+      (route) => `
+<url>
+  <loc>${origin + route.path}</loc>
+  <lastmod>${route.lastmod.toISOString()}</lastmod>
+</url>`,
+    )
+    .join("\n")}
+
+</urlset>`,
+    {
+      headers: { "content-type": "application/xml" },
+    },
+  );
+}
