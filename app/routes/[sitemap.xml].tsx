@@ -19,7 +19,19 @@ export async function loader() {
       visible: true,
     },
     select: {
+      name: true,
       slug: true,
+      variants: {
+        select: {
+          name: true,
+          options: {
+            select: {
+              name: true,
+              value: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -64,11 +76,23 @@ export async function loader() {
       path: "/brand/" + brand.slug,
       lastmod: date,
     })),
-    ...products.map((product) => ({
+  ];
+
+  for (const product of products) {
+    routes.push({
       path: "/product/" + product.slug,
       lastmod: date,
-    })),
-  ];
+    });
+
+    for (const variant of product.variants) {
+      for (const option of variant.options) {
+        routes.push({
+          path: "/variant/" + product.slug + "/" + option.value,
+          lastmod: date,
+        });
+      }
+    }
+  }
 
   return new Response(
     `<?xml version="1.0" encoding="UTF-8"?>
