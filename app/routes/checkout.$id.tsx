@@ -585,10 +585,6 @@ export default function Checkout() {
       icons.push(<img key="discover" className="h-5 rounded-xs" src="/img/discover.svg" alt="Discover" />);
     }
 
-    if (brand === "AMEX") {
-      icons.push(<img key="amex" className="h-5 rounded-xs" src="/img/amex.svg" alt="American Express" />);
-    }
-
     // If no match yet (input too short or invalid prefix), show all
     if (icons.length === 0) {
       return (
@@ -596,8 +592,6 @@ export default function Checkout() {
           <img alt="Visa" className="h-5 rounded-xs" src="/img/visa.svg" />
 
           <img alt="Mastercard" className="h-5 rounded-xs" src="/img/mastercard.svg" />
-
-          <img alt="American Express" className="h-5 rounded-xs" src="/img/amex.svg" />
 
           <p className="pl-1 font-medium leading-3 text-center text-xs">+2</p>
         </>

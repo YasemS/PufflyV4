@@ -513,8 +513,6 @@ function CartSummary() {
             <img alt="diners club" className="h-5 rounded-xs" src="/img/diners.svg" />
 
             <img alt="discover" className="h-5 rounded-xs" src="/img/discover.svg" />
-
-            <img alt="american express" className="h-5 rounded-xs" src="/img/amex.svg" />
           </div>
         </div>
       </BackgroundGradient>
