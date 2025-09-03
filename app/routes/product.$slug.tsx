@@ -49,7 +49,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
   const canonical = "https://www.puffly.io/product/" + data.product.slug;
 
   const ratings = {
-    average: data.product.reviews.stats.average || 5,
+    average: data.product.reviews.stats.average || 0,
     count: data.product.reviews.stats.count || 0,
     worst: Math.min(...data.product.reviews.list.map((review) => review.rating)),
     best: Math.max(...data.product.reviews.list.map((review) => review.rating)),
