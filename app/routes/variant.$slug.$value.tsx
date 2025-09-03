@@ -103,7 +103,7 @@ export default function ProductVariant() {
 
       <div className="mt-4 pt-4 border-t border-zinc-800/50">
         <p className="font-semibold">
-          get the {product.name} {option.name} {variant.name}
+          get the {product.name} - {option.name} {variant.name}
         </p>
 
         <p className="mt-2 text-sm text-zinc-300">{product.description}</p>
