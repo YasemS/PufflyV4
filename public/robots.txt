@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /checkout/
+Disallow: /order/
+Sitemap: https://www.puffly.io/sitemap.xml
