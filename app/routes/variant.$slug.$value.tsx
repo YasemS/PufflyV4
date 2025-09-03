@@ -3,6 +3,7 @@ import { MoveRight, Star } from "lucide-react";
 
 import type { Route } from "./+types/variant.$slug.$value";
 
+import Accordion from "~/components/Accordion";
 import BackgroundGradient from "~/components/BackgroundGradient";
 import Button from "~/components/Button";
 import Card from "~/components/Card";
@@ -12,7 +13,6 @@ import format from "~/lib/format";
 import { H1, H2, H3 } from "~/components/Heading";
 import { getProduct } from "~/lib/product.server";
 import { getDeliveryEstimate } from "~/lib/shipping";
-import Accordion from "~/components/Accordion";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const { slug: productSlug, value: optionValue } = params;
