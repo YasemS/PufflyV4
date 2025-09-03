@@ -1,3 +1,7 @@
+function capitalize(input: string): string {
+  return input.replace(/\b\w/g, (l) => l.toUpperCase());
+}
+
 function currency(amount: number): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -10,6 +14,7 @@ function plural(count: number, singular: string, plural: string): string {
 }
 
 export default {
+  capitalize,
   currency,
   plural,
 };
