@@ -3,6 +3,7 @@ import { CheckCircle, CircleAlert, Mail, MoveRight, Star } from "lucide-react";
 import { Link, useFetcher, useLoaderData } from "react-router";
 import Marquee from "react-fast-marquee";
 
+import type { Route } from "./+types/home";
 import type { action as EmailSubscribeAction } from "~/routes/email.subscribe";
 
 import BackgroundGradient from "~/components/BackgroundGradient";
@@ -15,6 +16,10 @@ import { ProductCard } from "~/components/Product";
 import img from "~/lib/img";
 import prisma from "~/lib/prisma.server";
 import { getProducts } from "~/lib/product.server";
+
+export const meta: Route.MetaFunction = () => {
+  return [{ title: "puffly" }];
+};
 
 export async function loader() {
   const products = await getProducts(null, 8);
