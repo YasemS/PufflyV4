@@ -136,7 +136,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
           {
             "@type": "ListItem",
             position: 2,
-            name: data.product.name + " vape",
+            name: `${data.product.name} vape - ${data.option.name}`,
             item: canonical,
           },
         ],
@@ -146,7 +146,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
       "script:ld+json": {
         "@context": "http://schema.org",
         "@type": "Product",
-        name: data.product.name + " vape",
+        name: `${data.product.name} vape - ${data.option.name}`,
         url: canonical,
         offers: [
           {
@@ -175,7 +175,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
           "@type": "ImageObject",
           url: image.source,
           image: image.source,
-          name: data.product.name + " vape",
+          name: `${data.product.name} vape - ${data.option.name}`,
           width: "1000",
           height: "1000",
         },
@@ -271,7 +271,7 @@ export default function ProductVariant() {
         <ProductDeliveryEstimate />
       </div>
 
-      <div className="mt-4 pt-4 border-t border-zinc-800/50">
+      <div className="w-full mt-4 pt-4 border-t border-zinc-800/50">
         <p className="font-semibold">
           get the {product.name} - {option.name} {variant.name}
         </p>
