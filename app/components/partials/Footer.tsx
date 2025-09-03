@@ -36,6 +36,10 @@ export default function Footer() {
                     to: "/track",
                     text: "track your order",
                   },
+                  {
+                    to: "/sitemap",
+                    text: "sitemap",
+                  },
                 ]}
               />
             </div>
