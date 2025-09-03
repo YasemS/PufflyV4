@@ -7,6 +7,7 @@ export default [
   route("brand/:slug", "routes/brand.$slug.tsx"),
   route("products", "routes/products.tsx"),
   route("product/:slug", "routes/product.$slug.tsx"),
+  route("variant/:slug/:value", "routes/variant.$slug.$value.tsx"),
   route("track", "routes/track.tsx"),
   route("order/:id", "routes/order.$id.tsx"),
   route("cart", "routes/cart.tsx"),
