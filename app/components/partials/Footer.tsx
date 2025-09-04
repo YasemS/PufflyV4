@@ -37,6 +37,10 @@ export default function Footer() {
                     text: "track your order",
                   },
                   {
+                    to: "/blog",
+                    text: "blog",
+                  },
+                  {
                     to: "/sitemap",
                     text: "sitemap",
                   },
