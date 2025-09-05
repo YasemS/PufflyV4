@@ -10,6 +10,133 @@ import BackgroundGradient from "~/components/BackgroundGradient";
 import cn from "~/lib/cn";
 import prisma from "~/lib/prisma.server";
 
+export const meta: Route.MetaFunction = ({ data }) => {
+  if (!data) return [];
+
+  const { post } = data;
+
+  const title = post.title;
+  const description = post.description;
+  const canonical = "https://www.puffly.io/blog/" + post.slug;
+
+  return [
+    { title },
+    {
+      name: "description",
+      content: description,
+    },
+    {
+      property: "og:site_name",
+      content: "Puffly",
+    },
+    {
+      property: "og:url",
+      content: canonical,
+    },
+    {
+      property: "og:title",
+      content: title,
+    },
+    {
+      property: "og:type",
+      content: "article",
+    },
+    {
+      property: "og:description",
+      content: description,
+    },
+    {
+      property: "og:image",
+      content: post.image,
+    },
+    {
+      name: "twitter:site",
+      content: "@pufflyio",
+    },
+    {
+      name: "twitter:card",
+      content: "summary_large_image",
+    },
+    {
+      name: "twitter:title",
+      content: title,
+    },
+    {
+      name: "twitter:description",
+      content: description,
+    },
+    {
+      tagName: "link",
+      rel: "canonical",
+      href: canonical,
+    },
+    {
+      "script:ld+json": [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "puffly",
+          url: "https://www.puffly.io",
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "puffly",
+          url: "https://www.puffly.io",
+          logo: "https://cdn.puffly.io/img/logo.png",
+          sameAs: [
+            "https://www.x.com/pufflyio",
+            "https://www.instagram.com/pufflyio",
+            "https://www.tiktok.com/@pufflyio",
+            "https://www.youtube.com/@pufflyio",
+          ],
+        },
+      ],
+    },
+    {
+      "script:ld+json": {
+        "@context": "http://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: "https://www.puffly.io",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: title,
+            item: canonical,
+          },
+        ],
+      },
+    },
+    {
+      "script:ld+json": {
+        "@context": "http://schema.org",
+        "@type": "Article",
+        name: title,
+        headline: title,
+        description: description,
+        url: canonical,
+        image: post.image,
+        author: {
+          "@type": "Person",
+          name: post.author?.name,
+        },
+        publisher: {
+          "@type": "Organization",
+          name: "Puffly",
+        },
+        datePublished: post.created.toISOString(),
+        dateModified: post.updated.toISOString(),
+      },
+    },
+  ];
+};
+
 export async function loader({ params }: Route.LoaderArgs) {
   const { slug } = params;
 
@@ -25,8 +152,10 @@ export async function loader({ params }: Route.LoaderArgs) {
       slug: true,
       image: true,
       title: true,
+      description: true,
       content: true,
       created: true,
+      updated: true,
       collections: {
         select: {
           slug: true,

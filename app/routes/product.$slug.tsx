@@ -136,6 +136,12 @@ export const meta: Route.MetaFunction = ({ data }) => {
           name: "puffly",
           url: "https://www.puffly.io",
           logo: "https://cdn.puffly.io/img/logo.png",
+          sameAs: [
+            "https://www.x.com/pufflyio",
+            "https://www.instagram.com/pufflyio",
+            "https://www.tiktok.com/@pufflyio",
+            "https://www.youtube.com/@pufflyio",
+          ],
         },
       ],
     },
