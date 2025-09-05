@@ -35,6 +35,26 @@ export async function loader() {
     },
   });
 
+  const blogPosts = await prisma.blogPost.findMany({
+    select: {
+      slug: true,
+      title: true,
+    },
+    orderBy: {
+      created: "desc",
+    },
+  });
+
+  const blogCollections = await prisma.blogCollection.findMany({
+    select: {
+      slug: true,
+      name: true,
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
   const routes = [
     {
       name: "home",
@@ -69,12 +89,24 @@ export async function loader() {
       path: "/legal/terms",
     },
     {
+      name: "blog",
+      path: "/blog",
+    },
+    {
       name: "products",
       path: "/products",
     },
     ...brands.map((brand) => ({
       name: brand.name + " products",
       path: "/brand/" + brand.slug,
+    })),
+    ...blogPosts.map((blogPost) => ({
+      name: blogPost.title.toLowerCase(),
+      path: "/blog/" + blogPost.slug,
+    })),
+    ...blogCollections.map((blogCollection) => ({
+      name: blogCollection.name.toLowerCase() + " blog posts",
+      path: "/blog/collection/" + blogCollection.slug,
     })),
   ];
 
