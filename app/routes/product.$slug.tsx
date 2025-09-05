@@ -48,11 +48,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
   const image = data.product.images[0];
   const canonical = "https://www.puffly.io/product/" + data.product.slug;
 
-  const priceValidUntilDate = data.product.created;
-
-  priceValidUntilDate.setFullYear(2027);
-
-  const priceValidUntil = priceValidUntilDate.toISOString();
+  const priceValidUntil = "2026-12-31T23:59:59Z";
 
   const ratings = {
     average: data.product.reviews.stats.average || 0,
