@@ -6,6 +6,7 @@ export default [
   // route("rewards", "routes/rewards.tsx"),
   route("blog", "routes/blog.tsx"),
   route("blog/:slug", "routes/blog.$slug.tsx"),
+  route("blog/collection/:slug", "routes/blog.collection.$slug.tsx"),
 
   route("brand/:slug", "routes/brand.$slug.tsx"),
   route("products", "routes/products.tsx"),

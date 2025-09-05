@@ -238,3 +238,36 @@ model OrderShipment {
   orderId String
   order   Order @relation(fields: [orderId], references: [id])
 }
+
+model BlogAuthor {
+  id        String @id @default(uuid())
+  name      String
+
+  posts     BlogPost[]
+}
+
+model BlogCollection {
+  id        String @id @default(uuid())
+  slug      String @unique
+  name      String
+
+  posts     BlogPost[]
+}
+
+model BlogPost {
+  id        String @id @default(uuid())
+  slug      String @unique
+  
+  image     String
+  title     String
+  description String @db.Text
+  content     String @db.Text
+
+  collections BlogCollection[]
+  
+  author    BlogAuthor? @relation(fields: [authorId], references: [id])
+  authorId  String?
+  
+  created   DateTime @default(now())
+  updated   DateTime @updatedAt
+}
