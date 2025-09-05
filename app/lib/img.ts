@@ -20,7 +20,7 @@ function transform(source: string, opts?: ImgOpts) {
     source = "https://www.puffly.io" + source;
   }
 
-  return `https://www.puffly.io/cdn-cgi/image/${transformations.join(",")}/${source}`;
+  return `https://www.puffly.io/cdn-cgi/image/${transformations.join(",")}/${encodeURIComponent(source)}`;
 }
 
 export default { transform };
