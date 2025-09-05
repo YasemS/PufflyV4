@@ -2,11 +2,17 @@ import { Link } from "react-router";
 
 import { H3 } from "~/components/Heading";
 
+import img from "~/lib/img";
+
 export default function BlogPostCard(post: BlogPostCardProps) {
   return (
     <Link className="flex flex-col w-full group" to={"/blog/" + post.slug}>
       <div className="w-full aspect-video overflow-hidden">
-        <img src={post.image} alt={post.title} className="w-full h-full rounded object-cover object-center" />
+        <img
+          src={img.transform(post.image, { width: 500 })}
+          alt={post.title}
+          className="w-full h-full rounded object-cover object-center"
+        />
       </div>
 
       <div className="flex items-center gap-1 mt-4 text-xs text-zinc-300 leading-3">

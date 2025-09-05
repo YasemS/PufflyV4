@@ -8,6 +8,7 @@ import type { Route } from "./+types/blog.$slug";
 import BackgroundGradient from "~/components/BackgroundGradient";
 
 import cn from "~/lib/cn";
+import img from "~/lib/img";
 import prisma from "~/lib/prisma.server";
 
 export const meta: Route.MetaFunction = ({ data }) => {
@@ -252,7 +253,11 @@ export default function BlogPost() {
       </div>
 
       <BackgroundGradient>
-        <img className="aspect-video w-full object-cover object-center rounded-xl" src={post.image} alt={post.title} />
+        <img
+          className="aspect-video w-full object-cover object-center rounded-xl"
+          src={img.transform(post.image, { width: 1024 })}
+          alt={post.title}
+        />
       </BackgroundGradient>
 
       <div className="grid grid-cols-3 gap-8 mt-8">
