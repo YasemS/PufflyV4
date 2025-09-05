@@ -18,7 +18,13 @@ import prisma from "~/lib/prisma.server";
 import { getProducts } from "~/lib/product.server";
 
 export const meta: Route.MetaFunction = () => {
-  return [{ title: "puffly" }];
+  return [
+    { title: "puffly" },
+    {
+      name: "description",
+      content: "your go-to source for top-tier vapes, unbeatable flavor, and premium quality.",
+    },
+  ];
 };
 
 export async function loader() {

@@ -6,7 +6,13 @@ import type { Route } from "./+types/help";
 import { H1, H2, H3 } from "~/components/Heading";
 
 export const meta: Route.MetaFunction = () => {
-  return [{ title: `help - puffly` }];
+  return [
+    { title: `help - puffly` },
+    {
+      name: "description",
+      content: "need assistance with your order or vape products? visit the help page for faqs and customer support.",
+    },
+  ];
 };
 
 export default function Help() {

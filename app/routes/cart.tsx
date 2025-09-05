@@ -20,7 +20,13 @@ import { GlobalContext } from "~/lib/global";
 import { getProduct } from "~/lib/product.server";
 
 export const meta: Route.MetaFunction = () => {
-  return [{ title: `cart - puffly` }];
+  return [
+    { title: `cart - puffly` },
+    {
+      name: "description",
+      content: "view and manage your cart.",
+    },
+  ];
 };
 
 export async function loader({ request }: Route.LoaderArgs) {

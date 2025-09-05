@@ -1,7 +1,20 @@
 import { Link, useLoaderData } from "react-router";
+
+import type { Route } from "./+types/sitemap";
+
 import { H1 } from "~/components/Heading";
 
 import prisma from "~/lib/prisma.server";
+
+export const meta: Route.MetaFunction = () => {
+  return [
+    { title: `sitemap - puffly` },
+    {
+      name: "description",
+      content: "view the sitemap for puffly.",
+    },
+  ];
+};
 
 export async function loader() {
   const brands = await prisma.brand.findMany({

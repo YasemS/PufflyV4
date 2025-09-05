@@ -11,7 +11,13 @@ import { getProducts } from "~/lib/product.server";
 export const meta: Route.MetaFunction = ({ data }) => {
   if (!data) return [];
 
-  return [{ title: `shop ${data.brand.name} vapes online - puffly` }];
+  return [
+    { title: `shop ${data.brand.name} vapes online - puffly` },
+    {
+      name: "description",
+      content: `shop the latest ${data.brand.name} disposable vapes at puffly. explore top flavors, long-lasting performance, and smooth draws for every vaping style.`,
+    },
+  ];
 };
 
 export async function loader({ params }: Route.LoaderArgs) {

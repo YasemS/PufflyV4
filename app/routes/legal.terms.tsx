@@ -1,7 +1,13 @@
 import type { Route } from "./+types/legal.terms";
 
 export const meta: Route.MetaFunction = () => {
-  return [{ title: `terms of service - puffly` }];
+  return [
+    { title: `terms of service - puffly` },
+    {
+      name: "description",
+      content: "read our terms of service to learn more about our policies and agreements.",
+    },
+  ];
 };
 
 export default function LegalTerms() {

@@ -8,7 +8,14 @@ import { ProductCard } from "~/components/Product";
 import { getProducts } from "~/lib/product.server";
 
 export const meta: Route.MetaFunction = () => {
-  return [{ title: `products - puffly` }];
+  return [
+    { title: `products - puffly` },
+    {
+      name: "description",
+      content:
+        "browse all the vapes at puffly in one place. shop top brands, best-selling flavors, and the newest releases with fast shipping.",
+    },
+  ];
 };
 
 export async function loader() {

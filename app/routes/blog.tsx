@@ -14,7 +14,17 @@ import prisma from "~/lib/prisma.server";
 import format from "~/lib/format";
 
 export const meta: Route.MetaFunction = ({ data }) => {
-  return [{ title: data?.query ? `Search blog for "${data.query}" - Puffly` : "Blog - Puffly" }];
+  const title = data?.query ? `Search blog for "${data.query}" - Puffly` : "Blog - Puffly";
+  const description =
+    "Discover vape restocks, reviews, and tips. The Puffly blog keeps you updated on the latest disposable vapes and trends.";
+
+  return [
+    { title },
+    {
+      name: "description",
+      content: description,
+    },
+  ];
 };
 
 export async function loader({ request }: Route.LoaderArgs) {
