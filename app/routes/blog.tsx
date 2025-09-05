@@ -58,12 +58,12 @@ export default function Blog() {
   return (
     <div>
       <BackgroundGradient>
-        <Card className="flex flex-col items-center justify-center relative py-16 text-center z-1">
+        <Card className="flex flex-col items-center justify-center relative p-8 text-center z-1 sm:py-16">
           <div className="flex items-center justify-center">
             <p className="px-4 py-1 border rounded-full text-sm font-semibold">Blog</p>
           </div>
 
-          <h1 className="mt-4 text-4xl font-bold">Discover our blog posts</h1>
+          <h1 className="mt-4 text-3xl font-bold sm:text-4xl">Discover our blog posts</h1>
 
           <Form className="flex items-center justify-center mt-6 w-full max-w-sm" method="get">
             <Input
@@ -93,7 +93,7 @@ export default function Blog() {
           )}
         </div>
 
-        <div className="grid grid-cols-3 mt-6">
+        <div className="grid grid-cols-1 mt-6 sm:grid-cols-2 md:grid-cols-3">
           {posts.map((post) => (
             <BlogPostCard key={post.slug} {...post} />
           ))}

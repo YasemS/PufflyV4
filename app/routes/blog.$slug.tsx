@@ -237,13 +237,16 @@ export default function BlogPost() {
           ))}
         </div>
 
-        <h1 className="mt-4 text-4xl font-bold">{post.title}</h1>
+        <h1 className="mt-4 text-2xl font-bold sm:text-4xl">{post.title}</h1>
 
-        <div className="flex items-center justify-center gap-2 mt-4 text-sm text-zinc-300">
-          <p>{post.author?.name}</p>
-          <span>&bull;</span>
-          <p>{post.created.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}</p>
-          <span>&bull;</span>
+        <div className="flex flex-col items-center justify-center gap-1 mt-4 text-sm text-zinc-300 sm:flex-row sm:gap-2">
+          <div className="flex items-center gap-2">
+            <p>{post.author?.name}</p>
+            <span>&bull;</span>
+            <p>{post.created.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}</p>
+          </div>
+
+          <span className="hidden sm:inline">&bull;</span>
           <p>{getReadTime()} min read</p>
         </div>
       </div>
