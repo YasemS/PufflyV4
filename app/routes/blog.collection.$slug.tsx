@@ -70,7 +70,7 @@ export default function BlogCollection() {
 
       <H1 className="mt-4">{collection.name} Collection</H1>
 
-      <div className="grid grid-cols-1 mt-4 sm:grid-cols-2 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 mt-4 sm:grid-cols-2 md:grid-cols-3">
         {collection.posts.map((post) => (
           <BlogPostCard key={post.slug} {...post} />
         ))}
