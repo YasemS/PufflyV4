@@ -8,6 +8,12 @@ import { H1 } from "~/components/Heading";
 
 import prisma from "~/lib/prisma.server";
 
+export const meta: Route.MetaFunction = ({ data }) => {
+  if (!data) return [];
+
+  return [{ title: data.collection.name + " Posts - Puffly" }];
+};
+
 export async function loader({ params }: Route.LoaderArgs) {
   const { slug } = params;
 

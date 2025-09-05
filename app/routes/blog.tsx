@@ -13,6 +13,10 @@ import { H2 } from "~/components/Heading";
 import prisma from "~/lib/prisma.server";
 import format from "~/lib/format";
 
+export const meta: Route.MetaFunction = ({ data }) => {
+  return [{ title: data?.query ? `Search blog for "${data.query}" - Puffly` : "Blog - Puffly" }];
+};
+
 export async function loader({ request }: Route.LoaderArgs) {
   const { searchParams } = new URL(request.url);
 
