@@ -67,6 +67,7 @@ export async function getProduct(slug: string) {
       description: true,
       price: true,
       visible: true,
+      created: true,
       brand: {
         select: {
           slug: true,

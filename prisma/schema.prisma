@@ -40,6 +40,8 @@ model Product {
 
   brand       Brand @relation(fields: [brandSlug], references: [slug])
   brandSlug   String
+
+  created     DateTime @default(now())
 }
 
 model ProductImage {

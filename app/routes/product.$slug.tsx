@@ -48,6 +48,12 @@ export const meta: Route.MetaFunction = ({ data }) => {
   const image = data.product.images[0];
   const canonical = "https://www.puffly.io/product/" + data.product.slug;
 
+  const priceValidUntilDate = data.product.created;
+
+  priceValidUntilDate.setFullYear(2027);
+
+  const priceValidUntil = priceValidUntilDate.toISOString();
+
   const ratings = {
     average: data.product.reviews.stats.average || 0,
     count: data.product.reviews.stats.count || 0,
@@ -179,7 +185,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
                 url: canonical,
                 price: data.product.price,
                 priceCurrency: "USD",
-                priceValidUntil: new Date().setFullYear(new Date().getFullYear() + 1),
+                priceValidUntil: priceValidUntil,
                 name: `${data.product.name} vape - ${option.name}`,
               }))
             : [
@@ -189,6 +195,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
                   url: canonical,
                   price: data.product.price,
                   priceCurrency: "USD",
+                  priceValidUntil: priceValidUntil,
                   name: `${data.product.name} vape`,
                 },
               ],
