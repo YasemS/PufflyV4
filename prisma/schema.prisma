@@ -93,7 +93,7 @@ model ProductReview {
   rating      Int
   name        String
   title       String
-  content     String
+  content     String @db.Text
   verified    Boolean @default(false)
 
   created     DateTime @default(now())
