@@ -1,5 +1,7 @@
 import { Search } from "lucide-react";
-import { useLoaderData } from "react-router";
+import { Form, useLoaderData } from "react-router";
+
+import type { Route } from "./+types/blog";
 
 import BackgroundGradient from "~/components/BackgroundGradient";
 import BlogPostCard from "~/components/Blog";
@@ -9,8 +11,15 @@ import Input from "~/components/Input";
 import { H2 } from "~/components/Heading";
 
 import prisma from "~/lib/prisma.server";
+import format from "~/lib/format";
 
-export async function loader() {
+export async function loader({ request }: Route.LoaderArgs) {
+  const { searchParams } = new URL(request.url);
+
+  const q = searchParams.get("q");
+
+  const where = q ? { OR: [{ title: { contains: q } }, { description: { contains: q } }] } : undefined;
+
   const posts = await prisma.blogPost.findMany({
     select: {
       slug: true,
@@ -30,16 +39,17 @@ export async function loader() {
         },
       },
     },
+    where,
     orderBy: {
       created: "desc",
     },
   });
 
-  return { posts };
+  return { posts, query: q };
 }
 
 export default function Blog() {
-  const { posts } = useLoaderData<typeof loader>();
+  const { posts, query } = useLoaderData<typeof loader>();
 
   return (
     <div>
@@ -51,18 +61,33 @@ export default function Blog() {
 
           <h1 className="mt-4 text-4xl font-bold">Discover our blog posts</h1>
 
-          <div className="flex items-center justify-center mt-6 w-full max-w-sm">
-            <Input className="w-full rounded-r-none" placeholder="search posts..." />
+          <Form className="flex items-center justify-center mt-6 w-full max-w-sm" method="get">
+            <Input
+              className="w-full rounded-r-none"
+              defaultValue={query || ""}
+              placeholder="search posts..."
+              type="search"
+              name="q"
+            />
 
-            <Button className="rounded-l-none">
+            <Button className="rounded-l-none" type="submit">
               <Search className="w-4 h-4" />
             </Button>
-          </div>
+          </Form>
         </Card>
       </BackgroundGradient>
 
       <BackgroundGradient className="mt-8" gradientClassName="opacity-5">
-        <H2 className="pb-4 text-2xl border-b border-zinc-700">📜 Latest Posts</H2>
+        <div className="pb-4 border-b border-zinc-700">
+          <H2 className="text-2xl">{query ? "🔍 Search Results" : "📜 Latest Posts"}</H2>
+
+          {query && (
+            <p className="mt-1 text-sm text-zinc-300">
+              Found {posts.length} {format.plural(posts.length, "result", "results")} for{" "}
+              <span className="font-semibold">"{query}"</span>
+            </p>
+          )}
+        </div>
 
         <div className="grid grid-cols-3 mt-6">
           {posts.map((post) => (
