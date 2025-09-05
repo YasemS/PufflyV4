@@ -27,7 +27,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
     puffs = puffs.replace("k", "000");
   }
 
-  const title = `${format.capitalize(data.product.name)} Disposable Vape - ${format.capitalize(data.option.name)} - ${puffs.toUpperCase()} Puffs | ${format.currency(data.product.price)}`;
+  const title = `${format.capitalize(data.product.name)} ${puffs.toUpperCase()} Vape - ${format.capitalize(data.option.name)} - ${format.currency(data.product.price)}`;
   const image = data.image;
   const canonical = "https://www.puffly.io/variant/" + data.product.slug + "/" + data.option.value;
 
