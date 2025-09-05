@@ -62,7 +62,7 @@ export default function Blog() {
       </BackgroundGradient>
 
       <BackgroundGradient className="mt-8" gradientClassName="opacity-5">
-        <H2 className="pb-4 text-2xl border-b border-zinc-700">📜 latest posts</H2>
+        <H2 className="pb-4 text-2xl border-b border-zinc-700">📜 Latest Posts</H2>
 
         <div className="grid grid-cols-3 mt-6">
           {posts.map((post) => (
