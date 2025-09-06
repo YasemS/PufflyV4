@@ -707,7 +707,7 @@ function ProductFAQ() {
 
 function ProductReview(review: ProductReviewProps) {
   return (
-    <div>
+    <div className="break-inside-avoid mb-2">
       <Card className="flex flex-col">
         <div className="flex gap-3">
           <div className="flex items-center justify-center min-w-10 w-10 h-10 rounded-full bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl">
@@ -803,7 +803,7 @@ function ProductReviews() {
       </BackgroundGradient>
 
       <BackgroundGradient className="mt-4" gradientClassName="md:opacity-10">
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+        <div className="columns-1 gap-2 sm:columns-2 md:columns-3">
           {product.reviews.list.map((review) => (
             <ProductReview key={review.id} {...review} />
           ))}
