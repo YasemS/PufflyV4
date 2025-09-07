@@ -201,7 +201,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
           "@type": "Brand",
           name: data.product.brand.name,
         },
-        description: data.product.description,
+        description,
         category: "vape",
         aggregateRating: {
           "@type": "AggregateRating",
