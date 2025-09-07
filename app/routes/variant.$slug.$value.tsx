@@ -10,6 +10,7 @@ import Card from "~/components/Card";
 
 import img from "~/lib/img";
 import format from "~/lib/format";
+import prisma from "~/lib/prisma.server";
 import { H1, H2, H3 } from "~/components/Heading";
 import { getProduct } from "~/lib/product.server";
 import { getDeliveryEstimate } from "~/lib/shipping";
@@ -23,13 +24,14 @@ export const meta: Route.MetaFunction = ({ data }) => {
     puffs = puffs.split(" ").pop() || "";
   }
 
-  if (puffs.endsWith("k")) {
-    puffs = puffs.replace("k", "000");
-  }
-
-  const title = `${format.capitalize(data.product.name)} ${puffs.toUpperCase()} Vape - ${format.capitalize(data.option.name)} - ${format.currency(data.product.price)}`;
-  const image = data.image;
+  const name = format.capitalize(data.product.name) + " " + format.capitalize(data.option.name);
+  const title = `${name} ${puffs.toUpperCase()} | ${format.currency(data.product.price)}`;
+  const description =
+    data.option.seoDescription || data.product.seoDescription || format.capitalize(data.product.tagline);
+  const image = data.product.images[0];
   const canonical = "https://www.puffly.io/variant/" + data.product.slug + "/" + data.option.value;
+
+  const priceValidUntil = "2026-12-31T23:59:59Z";
 
   const ratings = {
     average: data.product.reviews.stats.average || 0,
@@ -42,7 +44,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
     { title: title },
     {
       name: "description",
-      content: data.product.tagline,
+      content: description,
     },
     {
       property: "og:site_name",
@@ -62,7 +64,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
     },
     {
       property: "og:description",
-      content: data.product.tagline,
+      content: description,
     },
     {
       property: "og:image",
@@ -98,7 +100,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
     },
     {
       name: "twitter:description",
-      content: data.product.tagline,
+      content: description,
     },
     {
       tagName: "link",
@@ -142,7 +144,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
           {
             "@type": "ListItem",
             position: 2,
-            name: `${data.product.name} vape - ${data.option.name}`,
+            name: title,
             item: canonical,
           },
         ],
@@ -152,7 +154,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
       "script:ld+json": {
         "@context": "http://schema.org",
         "@type": "Product",
-        name: `${data.product.name} vape - ${data.option.name}`,
+        name,
         url: canonical,
         offers: [
           {
@@ -161,14 +163,15 @@ export const meta: Route.MetaFunction = ({ data }) => {
             url: canonical,
             price: data.product.price,
             priceCurrency: "USD",
-            name: `${data.product.name} vape - ${data.option.name}`,
+            priceValidUntil: priceValidUntil,
+            name,
           },
         ],
         brand: {
           "@type": "Brand",
           name: data.product.brand.name,
         },
-        description: data.product.description,
+        description: description,
         category: "vape",
         aggregateRating: {
           "@type": "AggregateRating",
@@ -181,7 +184,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
           "@type": "ImageObject",
           url: image.source,
           image: image.source,
-          name: `${data.product.name} vape - ${data.option.name}`,
+          name,
           width: "1000",
           height: "1000",
         },
@@ -217,11 +220,27 @@ export async function loader({ params }: Route.LoaderArgs) {
     return redirect("/products");
   }
 
-  const option = variant.options.find((o) => o.value === optionValue);
+  const vOption = variant.options.find((o) => o.value === optionValue);
 
-  if (!option) {
+  if (!vOption) {
     return redirect("/products");
   }
+
+  const rOption = await prisma.productVariantOption.findFirst({
+    select: {
+      seoDescription: true,
+    },
+    where: {
+      value: vOption.value,
+      variantId: variant.id,
+    },
+  });
+
+  if (!rOption) {
+    return redirect("/products");
+  }
+
+  const option = { ...vOption, ...rOption };
 
   const image = product.images.find((image) => image.id === option.imageId) || product.images[0];
 
@@ -238,7 +257,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export default function ProductVariant() {
-  const { product, variant, option, image } = useLoaderData<typeof loader>();
+  const { product, option, image } = useLoaderData<typeof loader>();
 
   return (
     <div className="flex flex-col items-center justify-center max-w-lg mx-auto text-center">
@@ -278,9 +297,23 @@ export default function ProductVariant() {
       </div>
 
       <div className="w-full mt-4 pt-4 border-t border-zinc-800/50">
-        <p className="font-semibold">
-          get the {product.name} - {option.name} {variant.name}
-        </p>
+        {option.seoDescription && (
+          <>
+            <H3>
+              about the {product.name} {option.name}
+            </H3>
+
+            <p className="mt-1 text-sm text-zinc-300">{option.seoDescription.toLowerCase()}</p>
+          </>
+        )}
+
+        <H3 className="mt-4">about the {product.name}</H3>
+
+        {product.seoDescription && (
+          <>
+            <p className="mt-1 text-sm text-zinc-300">{product.seoDescription.toLowerCase()}</p>
+          </>
+        )}
 
         <p className="mt-2 text-sm text-zinc-300">{product.description}</p>
       </div>

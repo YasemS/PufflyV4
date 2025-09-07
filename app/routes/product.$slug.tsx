@@ -184,7 +184,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
                 price: data.product.price,
                 priceCurrency: "USD",
                 priceValidUntil: priceValidUntil,
-                name: `${name} - ${format.capitalize(option.name)}`,
+                name: `${name} ${format.capitalize(option.name)}`,
               }))
             : [
                 {

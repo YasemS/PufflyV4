@@ -79,7 +79,10 @@ model ProductVariantOption {
   name      String
   value     String
   stock     Int
+  
   imageId   String?
+
+  seoDescription String?
 
   variant   ProductVariant @relation(fields: [variantId], references: [id])
   variantId String
