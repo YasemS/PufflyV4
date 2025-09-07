@@ -41,6 +41,8 @@ model Product {
   brand       Brand @relation(fields: [brandSlug], references: [slug])
   brandSlug   String
 
+  seoDescription String?
+
   created     DateTime @default(now())
 }
 

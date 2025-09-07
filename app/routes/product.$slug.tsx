@@ -44,7 +44,9 @@ export const meta: Route.MetaFunction = ({ data }) => {
     puffs = puffs.replace("k", "000");
   }
 
-  const title = `${format.capitalize(data.product.name)} Disposable Vape ${puffs.toUpperCase()} Puffs | ${format.currency(data.product.price)}`;
+  const name = format.capitalize(data.product.name);
+  const title = `${name} Disposable Vape ${puffs.toUpperCase()} Puffs | ${format.currency(data.product.price)}`;
+  const description = data.product.seoDescription || format.capitalize(data.product.tagline);
   const image = data.product.images[0];
   const canonical = "https://www.puffly.io/product/" + data.product.slug;
 
@@ -61,7 +63,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
     { title: title },
     {
       name: "description",
-      content: data.product.tagline,
+      content: description,
     },
     {
       property: "og:site_name",
@@ -81,7 +83,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
     },
     {
       property: "og:description",
-      content: data.product.tagline,
+      content: description,
     },
     {
       property: "og:image",
@@ -117,7 +119,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
     },
     {
       name: "twitter:description",
-      content: data.product.tagline,
+      content: description,
     },
     {
       tagName: "link",
@@ -161,7 +163,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
           {
             "@type": "ListItem",
             position: 2,
-            name: data.product.name + " vape",
+            name: title,
             item: canonical,
           },
         ],
@@ -171,7 +173,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
       "script:ld+json": {
         "@context": "http://schema.org",
         "@type": "Product",
-        name: data.product.name + " vape",
+        name,
         url: canonical,
         offers:
           data.product.variants.length >= 1
@@ -182,7 +184,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
                 price: data.product.price,
                 priceCurrency: "USD",
                 priceValidUntil: priceValidUntil,
-                name: `${data.product.name} vape - ${option.name}`,
+                name: `${name} - ${format.capitalize(option.name)}`,
               }))
             : [
                 {
@@ -192,7 +194,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
                   price: data.product.price,
                   priceCurrency: "USD",
                   priceValidUntil: priceValidUntil,
-                  name: `${data.product.name} vape`,
+                  name,
                 },
               ],
         brand: {
@@ -212,7 +214,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
           "@type": "ImageObject",
           url: image.source,
           image: image.source,
-          name: data.product.name + " vape",
+          name: name,
           width: "1000",
           height: "1000",
         },
