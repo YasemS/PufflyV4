@@ -374,6 +374,7 @@ function OrderInformation() {
 
           <OrderInformationRow icon={<Home />}>
             <p>{order.addressLine1}</p>
+            {order.addressLine2 && <p>{order.addressLine2}</p>}
             <p>
               {order.city}, {order.state} {order.postal}
             </p>
