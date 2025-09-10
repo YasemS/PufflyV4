@@ -203,6 +203,8 @@ model Order {
   shippingCost   Float?
   shipments      OrderShipment[]
 
+  datafastVisitorId String?
+
   created   DateTime @default(now())
   updated   DateTime @updatedAt
 }

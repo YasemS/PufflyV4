@@ -234,6 +234,13 @@ export async function action({ params, request }: Route.ActionArgs) {
 
   const total = subtotal - couponTotal + shippingTotal;
 
+  const cookieHeader = request.headers.get("Cookie");
+  const datafastVisitorId =
+    cookieHeader
+      ?.split(";")
+      .find((c) => c.trim().startsWith("datafast_visitor_id="))
+      ?.split("=")[1] || "";
+
   let orderStatus: OrderStatus = "AWAITING_PAYMENT";
   let orderPaymentId: string | null = null;
 
@@ -258,6 +265,15 @@ export async function action({ params, request }: Route.ActionArgs) {
       return rdata({ error: transaction.error.toLowerCase() }, { status: 400 });
     }
 
+    await datafast.payment({
+      orderId: order.id,
+      email: order.email!,
+      name: firstName + " " + lastName,
+      total: total,
+      datafastVisitorId: datafastVisitorId,
+      datafastApiKey: process.env.DATAFAST_API_KEY!,
+    });
+
     orderStatus = "PROCESSING";
     orderPaymentId = transaction.id;
   }
@@ -281,6 +297,7 @@ export async function action({ params, request }: Route.ActionArgs) {
       shippingMethod,
       paymentMethod: paymentMethod,
       paymentId: orderPaymentId,
+      datafastVisitorId: datafastVisitorId || null,
     },
     where: {
       id: order.id,
@@ -323,22 +340,6 @@ export async function action({ params, request }: Route.ActionArgs) {
     message: `new order placed for (${format.currency(total)} - ${paymentMethod}) to ${postal}, ${state}`,
     title: "new order - " + firstName,
     tags: "money_mouth_face",
-  });
-
-  const cookieHeader = request.headers.get("Cookie");
-  const datafastVisitorId =
-    cookieHeader
-      ?.split(";")
-      .find((c) => c.trim().startsWith("datafast_visitor_id="))
-      ?.split("=")[1] || "";
-
-  await datafast.payment({
-    orderId: order.id,
-    email: order.email!,
-    name: firstName + " " + lastName,
-    total: total,
-    datafastVisitorId: datafastVisitorId,
-    datafastApiKey: process.env.DATAFAST_API_KEY!,
   });
 
   return rdata(
