@@ -169,7 +169,7 @@ function HomeMarquee() {
 
         <span className="block w-1 h-1 bg-pink-500 rounded-full"></span>
 
-        <p className="px-4">free shipping for orders over $40</p>
+        <p className="px-4">free shipping for orders over $50</p>
 
         <span className="block w-1 h-1 bg-pink-500 rounded-full"></span>
 
