@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { AlertCircle, Cigarette, Cloud, Star, Zap } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight, Cigarette, Cloud, Loader2, Star, Zap } from "lucide-react";
 import { Link, redirect, useFetcher, useLoaderData, useNavigate } from "react-router";
 
 import type { Route } from "./+types/product.$slug";
@@ -250,9 +250,22 @@ export default function Product() {
 
   const imageDefault = product.images[0];
   const [imageActive, setImageActive] = useState<(typeof product.images)[0]>(imageDefault);
+  const imageIndex = product.images.findIndex((image) => image.id === imageActive.id);
 
   const [price, setPrice] = useState(product.price);
   const [quantity, setQuantity] = useState(1);
+
+  function onImagePrevious() {
+    if (imageIndex === 0) return;
+
+    setImageActive(product.images[imageIndex - 1]);
+  }
+
+  function onImageNext() {
+    if (imageIndex === product.images.length - 1) return;
+
+    setImageActive(product.images[imageIndex + 1]);
+  }
 
   function onQuantityChange(newQuantity: number) {
     setQuantity(newQuantity);
@@ -315,7 +328,12 @@ export default function Product() {
       <div className="grid grid-cols-1 md:grid-cols-2 md:gap-8">
         <div className="flex flex-col max-w-sm md:max-w-none">
           <div className="sticky top-24">
-            <ProductImage {...imageActive} />
+            <ProductImage
+              active={imageActive}
+              index={imageIndex}
+              onImagePrevious={onImagePrevious}
+              onImageNext={onImageNext}
+            />
 
             <ProductThumbnails>
               {product.images.map((image) => (
@@ -349,15 +367,68 @@ export default function Product() {
   );
 }
 
-function ProductImage({ alt, source }: { alt: string; source: string }) {
+function ProductImage({
+  active,
+  index,
+  onImagePrevious,
+  onImageNext,
+}: {
+  active: {
+    alt: string;
+    source: string;
+  };
+  index: number;
+  onImagePrevious: () => void;
+  onImageNext: () => void;
+}) {
+  const { product } = useLoaderData<typeof loader>();
+
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    setVisible(false);
+
+    const image = new Image();
+
+    image.src = active.source;
+
+    image.onload = () => {
+      setVisible(true);
+    };
+  }, [active]);
+
   return (
     <BackgroundGradient gradientClassName="h-3/4">
-      <Card className="w-full aspect-square p-4">
-        <img
-          alt={alt}
-          className="w-full h-full object-contain"
-          src={img.transform(source, { width: 460, height: 460 })}
-        />
+      <Card className="flex items-center justify-center relative w-full aspect-square p-4">
+        {index > 0 && (
+          <Button
+            className="absolute top-1/2 left-4 -translate-y-1/2 px-0 min-w-10 w-10 rounded-full text-zinc-300"
+            variant="outline"
+            onClick={onImagePrevious}
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+        )}
+
+        {visible ? (
+          <img
+            alt={active.alt}
+            className="w-full h-full object-contain"
+            src={img.transform(active.source, { width: 460, height: 460 })}
+          />
+        ) : (
+          <Loader2 className="w-8 h-8 animate-spin" />
+        )}
+
+        {index < product.images.length - 1 && (
+          <Button
+            className="absolute top-1/2 right-4 -translate-y-1/2 px-0 min-w-10 w-10 rounded-full text-zinc-300"
+            variant="outline"
+            onClick={onImageNext}
+          >
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+        )}
       </Card>
     </BackgroundGradient>
   );
