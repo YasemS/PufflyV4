@@ -188,7 +188,7 @@ export default function Cart() {
 function CartDeliveryThreshold() {
   const data = useLoaderData<typeof loader>();
 
-  const threshold = 40;
+  const threshold = 50;
   const subtotal = data?.summary.subtotal || 0;
   const difference = threshold - subtotal;
 

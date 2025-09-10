@@ -230,7 +230,7 @@ export async function action({ params, request }: Route.ActionArgs) {
     return rdata({ error: "invalid payment method." }, { status: 400 });
   }
 
-  const shippingTotal = shippingMethod === "standard" ? (subtotal > 40 ? 0 : 2.99) : 10;
+  const shippingTotal = shippingMethod === "standard" ? (subtotal > 50 ? 0 : 2.99) : 10;
 
   const total = subtotal - couponTotal + shippingTotal;
 
@@ -543,7 +543,7 @@ export default function Checkout() {
 
   const subtotal = data.summary.subtotal;
   const couponTotal = data.summary.coupon;
-  const shippingTotal = shippingMethod === "standard" ? (subtotal > 40 ? 0 : 2.99) : 10;
+  const shippingTotal = shippingMethod === "standard" ? (subtotal > 50 ? 0 : 2.99) : 10;
 
   const total = subtotal - couponTotal + shippingTotal;
 
@@ -1246,7 +1246,7 @@ export default function Checkout() {
                 active={shippingMethod === "standard"}
                 title="standard shipping"
                 days={5}
-                price={data.summary.subtotal > 40 ? 0 : 2.99}
+                price={data.summary.subtotal > 50 ? 0 : 2.99}
                 onClick={() => setShippingMethod("standard")}
               />
 
@@ -1623,7 +1623,7 @@ function CheckoutSummary({ loading, summary, onCheckoutClick }: CheckoutSummaryP
 function CheckoutDeliveryThreshold() {
   const data = useLoaderData<typeof loader>();
 
-  const threshold = 40;
+  const threshold = 50;
   const subtotal = data?.summary.subtotal || 0;
   const difference = threshold - subtotal;
 
