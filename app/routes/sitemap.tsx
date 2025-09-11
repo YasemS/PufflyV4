@@ -125,14 +125,14 @@ export async function loader() {
 
   for (const product of products) {
     routes.push({
-      name: product.name,
+      name: "buy " + product.name,
       path: "/product/" + product.slug,
     });
 
     for (const variant of product.variants) {
       for (const option of variant.options) {
         routes.push({
-          name: product.name + " - " + option.name + " " + variant.name,
+          name: product.name + " " + option.name,
           path: "/variant/" + product.slug + "/" + option.value,
         });
       }

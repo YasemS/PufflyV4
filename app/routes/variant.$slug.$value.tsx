@@ -1,5 +1,5 @@
 import { Link, redirect, useLoaderData } from "react-router";
-import { MoveRight, Star } from "lucide-react";
+import { CircleQuestionMark, MoveRight, Star } from "lucide-react";
 
 import type { Route } from "./+types/variant.$slug.$value";
 
@@ -276,10 +276,10 @@ export default function ProductVariant() {
       </Link>
 
       <H1 className="mt-2">
-        {product.name} - {option.name}
+        {product.name} {option.name}
       </H1>
 
-      <p className="mt-2 text-xs text-zinc-300 leading-4">{product.tagline}</p>
+      <p className="mt-2 text-sm text-zinc-300 leading-4.5">{product.tagline}</p>
 
       <ProductStars />
 
@@ -296,7 +296,9 @@ export default function ProductVariant() {
         <ProductDeliveryEstimate />
       </div>
 
-      <div className="w-full mt-4 pt-4 border-t border-zinc-800/50">
+      <ProductFAQ />
+
+      <div className="w-full mt-4 pt-8 pb-4 border-t border-zinc-800/50">
         {option.seoDescription && (
           <>
             <H3>
@@ -307,7 +309,7 @@ export default function ProductVariant() {
           </>
         )}
 
-        <H3 className="mt-4">about the {product.name}</H3>
+        <H3 className="mt-8 first:mt-0">about the {product.name}</H3>
 
         {product.seoDescription && (
           <>
@@ -318,8 +320,6 @@ export default function ProductVariant() {
         <p className="mt-2 text-sm text-zinc-300">{product.description}</p>
       </div>
 
-      <ProductFAQ />
-
       <div className="flex flex-col gap-4 w-full mt-4 pt-4 border-t border-zinc-800/50">
         {product.variants.map((variant) => (
           <div key={variant.id}>
@@ -327,21 +327,37 @@ export default function ProductVariant() {
               {product.name} {format.plural(variant.options.length, variant.name, variant.name + "s")}
             </H3>
 
-            <div className="flex items-center justify-center flex-wrap gap-x-2 gap-y-0.5 mt-2">
-              {variant.options.map((o) => {
-                if (o.value === option.value) return null;
+            <BackgroundGradient gradientClassName="opacity-10">
+              <div className="flex flex-col gap-2 mt-4">
+                {variant.options.map((o) => {
+                  if (o.value === option.value) return null;
 
-                return (
-                  <Link
-                    className="text-pink-500 font-medium underline"
-                    key={o.value}
-                    to={`/variant/${product.slug}/${o.value}`}
-                  >
-                    {product.name} - {o.name}
-                  </Link>
-                );
-              })}
-            </div>
+                  const image = o.imageId ? product.images.find((img) => img.id === o.imageId) : null;
+
+                  return (
+                    <Link key={o.value} to={`/variant/${product.slug}/${o.value}`}>
+                      <Card className="flex items-center gap-4">
+                        <Card className="flex items-center justify-center min-w-16 w-16 h-16 border-zinc-700">
+                          {image ? (
+                            <img
+                              className="w-full h-full object-contain"
+                              src={img.transform(image.source, { width: 100, height: 100 })}
+                              alt={o.name}
+                            />
+                          ) : (
+                            <CircleQuestionMark className="w-8 h-8" />
+                          )}
+                        </Card>
+
+                        <p className="font-semibold">
+                          {product.name} {o.name}
+                        </p>
+                      </Card>
+                    </Link>
+                  );
+                })}
+              </div>
+            </BackgroundGradient>
           </div>
         ))}
       </div>
