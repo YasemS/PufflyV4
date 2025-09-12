@@ -383,6 +383,8 @@ function ProductImage({
 }) {
   const { product } = useLoaderData<typeof loader>();
 
+  const source = img.transform(active.source, { width: 460, height: 460 });
+
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
@@ -390,7 +392,7 @@ function ProductImage({
 
     const image = new Image();
 
-    image.src = active.source;
+    image.src = source;
 
     image.onload = () => {
       setVisible(true);
@@ -411,11 +413,7 @@ function ProductImage({
         )}
 
         {visible ? (
-          <img
-            alt={active.alt}
-            className="w-full h-full object-contain"
-            src={img.transform(active.source, { width: 460, height: 460 })}
-          />
+          <img alt={active.alt} className="w-full h-full object-contain" src={source} />
         ) : (
           <Loader2 className="w-8 h-8 animate-spin" />
         )}
