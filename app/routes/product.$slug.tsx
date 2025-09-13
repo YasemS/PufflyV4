@@ -818,7 +818,11 @@ function ProductVariants() {
               <div className={cn("relative", !visible && "max-h-80 overflow-hidden")}>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
                   {variant.options.map((option) => {
-                    const image = option.imageId ? product.images.find((img) => img.id === option.imageId) : null;
+                    let image = option.imageId ? product.images.find((img) => img.id === option.imageId) : null;
+
+                    if (!image && product.images.length > 0) {
+                      image = product.images[0];
+                    }
 
                     return <ProductVariantCard key={option.value} product={product} option={option} image={image} />;
                   })}
