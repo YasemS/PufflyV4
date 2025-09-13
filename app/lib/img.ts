@@ -7,7 +7,7 @@ type ImgOpts = {
 function transform(source: string, opts?: ImgOpts) {
   opts = opts || {};
 
-  const transformations = ["f=webp", `q=${opts.quality || 100}`];
+  const transformations = ["f=webp", `q=${opts.quality || 90}`];
 
   if (opts) {
     if (opts.height) {
