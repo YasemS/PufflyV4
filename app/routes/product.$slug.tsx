@@ -370,9 +370,9 @@ export default function Product() {
         </div>
       </div>
 
-      <ProductVariants />
-
       <ProductReviews />
+
+      <ProductVariants />
 
       <ProductSimilar />
     </ProductContext.Provider>
