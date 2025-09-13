@@ -278,7 +278,7 @@ export async function action({ params, request }: Route.ActionArgs) {
     orderPaymentId = transaction.id;
   }
 
-  await prisma.order.update({
+  const orderFinal = await prisma.order.update({
     data: {
       status: orderStatus,
       email,
@@ -343,7 +343,12 @@ export async function action({ params, request }: Route.ActionArgs) {
   });
 
   return rdata(
-    { success: true },
+    {
+      success: true,
+      order: {
+        paymentMethod,
+      },
+    },
     {
       headers: {
         "Set-Cookie": await cartCookie.serialize("", { maxAge: 0 }),
@@ -1000,7 +1005,7 @@ export default function Checkout() {
 
   useEffect(() => {
     if (aData) {
-      if ("success" in aData) {
+      if ("success" in aData && aData.order.paymentMethod === "credit-card") {
         fbq.track("Purchase", {
           contents: data.items.map((item) => ({
             id: item.slug,
