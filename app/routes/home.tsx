@@ -127,7 +127,7 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-2 mt-4 sm:grid-cols-4 md:grid-cols-5">
             {brands.map((brand) => (
               <Link to={`/brand/${brand.slug}`} key={brand.slug}>
-                <Card className="aspect-video">
+                <Card className="aspect-video hover:border-zinc-700">
                   {brand.image ? (
                     <img
                       className="w-full h-full object-contain"
