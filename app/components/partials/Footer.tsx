@@ -175,7 +175,7 @@ type FooterLinkProps = {
 
 function FooterLink({ to, text }: FooterLinkProps) {
   return (
-    <Link className="text-sm text-zinc-300" to={to}>
+    <Link className="text-sm text-zinc-300 hover:underline" to={to}>
       {text}
     </Link>
   );

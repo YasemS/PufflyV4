@@ -19,7 +19,7 @@ type ProductCardProps = {
 export function ProductCard(product: ProductCardProps) {
   return (
     <Link
-      className="w-full p-3 bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl rounded-lg"
+      className="w-full p-3 bg-zinc-800/50 border border-zinc-800 backdrop-blur-xl rounded-lg group hover:border-zinc-700"
       to={`/product/${product.slug}`}
     >
       <img
@@ -39,7 +39,7 @@ export function ProductCard(product: ProductCardProps) {
         )}
       </div>
 
-      <p className="mt-1 text-sm font-semibold leading-4">{product.name}</p>
+      <p className="mt-1 text-sm font-semibold leading-4 underline-offset-1 group-hover:underline">{product.name}</p>
 
       <p className="mt-1 text-sm font-semibold leading-4">{format.currency(product.price)}</p>
     </Link>

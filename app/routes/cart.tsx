@@ -1,5 +1,16 @@
 import { useContext, useEffect, useState } from "react";
-import { AlertCircle, CheckCircle, CircleQuestionMark, Lock, Minus, MoveLeft, Pencil, Plus, Trash } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle,
+  CircleQuestionMark,
+  Loader2,
+  Lock,
+  Minus,
+  MoveLeft,
+  Pencil,
+  Plus,
+  Trash,
+} from "lucide-react";
 import { Form, Link, useFetcher, useLoaderData } from "react-router";
 
 import type { Route } from "./+types/cart";
@@ -317,7 +328,13 @@ function CartItem(props: CartItemProps) {
         <div className="flex items-end justify-between gap-3 mt-auto">
           <CartItemQuantity disabled={loading} quantity={quantity} onQuantityChange={onQuantityChange} />
 
-          <p className="pb-1 font-bold leading-4">{format.currency(total)}</p>
+          <div className="flex items-center justify-center pb-1">
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <p className="pb-1 font-bold leading-4">{format.currency(total)}</p>
+            )}
+          </div>
         </div>
       </fetcher.Form>
     </div>
