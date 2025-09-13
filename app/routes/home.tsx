@@ -118,6 +118,17 @@ export default function Home() {
             ))}
           </div>
         </BackgroundGradient>
+
+        {products.length >= 8 && (
+          <div className="flex items-center justify-center mt-8">
+            <Link to="/products" tabIndex={-1}>
+              <Button variant="outline">
+                <span>shop all products</span>
+                <MoveRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
+        )}
       </div>
 
       <div className="mt-16">
