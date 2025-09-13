@@ -6,6 +6,8 @@ import { gfmHeadingId, getHeadingList } from "marked-gfm-heading-id";
 import type { Route } from "./+types/blog.$slug";
 
 import BackgroundGradient from "~/components/BackgroundGradient";
+import BlogPostCard from "~/components/Blog";
+import { H2 } from "~/components/Heading";
 
 import cn from "~/lib/cn";
 import img from "~/lib/img";
@@ -175,11 +177,41 @@ export async function loader({ params }: Route.LoaderArgs) {
     return redirect("/blog");
   }
 
-  return { post };
+  const latestPosts = await prisma.blogPost.findMany({
+    select: {
+      slug: true,
+      image: true,
+      title: true,
+      description: true,
+      created: true,
+      author: {
+        select: {
+          name: true,
+        },
+      },
+      collections: {
+        select: {
+          slug: true,
+          name: true,
+        },
+      },
+    },
+    where: {
+      slug: {
+        not: post.slug,
+      },
+    },
+    orderBy: {
+      created: "desc",
+    },
+    take: 3,
+  });
+
+  return { post, latestPosts };
 }
 
 export default function BlogPost() {
-  const { post } = useLoaderData<typeof loader>();
+  const { post, latestPosts } = useLoaderData<typeof loader>();
 
   const [showToc, setShowToc] = useState(false);
 
@@ -218,7 +250,7 @@ export default function BlogPost() {
     if (location.hash && mdHeadings.length > 0) {
       window.scroll({
         top: (document.getElementById(location.hash.slice(1)) as HTMLElement).offsetTop - 100,
-        behavior: "smooth",
+        // behavior: "smooth",
       });
     }
   }, [location.hash]);
@@ -283,7 +315,7 @@ export default function BlogPost() {
                   <Link
                     className={cn(
                       "mt-2 text-sm font-semibold underline-offset-1",
-                      location.hash === "#" + heading.id ? "underline" : "",
+                      location.hash === "#" + heading.id ? "underline" : "hover:underline",
                     )}
                     to={`#${heading.id}`}
                     key={heading.id}
@@ -295,6 +327,16 @@ export default function BlogPost() {
             </div>
           </div>
         )}
+      </div>
+
+      <div className="mt-16">
+        <H2>Latest Posts</H2>
+
+        <div className="grid grid-cols-1 gap-x-4 gap-y-6 mt-4 sm:grid-cols-2 md:grid-cols-3">
+          {latestPosts.map((post) => (
+            <BlogPostCard key={post.slug} {...post} />
+          ))}
+        </div>
       </div>
     </div>
   );
