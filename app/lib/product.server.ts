@@ -101,7 +101,6 @@ export async function getProduct(slug: string) {
               value: true,
               stock: true,
               imageId: true,
-              seoDescription: true,
             },
             orderBy: {
               name: "asc",
