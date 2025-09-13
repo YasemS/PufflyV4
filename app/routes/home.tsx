@@ -16,6 +16,7 @@ import { ProductCard } from "~/components/Product";
 import img from "~/lib/img";
 import prisma from "~/lib/prisma.server";
 import { getProducts } from "~/lib/product.server";
+import cn from "~/lib/cn";
 
 export const meta: Route.MetaFunction = () => {
   return [
@@ -51,26 +52,7 @@ export default function Home() {
         <HomeMarquee />
 
         <div className="grid gap-4 h-100 lg:grid-cols-7">
-          <div className="flex flex-col items-center justify-end col-span-5 relative p-8 bg-zinc-900 rounded-xl text-center overflow-hidden">
-            <img
-              src={img.transform("/img/geek-bar-pulse-banner.png", { width: 800 })}
-              alt="geek bar pulse banner"
-              className="absolute top-1/2 left-1/2 -translate-1/2 w-[120%] h-[120%] object-cover"
-            />
-
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-zinc-950 opacity-90"></div>
-
-            <div className="flex flex-col items-center justify-center gap-4 relative z-1">
-              <H1>find your favorite vape</H1>
-
-              <Link to="/products" tabIndex={-1}>
-                <Button>
-                  <span>shop now</span>
-                  <MoveRight className="w-4 h-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
+          <HomeBanner />
 
           <div className="hidden col-span-2 lg:block">
             <Link to="/product/sea-xs">
@@ -191,6 +173,47 @@ function HomeMarquee() {
         <p className="px-4">14 day returns</p>
       </Marquee>
     </Card>
+  );
+}
+
+function HomeBanner() {
+  const [loaded, setLoaded] = useState(false);
+
+  const sourceFull = img.transform("/img/geek-bar-pulse-banner.png", { width: 800 });
+  const sourceMin = img.transform("/img/geek-bar-pulse-banner.png", { width: 80, quality: 10 });
+
+  const source = loaded ? sourceFull : sourceMin;
+
+  useEffect(() => {
+    const image = new Image();
+
+    image.src = sourceFull;
+    image.onload = () => {
+      setLoaded(true);
+    };
+  }, [source]);
+
+  return (
+    <div className="flex flex-col items-center justify-end col-span-5 relative p-8 bg-zinc-900 rounded-xl text-center overflow-hidden">
+      <img
+        src={source}
+        alt="geek bar pulse banner"
+        className={cn("absolute top-1/2 left-1/2 -translate-1/2 w-[120%] h-[120%] object-cover", !loaded && "blur")}
+      />
+
+      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-zinc-950 opacity-90"></div>
+
+      <div className="flex flex-col items-center justify-center gap-4 relative z-1">
+        <H1>find your favorite vape</H1>
+
+        <Link to="/products" tabIndex={-1}>
+          <Button>
+            <span>shop now</span>
+            <MoveRight className="w-4 h-4" />
+          </Button>
+        </Link>
+      </div>
+    </div>
   );
 }
 

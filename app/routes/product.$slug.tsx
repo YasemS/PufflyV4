@@ -435,6 +435,7 @@ function ProductImage({
     const image = new Image();
 
     image.src = source;
+    image.fetchPriority = "high";
 
     image.onload = () => {
       setVisible(true);
@@ -469,7 +470,13 @@ function ProductImage({
         </p>
 
         {visible ? (
-          <img alt={active.alt} className="w-full h-full object-contain" draggable={false} src={source} />
+          <img
+            alt={active.alt}
+            className="w-full h-full object-contain"
+            draggable={false}
+            fetchPriority="high"
+            src={source}
+          />
         ) : (
           <Loader2 className="w-8 h-8 animate-spin" />
         )}

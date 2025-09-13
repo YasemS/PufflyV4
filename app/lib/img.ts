@@ -1,10 +1,13 @@
 type ImgOpts = {
   width?: number;
   height?: number;
+  quality?: number;
 };
 
 function transform(source: string, opts?: ImgOpts) {
-  const transformations = ["f=webp", "q=100"];
+  opts = opts || {};
+
+  const transformations = ["f=webp", `q=${opts.quality || 100}`];
 
   if (opts) {
     if (opts.height) {
