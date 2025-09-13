@@ -3,6 +3,8 @@ import {
   AlertCircle,
   ArrowLeft,
   ArrowRight,
+  ChevronDown,
+  ChevronUp,
   Cigarette,
   CircleQuestionMark,
   Cloud,
@@ -795,22 +797,56 @@ function ProductFAQ() {
 function ProductVariants() {
   const { product } = useLoaderData<typeof loader>();
 
+  const [visibleVariants, setVisibleVariants] = useState<{ [key: string]: boolean }>({});
+
+  function onVariantClick(variantId: string) {
+    setVisibleVariants((prev) => ({ ...prev, [variantId]: !prev[variantId] }));
+  }
+
   return (
     <div className="mt-4 pt-4 border-t border-zinc-800/50">
       {product.variants.map((variant) => {
+        const visible = visibleVariants[variant.id] ?? false;
+
         return (
           <div className="flex flex-col gap-4 mt-8 first:mt-0" key={variant.id}>
             <H2>
               {product.name} {format.plural(variant.options.length, variant.name, variant.name + "s")}
             </H2>
 
-            <BackgroundGradient gradientClassName="opacity-10">
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
-                {variant.options.map((option) => {
-                  const image = option.imageId ? product.images.find((img) => img.id === option.imageId) : null;
+            <BackgroundGradient gradientClassName="opacity-5 h-1/2">
+              <div className={cn("relative", !visible && "max-h-80 overflow-hidden")}>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+                  {variant.options.map((option) => {
+                    const image = option.imageId ? product.images.find((img) => img.id === option.imageId) : null;
 
-                  return <ProductVariantCard key={option.value} product={product} option={option} image={image} />;
-                })}
+                    return <ProductVariantCard key={option.value} product={product} option={option} image={image} />;
+                  })}
+                </div>
+
+                {!visible ? (
+                  <>
+                    <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-b from-transparent to-zinc-950"></div>
+
+                    <Button
+                      className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-zinc-900"
+                      variant="outline"
+                      onClick={() => onVariantClick(variant.id)}
+                    >
+                      <span>show all</span>
+                      <ChevronDown className="w-4 h-4" />
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    className="mx-auto mt-4 bg-zinc-900"
+                    variant="outline"
+                    onClick={() => onVariantClick(variant.id)}
+                  >
+                    <span>hide</span>
+                    <ChevronUp className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             </BackgroundGradient>
           </div>
