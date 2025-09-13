@@ -1,5 +1,15 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { AlertCircle, ArrowLeft, ArrowRight, Cigarette, Cloud, Loader2, Star, Zap } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  Cigarette,
+  CircleQuestionMark,
+  Cloud,
+  Loader2,
+  Star,
+  Zap,
+} from "lucide-react";
 import { Link, redirect, useFetcher, useLoaderData, useNavigate } from "react-router";
 
 import type { Route } from "./+types/product.$slug";
@@ -13,7 +23,7 @@ import Label from "~/components/Label";
 import Scroller from "~/components/Scroller";
 import Select from "~/components/Select";
 import { H1, H2, H3 } from "~/components/Heading";
-import { ProductCard } from "~/components/Product";
+import { ProductCard, ProductVariantCard } from "~/components/Product";
 
 import cn from "~/lib/cn";
 import fbq from "~/lib/analytics/fbq.client";
@@ -359,6 +369,8 @@ export default function Product() {
           <ProductFAQ />
         </div>
       </div>
+
+      <ProductVariants />
 
       <ProductReviews />
 
@@ -778,6 +790,34 @@ function ProductFAQ() {
   ];
 
   return <Accordion className="mt-4 pt-4 border-t border-zinc-800/50" questions={questions} />;
+}
+
+function ProductVariants() {
+  const { product } = useLoaderData<typeof loader>();
+
+  return (
+    <div className="mt-4 pt-4 border-t border-zinc-800/50">
+      {product.variants.map((variant) => {
+        return (
+          <div className="flex flex-col gap-4 mt-8 first:mt-0" key={variant.id}>
+            <H2>
+              {product.name} {format.plural(variant.options.length, variant.name, variant.name + "s")}
+            </H2>
+
+            <BackgroundGradient gradientClassName="opacity-10">
+              <div className="grid grid-cols-3 gap-2">
+                {variant.options.map((option) => {
+                  const image = option.imageId ? product.images.find((img) => img.id === option.imageId) : null;
+
+                  return <ProductVariantCard key={option.value} product={product} option={option} image={image} />;
+                })}
+              </div>
+            </BackgroundGradient>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 function ProductReview(review: ProductReviewProps) {

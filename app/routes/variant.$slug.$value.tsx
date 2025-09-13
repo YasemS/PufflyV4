@@ -7,11 +7,12 @@ import Accordion from "~/components/Accordion";
 import BackgroundGradient from "~/components/BackgroundGradient";
 import Button from "~/components/Button";
 import Card from "~/components/Card";
+import { H1, H2, H3 } from "~/components/Heading";
+import { ProductVariantCard } from "~/components/Product";
 
 import img from "~/lib/img";
 import format from "~/lib/format";
 import prisma from "~/lib/prisma.server";
-import { H1, H2, H3 } from "~/components/Heading";
 import { getProduct } from "~/lib/product.server";
 import { getDeliveryEstimate } from "~/lib/shipping";
 
@@ -334,27 +335,7 @@ export default function ProductVariant() {
 
                   const image = o.imageId ? product.images.find((img) => img.id === o.imageId) : null;
 
-                  return (
-                    <Link key={o.value} to={`/variant/${product.slug}/${o.value}`}>
-                      <Card className="flex items-center gap-4">
-                        <Card className="flex items-center justify-center min-w-16 w-16 h-16 border-zinc-700">
-                          {image ? (
-                            <img
-                              className="w-full h-full object-contain"
-                              src={img.transform(image.source, { width: 100, height: 100 })}
-                              alt={o.name}
-                            />
-                          ) : (
-                            <CircleQuestionMark className="w-8 h-8" />
-                          )}
-                        </Card>
-
-                        <p className="text-left font-semibold">
-                          {product.name} {o.name}
-                        </p>
-                      </Card>
-                    </Link>
-                  );
+                  return <ProductVariantCard key={o.value} product={product} option={o} image={image} />;
                 })}
               </div>
             </BackgroundGradient>
