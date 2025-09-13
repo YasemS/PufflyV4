@@ -519,6 +519,35 @@ function ProductForm({ onQuantityChange, onVariantChange }: ProductFormProps) {
 
   const error = fetcher.data?.error;
 
+  const [variantsMap, setVariantsMap] = useState<{ [key: string]: string }>({});
+
+  function _onQuantityChange(newQuantity: number) {
+    // remove extra variants
+    setVariantsMap((prev) => {
+      const keys = Object.keys(prev);
+
+      for (let i = keys.length - 1; i >= 0; i--) {
+        const key = keys[i];
+        const index = parseInt(key.split("__")[1]);
+
+        if (index >= newQuantity) {
+          delete prev[key];
+        }
+      }
+      return prev;
+    });
+
+    onQuantityChange(newQuantity);
+  }
+
+  function _onVariantChange(variantId: string, index: number, value: string) {
+    const key = `${variantId}__${index}`;
+
+    setVariantsMap((prev) => ({ ...prev, [key]: value }));
+
+    onVariantChange(variantId, value);
+  }
+
   useEffect(() => {
     if (fetcher.state !== "idle") return;
     if (!fetcher.data) return;
@@ -570,44 +599,55 @@ function ProductForm({ onQuantityChange, onVariantChange }: ProductFormProps) {
           <input type="hidden" name="product" value={product.slug} />
 
           {product.variants.map((variant) => {
-            return [...Array(quantity)].map((_, index) => (
-              <InputControl key={variant.id + index}>
-                <Label htmlFor={`variant__${variant.id}__${index}`}>
-                  {variant.name} {index > 0 ? `(${index + 1})` : ""}
-                </Label>
+            return [...Array(quantity)].map((_, index) => {
+              const key = `${variant.id}__${index}`;
 
-                <Select
-                  defaultValue=""
-                  id={`variant__${variant.id}__${index}`}
-                  name={`variant__${variant.id}`}
-                  onChange={(e) => onVariantChange(variant.id, e.target.value)}
-                >
-                  <option value="" disabled>
-                    select {variant.name}
-                  </option>
+              const value = variantsMap[`${variant.id}__${index}`] || "";
+              const selected = value ? variant.options.find((option) => option.value === value) : null;
 
-                  {variant.options.map((option) => (
-                    <option key={option.name} value={option.value}>
-                      {option.name}
+              return (
+                <InputControl key={key}>
+                  <Label htmlFor={`variant__${variant.id}__${index}`}>
+                    {variant.name} {index > 0 ? `(${index + 1})` : ""}
+                  </Label>
+
+                  <Select
+                    defaultValue=""
+                    id={`variant__${variant.id}__${index}`}
+                    name={`variant__${variant.id}`}
+                    onChange={(e) => _onVariantChange(variant.id, index, e.target.value)}
+                  >
+                    <option value="" disabled>
+                      select {variant.name}
                     </option>
-                  ))}
-                </Select>
-              </InputControl>
-            ));
+
+                    {variant.options.map((option) => (
+                      <option key={option.name} value={option.value}>
+                        {option.name}
+                      </option>
+                    ))}
+                  </Select>
+
+                  {selected && selected.seoDescription && (
+                    <p className="text-xs text-zinc-300 lowercase">{selected.seoDescription}</p>
+                  )}
+                </InputControl>
+              );
+            });
           })}
 
           <InputControl>
             <Label htmlFor="quantity">quantity</Label>
 
             <div className="grid grid-cols-3 gap-1">
-              <ProductQuantityButton active={quantity === 1} text="buy 1" onClick={() => onQuantityChange(1)} />
+              <ProductQuantityButton active={quantity === 1} text="buy 1" onClick={() => _onQuantityChange(1)} />
 
               <ProductQuantityButton
                 active={quantity === 2}
                 text="buy 2"
                 discount={5}
                 tag="most popular"
-                onClick={() => onQuantityChange(2)}
+                onClick={() => _onQuantityChange(2)}
               />
 
               <ProductQuantityButton
@@ -616,7 +656,7 @@ function ProductForm({ onQuantityChange, onVariantChange }: ProductFormProps) {
                 discount={10}
                 tag="best value"
                 tagStyle="secondary"
-                onClick={() => onQuantityChange(3)}
+                onClick={() => _onQuantityChange(3)}
               />
             </div>
           </InputControl>
