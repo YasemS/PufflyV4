@@ -258,7 +258,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export default function ProductVariant() {
-  const { product, option, image } = useLoaderData<typeof loader>();
+  const { product, variant, option, image } = useLoaderData<typeof loader>();
 
   return (
     <div className="flex flex-col items-center justify-center max-w-lg mx-auto text-center">
@@ -287,7 +287,7 @@ export default function ProductVariant() {
       <H2 className="mt-2 text-green-500">{format.currency(product.price)}</H2>
 
       <div className="flex flex-col items-center justify-center mt-4 pt-4 w-full border-t border-zinc-800/50">
-        <Link to={`/product/${product.slug}`}>
+        <Link to={`/product/${product.slug}?${variant.name.toLowerCase()}=${option.value}`}>
           <Button>
             <span>buy now</span>
             <MoveRight className="w-4 h-4" />

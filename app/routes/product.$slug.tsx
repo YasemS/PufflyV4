@@ -12,7 +12,7 @@ import {
   Star,
   Zap,
 } from "lucide-react";
-import { Link, redirect, useFetcher, useLoaderData, useNavigate } from "react-router";
+import { Link, redirect, useFetcher, useLoaderData, useNavigate, useSearchParams } from "react-router";
 
 import type { Route } from "./+types/product.$slug";
 
@@ -258,6 +258,8 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export default function Product() {
+  const [searchParams] = useSearchParams();
+
   const { product } = useLoaderData<typeof loader>();
 
   const imageDefault = product.images[0];
@@ -334,6 +336,32 @@ export default function Product() {
     setPrice(product.price);
     setQuantity(1);
   }, [product]);
+
+  useEffect(() => {
+    const variants = product.variants.filter((variant) => searchParams.get(variant.name.toLowerCase()));
+
+    if (variants.length === 0) {
+      return;
+    }
+
+    const variant = variants[0];
+
+    const defaultValue = searchParams.get(variant.name.toLowerCase());
+
+    const option = variant.options.find((option) => option.value === defaultValue);
+
+    if (!option) {
+      return;
+    }
+
+    const image = product.images.find((image) => image.id === option.imageId);
+
+    if (!image) {
+      return;
+    }
+
+    setImageActive(image);
+  }, [searchParams, product]);
 
   return (
     <ProductContext.Provider value={{ price, quantity }}>
@@ -524,6 +552,8 @@ function ProductStars() {
 }
 
 function ProductForm({ onQuantityChange, onVariantChange }: ProductFormProps) {
+  const [searchParams] = useSearchParams();
+
   const { product } = useLoaderData<typeof loader>();
 
   const { quantity, price } = useContext(ProductContext);
@@ -584,6 +614,8 @@ function ProductForm({ onQuantityChange, onVariantChange }: ProductFormProps) {
           <input type="hidden" name="product" value={product.slug} />
 
           {product.variants.map((variant) => {
+            const defaultValue = searchParams.get(`${variant.name.toLowerCase()}`) || "";
+
             return [...Array(quantity)].map((_, index) => (
               <InputControl key={variant.id + index}>
                 <Label htmlFor={`variant__${variant.id}__${index}`}>
@@ -591,7 +623,7 @@ function ProductForm({ onQuantityChange, onVariantChange }: ProductFormProps) {
                 </Label>
 
                 <Select
-                  defaultValue=""
+                  defaultValue={index > 0 ? "" : defaultValue}
                   id={`variant__${variant.id}__${index}`}
                   name={`variant__${variant.id}`}
                   onChange={(e) => onVariantChange(variant.id, e.target.value)}
