@@ -25,7 +25,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
   }
 
   const name = format.capitalize(data.product.name) + " " + format.capitalize(data.option.name);
-  const title = `${name} ${puffs.toUpperCase()} | ${format.currency(data.product.price)}`;
+  const title = `${name} ${puffs.toUpperCase()} Puffs | ${format.currency(data.product.price)}`;
   const description =
     data.option.seoDescription || data.product.seoDescription || format.capitalize(data.product.tagline);
   const image = data.product.images[0];
