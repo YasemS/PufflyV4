@@ -425,7 +425,7 @@ function ProductImage({
 }) {
   const { product } = useLoaderData<typeof loader>();
 
-  const source = img.transform(active.source, { width: 460, height: 460 });
+  const source = img.transform(active.source, { width: 450, height: 450 });
 
   const [visible, setVisible] = useState(true);
 

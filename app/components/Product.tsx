@@ -66,11 +66,11 @@ export function ProductVariantCard({ product, option, image }: ProductVariantCar
   return (
     <Link to={`/variant/${product.slug}/${option.value}`}>
       <Card className="flex items-center gap-4 hover:border-zinc-700">
-        <Card className="flex items-center justify-center min-w-16 w-16 h-16 border-zinc-700">
+        <Card className="flex items-center justify-center min-w-16 w-16 h-16 p-2 border-zinc-700">
           {image ? (
             <img
               className="w-full h-full object-contain"
-              src={img.transform(image.source, { width: 100, height: 100 })}
+              src={img.transform(image.source, { width: 50, height: 50 })}
               alt={option.name}
             />
           ) : (

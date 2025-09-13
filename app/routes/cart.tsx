@@ -295,7 +295,7 @@ function CartItem(props: CartItemProps) {
         <img
           alt={props.name}
           className="w-full h-full object-contain"
-          src={img.transform(props.image.source || "/img/placeholder.png", { width: 100 })}
+          src={img.transform(props.image.source || "/img/placeholder.png", { width: 50, height: 50 })}
         />
       </Card>
 

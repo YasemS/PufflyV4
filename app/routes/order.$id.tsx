@@ -188,7 +188,7 @@ function OrderItemsScroller() {
                 <img
                   alt={item.image.alt}
                   className="w-full h-full object-contain"
-                  src={img.transform(item.image.source, { width: 100 })}
+                  src={img.transform(item.image.source, { width: 50, height: 50 })}
                 />
               </Card>
             ) : (
@@ -443,7 +443,7 @@ function OrderItem(props: OrderItemProps) {
           <img
             alt={props.image.alt}
             className="w-full h-full object-contain"
-            src={img.transform(props.image.source, { width: 100 })}
+            src={img.transform(props.image.source, { width: 50, height: 50 })}
           />
 
           <span className="absolute -top-2 -right-2 w-4 h-4 bg-pink-500 rounded-full text-xs text-center font-semibold leading-4">

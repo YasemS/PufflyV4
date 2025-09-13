@@ -1695,7 +1695,7 @@ function CheckoutItem(props: CheckoutItemProps) {
           <img
             alt={props.image.alt}
             className="w-full h-full object-contain"
-            src={img.transform(props.image.source || "/img/placeholder.png", { width: 100 })}
+            src={img.transform(props.image.source || "/img/placeholder.png", { width: 50, height: 50 })}
           />
 
           <span className="absolute -top-2 -right-2 w-4 h-4 bg-pink-500 rounded-full text-xs text-center font-semibold leading-4">
