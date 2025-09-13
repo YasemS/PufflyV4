@@ -401,10 +401,10 @@ function ProductImage({
 
   return (
     <BackgroundGradient gradientClassName="h-3/4">
-      <Card className="flex items-center justify-center relative w-full aspect-square p-4">
+      <Card className="flex items-center justify-center relative w-full aspect-square p-4 group">
         {index > 0 && (
           <Button
-            className="absolute top-1/2 left-4 -translate-y-1/2 px-0 min-w-10 w-10 rounded-full text-zinc-300"
+            className="absolute top-1/2 left-2 -translate-y-1/2 px-0 min-w-8 w-8 h-8 rounded-full text-zinc-300 md:hidden md:group-hover:flex"
             variant="outline"
             onClick={onImagePrevious}
           >
@@ -412,20 +412,24 @@ function ProductImage({
           </Button>
         )}
 
-        {visible ? (
-          <img alt={active.alt} className="w-full h-full object-contain" src={source} />
-        ) : (
-          <Loader2 className="w-8 h-8 animate-spin" />
-        )}
-
         {index < product.images.length - 1 && (
           <Button
-            className="absolute top-1/2 right-4 -translate-y-1/2 px-0 min-w-10 w-10 rounded-full text-zinc-300"
+            className="absolute top-1/2 right-2 -translate-y-1/2 px-0 min-w-8 w-8 h-8 rounded-full text-zinc-300 md:hidden md:group-hover:flex"
             variant="outline"
             onClick={onImageNext}
           >
             <ArrowRight className="w-4 h-4" />
           </Button>
+        )}
+
+        <p className="absolute bottom-2 right-2 bg-zinc-950 rounded px-2 py-1 text-xs text-zinc-300 font-semibold select-none">
+          {index + 1}/{product.images.length}
+        </p>
+
+        {visible ? (
+          <img alt={active.alt} className="w-full h-full object-contain" draggable={false} src={source} />
+        ) : (
+          <Loader2 className="w-8 h-8 animate-spin" />
         )}
       </Card>
     </BackgroundGradient>
