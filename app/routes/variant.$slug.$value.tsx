@@ -349,7 +349,7 @@ export default function ProductVariant() {
                           )}
                         </Card>
 
-                        <p className="font-semibold">
+                        <p className="text-left font-semibold">
                           {product.name} {o.name}
                         </p>
                       </Card>
