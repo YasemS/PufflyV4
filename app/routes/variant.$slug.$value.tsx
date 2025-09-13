@@ -28,7 +28,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
   const title = `${name} ${puffs.toUpperCase()} Puffs | ${format.currency(data.product.price)}`;
   const description =
     data.option.seoDescription || data.product.seoDescription || format.capitalize(data.product.tagline);
-  const image = data.product.images[0];
+  const image = data.image;
   const canonical = "https://www.puffly.io/variant/" + data.product.slug + "/" + data.option.value;
 
   const priceValidUntil = "2026-12-31T23:59:59Z";
