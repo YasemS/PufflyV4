@@ -1005,7 +1005,7 @@ export default function Checkout() {
 
   useEffect(() => {
     if (aData) {
-      if ("success" in aData && aData.order.paymentMethod === "credit-card") {
+      if ("success" in aData) {
         fbq.track("Purchase", {
           contents: data.items.map((item) => ({
             id: item.slug,
