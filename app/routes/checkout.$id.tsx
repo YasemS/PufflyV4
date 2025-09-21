@@ -1375,13 +1375,13 @@ export default function Checkout() {
                 onClick={() => onPaymentChange("cash-app")}
               />
 
-              <CheckoutPaymentOption
+              {/* <CheckoutPaymentOption
                 active={paymentMethod === "paypal"}
                 title="paypal"
                 icons={<img alt="PayPal" className="h-5 rounded-xs" src="/img/paypal.svg" />}
                 content={<CheckoutPayPalContent total={total} />}
                 onClick={() => onPaymentChange("paypal")}
-              />
+              /> */}
 
               <CheckoutPaymentOption
                 active={paymentMethod === "zelle"}
