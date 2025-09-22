@@ -19,6 +19,7 @@ import {
   Lock,
   MoveRight,
   Pencil,
+  Tag,
 } from "lucide-react";
 import { usePlacesWidget } from "react-google-autocomplete";
 import validator, { type PostalCodeLocale } from "validator";
@@ -230,9 +231,11 @@ export async function action({ params, request }: Route.ActionArgs) {
     return rdata({ error: "invalid payment method." }, { status: 400 });
   }
 
+  const paymentDiscount = paymentMethod && paymentMethod !== "credit-card" ? subtotal * 0.1 : 0;
+  const discountTotal = paymentDiscount + couponTotal;
   const shippingTotal = shippingMethod === "standard" ? (subtotal > 50 ? 0 : 2.99) : 10;
 
-  const total = subtotal - couponTotal + shippingTotal;
+  const total = subtotal - discountTotal + shippingTotal;
 
   const cookieHeader = request.headers.get("Cookie");
   const datafastVisitorId =
@@ -548,10 +551,14 @@ export default function Checkout() {
   const loading = fetcher.state !== "idle" || submitting;
 
   const subtotal = data.summary.subtotal;
+
+  const paymentDiscount = paymentMethod && paymentMethod !== "credit-card" ? subtotal * 0.1 : 0;
+
   const couponTotal = data.summary.coupon;
+  const discountTotal = paymentDiscount + couponTotal;
   const shippingTotal = shippingMethod === "standard" ? (subtotal > 50 ? 0 : 2.99) : 10;
 
-  const total = subtotal - couponTotal + shippingTotal;
+  const total = subtotal - discountTotal + shippingTotal;
 
   function getCardBrand(input?: string) {
     const cleaned = (input ?? cardNumber).replace(/\D/g, "");
@@ -1046,6 +1053,14 @@ export default function Checkout() {
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-5">
         <div className="flex flex-col gap-4 mt-4 md:col-span-3">
+          <Card className="flex items-center gap-2 p-3 text-sm font-semibold">
+            <Tag className="min-w-4 w-4 h-4 hidden sm:block" />
+            <p>
+              get an additional <span className="m-0.5 px-1 py-0.5 bg-pink-500 rounded">10%</span> off when you pay
+              using select payment methods.
+            </p>
+          </Card>
+
           {error && (
             <div className="flex items-center gap-2 px-3 py-2 bg-red-950/50 border border-red-500 rounded text-red-500">
               <AlertCircle className="min-w-4 w-4 h-4" />
@@ -1271,6 +1286,7 @@ export default function Checkout() {
               <CheckoutPaymentOption
                 active={paymentMethod === "apple-cash"}
                 title="apple cash"
+                discount={10}
                 icons={<img alt="Apple" className="h-5 rounded-xs" src="/img/apple.svg" />}
                 content={<CheckoutAppleCashContent total={total} />}
                 onClick={() => onPaymentChange("apple-cash")}
@@ -1370,6 +1386,7 @@ export default function Checkout() {
               <CheckoutPaymentOption
                 active={paymentMethod === "cash-app"}
                 title="cash app"
+                discount={10}
                 icons={<img alt="Cash App" className="h-5 rounded-xs" src="/img/cash-app.svg" />}
                 content={<CheckoutCashAppContent total={total} />}
                 onClick={() => onPaymentChange("cash-app")}
@@ -1386,6 +1403,7 @@ export default function Checkout() {
               <CheckoutPaymentOption
                 active={paymentMethod === "zelle"}
                 title="zelle"
+                discount={10}
                 icons={<img alt="Zelle" className="h-5 rounded-xs" src="/img/zelle.svg" />}
                 content={<CheckoutZelleContent total={total} />}
                 onClick={() => onPaymentChange("zelle")}
@@ -1398,7 +1416,7 @@ export default function Checkout() {
           <CheckoutSummary
             loading={loading}
             onCheckoutClick={onCheckoutClick}
-            summary={{ subtotal, coupon: couponTotal, shipping: shippingTotal, total }}
+            summary={{ subtotal, discounts: discountTotal, shipping: shippingTotal, total }}
           />
         </div>
       </div>
@@ -1453,6 +1471,10 @@ function CheckoutPaymentOption({ onClick, ...props }: CheckoutPaymentOptionProps
           <input className="mt-0.25 accent-pink-500" checked={props.active} readOnly type="radio" />
 
           <p className="text-sm font-semibold leading-3.5">{props.title}</p>
+
+          {props.discount && (
+            <p className="px-2 py-1 bg-pink-500 rounded text-xs font-semibold">save {props.discount}%</p>
+          )}
 
           <div className="flex items-center justify-center gap-1 ml-auto">{props.icons}</div>
         </Card>
@@ -1567,8 +1589,6 @@ function CheckoutZelleContent({ total }: { total: number }) {
 }
 
 function CheckoutSummary({ loading, summary, onCheckoutClick }: CheckoutSummaryProps) {
-  const data = useLoaderData<typeof loader>();
-
   return (
     <div className="h-full">
       <H2>order summary</H2>
@@ -1585,9 +1605,9 @@ function CheckoutSummary({ loading, summary, onCheckoutClick }: CheckoutSummaryP
           </div>
 
           <div className="flex items-center justify-between gap-3">
-            <p>coupon</p>
-            <p className={cn("font-semibold", data?.coupon && "text-green-500")}>
-              {format.currency(data && data.coupon ? -summary.coupon : 0)}
+            <p>discounts</p>
+            <p className={cn("font-semibold", summary.discounts && "text-green-500")}>
+              {format.currency(summary.discounts ? -summary.discounts : 0)}
             </p>
           </div>
 
@@ -1851,6 +1871,7 @@ type CheckoutShippingOptionProps = {
 type CheckoutPaymentOptionProps = {
   active?: boolean;
   title: string;
+  discount?: number;
   icons?: React.ReactNode;
   content?: React.ReactNode;
   onClick?: () => void;
@@ -1859,7 +1880,7 @@ type CheckoutPaymentOptionProps = {
 type CheckoutSummaryProps = {
   summary: {
     subtotal: number;
-    coupon: number;
+    discounts: number;
     shipping: number;
     total: number;
   };

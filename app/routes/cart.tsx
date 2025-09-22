@@ -481,7 +481,7 @@ function CartSummary() {
           </div>
 
           <div className="flex items-center justify-between gap-3">
-            <p>coupon</p>
+            <p>discounts</p>
             <p className={cn("font-semibold", data?.coupon && "text-green-500")}>
               {format.currency(data && data.coupon ? -data.summary.coupon : 0)}
             </p>
