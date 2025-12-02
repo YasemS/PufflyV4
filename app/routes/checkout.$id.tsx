@@ -1292,7 +1292,7 @@ export default function Checkout() {
                 onClick={() => onPaymentChange("apple-cash")}
               />
 
-              <CheckoutPaymentOption
+              {/* <CheckoutPaymentOption
                 active={paymentMethod === "credit-card"}
                 title="credit card"
                 icons={getCardIcons()}
@@ -1381,7 +1381,7 @@ export default function Checkout() {
                   </>
                 }
                 onClick={() => onPaymentChange("credit-card")}
-              />
+              /> */}
 
               <CheckoutPaymentOption
                 active={paymentMethod === "cash-app"}
