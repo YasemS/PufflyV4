@@ -268,15 +268,6 @@ export async function action({ params, request }: Route.ActionArgs) {
       return rdata({ error: transaction.error.toLowerCase() }, { status: 400 });
     }
 
-    await datafast.payment({
-      orderId: order.id,
-      email: order.email!,
-      name: firstName + " " + lastName,
-      total: total,
-      datafastVisitorId: datafastVisitorId,
-      datafastApiKey: process.env.DATAFAST_API_KEY!,
-    });
-
     orderStatus = "PROCESSING";
     orderPaymentId = transaction.id;
   }
@@ -337,6 +328,15 @@ export async function action({ params, request }: Route.ActionArgs) {
     replyTo: "support@puffly.io",
     subject: `order ${orderStatus === "PROCESSING" ? "confirmation" : "pending"} - puffly`,
     ...template,
+  });
+
+  await datafast.payment({
+    orderId: order.id,
+    email: order.email!,
+    name: firstName + " " + lastName,
+    total: total,
+    datafastVisitorId: datafastVisitorId,
+    datafastApiKey: process.env.DATAFAST_API_KEY!,
   });
 
   await ntfy({
