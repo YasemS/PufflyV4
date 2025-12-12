@@ -227,7 +227,7 @@ export async function action({ params, request }: Route.ActionArgs) {
     return rdata({ error: "payment method is required." }, { status: 400 });
   }
 
-  if (!["apple-cash", "credit-card", "cash-app", "paypal", "zelle"].includes(paymentMethod)) {
+  if (!["apple-cash", "credit-card", "cash-app", "paypal", "venmo", "zelle"].includes(paymentMethod)) {
     return rdata({ error: "invalid payment method." }, { status: 400 });
   }
 
@@ -1401,6 +1401,15 @@ export default function Checkout() {
               /> */}
 
               <CheckoutPaymentOption
+                active={paymentMethod === "venmo"}
+                title="venmo"
+                discount={10}
+                icons={<img alt="Venmo" className="h-2 rounded-xs" src="/img/venmo.svg" />}
+                content={<CheckoutVenmoContent total={total} />}
+                onClick={() => onPaymentChange("venmo")}
+              />
+
+              <CheckoutPaymentOption
                 active={paymentMethod === "zelle"}
                 title="zelle"
                 discount={10}
@@ -1557,6 +1566,35 @@ function CheckoutPayPalContent({ total }: { total: number }) {
       <p className="mt-2 text-xl font-semibold font-mono leading-6">antthonyrivero@gmail.com</p>
 
       <p className="mt-2 text-xs text-zinc-300 leading-4">complete the payment via paypal, then click checkout.</p>
+    </div>
+  );
+}
+
+function CheckoutVenmoContent({ total }: { total: number }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => setVisible(true), []);
+
+  return (
+    <div className="flex flex-col items-center justify-center py-2 text-center">
+      <p className="text-sm">
+        please send <span className="font-semibold">{format.currency(total)}</span> to the qr/tag below
+      </p>
+
+      {visible && (
+        <div className="max-w-48 max-h-48 mt-4 mx-auto p-2 bg-white rounded-md">
+          <QRCode
+            className="h-full w-full"
+            value="https://venmo.com/code?user_id=4412814068287472371&created=1765508658.6464648"
+          />
+        </div>
+      )}
+
+      <p className="mt-1 text-xl font-semibold font-mono leading-6">
+        <span className="text-[#00CF31]">@</span>gopfl
+      </p>
+
+      <p className="mt-2 text-xs text-zinc-300 leading-4">complete the payment via venmo, then click checkout.</p>
     </div>
   );
 }
