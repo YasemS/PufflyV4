@@ -1583,16 +1583,11 @@ function CheckoutVenmoContent({ total }: { total: number }) {
 
       {visible && (
         <div className="max-w-48 max-h-48 mt-4 mx-auto p-2 bg-white rounded-md">
-          <QRCode
-            className="h-full w-full"
-            value="https://venmo.com/code?user_id=4412814068287472371&created=1765508658.6464648"
-          />
+          <QRCode className="h-full w-full" value="https://venmo.com/code?user_id=4412814068287472371" />
         </div>
       )}
 
-      <p className="mt-1 text-xl font-semibold font-mono leading-6">
-        <span className="text-[#00CF31]">@</span>gopfl
-      </p>
+      <p className="mt-4 text-xl font-semibold font-mono leading-6">@gopfl</p>
 
       <p className="mt-2 text-xs text-zinc-300 leading-4">complete the payment via venmo, then click checkout.</p>
     </div>
